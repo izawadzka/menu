@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Menu</string>
+    <string name="action_logout">Logout</string>
+    <string name="login_hint">Login</string>
+    <string name="password_hint">Password</string>
+    <string name="login_button_text">LOGIN</string>
+    <string name="username_hint">Username</string>
+    <string name="register_button_text">register</string>
+    <string name="title_activity_main2">Main2Activity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="welcome">Welcome</string>
+    <string name="products_item">Products</string>
+    <string name="meal">Meals</string>
+    <string name="menus">Menus</string>
+    <string name="shopping_lists">Shopping lists</string>
+</resources>
