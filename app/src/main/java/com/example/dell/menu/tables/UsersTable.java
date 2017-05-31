@@ -44,4 +44,8 @@ public class UsersTable {
     public static String getTableName() {
         return tableName;
     }
+
+    public static String getFirstColumnName() {
+        return firstColumnName;
+    }
 }

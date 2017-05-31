@@ -15,4 +15,12 @@
     <string name="meal">Meals</string>
     <string name="menus">Menus</string>
     <string name="shopping_lists">Shopping lists</string>
+    <string name="delete_product_alert">Are you sure you want to delete this product? All meals that contain it will be also deleted</string>
+    <string name="name_hint">Name</string>
+    <string name="number_of_kcal_hint">Number of kcal per 100g</string>
+    <string name="save_button_text">save</string>
+    <string name="cancel_button_text">CANCEL</string>
+    <string name="add">Add</string>
+    <string name="recipe_hint">Recipe</string>
+    <string name="cumulative_number_of_kcal_hint">Cumulative number of kcal</string>
 </resources>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:id="@+id/activity_full_meal_information"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.example.dell.menu.screens.meals.extendedMealInformation.FullMealInformationActivity">
+
+    <TextView
+        android:id="@+id/mealNameTextViewExt"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="wrap_content"
+        tools:text="Spaghetti"
+        android:textSize="30dp"
+        android:paddingTop="15dp"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/kcalTextViewExt"
+        tools:text="0 kcal"
+        android:layout_gravity="center_horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/mealAuthorsTextViewExt"
+        tools:text="Author: ja"
+        android:paddingTop="20dp"
+        android:textSize="15dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:paddingTop="20dp"
+        android:text="Recipe:"
+        android:textSize="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/recipeTextViewExt"
+        android:paddingTop="10dp"
+        tools:text="dasdsasdasdasdasdas asasda sdasd asdas adsd asd asd asdas asd "
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:text="Products:"
+        android:paddingTop="35dp"
+        android:textSize="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/productInMealsRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></android.support.v7.widget.RecyclerView>
+
+</LinearLayout>

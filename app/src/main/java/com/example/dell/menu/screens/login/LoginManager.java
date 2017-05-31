@@ -1,6 +1,8 @@
 package com.example.dell.menu.screens.login;
 
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 
 import com.example.dell.menu.MenuDataBase;
 import com.example.dell.menu.tables.UsersTable;
@@ -10,36 +12,49 @@ import com.example.dell.menu.tables.UsersTable;
  */
 
 public class LoginManager {
-    private final MenuDataBase menuDataBase;
-    private LoginActivity loginActivity;
+    //private final MenuDataBase menuDataBase;
+    protected LoginActivity loginActivity;
 
     public void onAttach(LoginActivity loginActivity){
         this.loginActivity = loginActivity;
     }
 
-    public LoginManager(MenuDataBase menuDataBase){
-        this.menuDataBase = menuDataBase;
-    }
+    //public LoginManager(MenuDataBase menuDataBase){
+        //this.menuDataBase = menuDataBase;
+    //}
 
     public void onStop(){
         loginActivity = null;
     }
 
     public void login(String login, String password){
-        if(checkIfDatasCorrect(login, password)) {
-            if(loginActivity!=null){
-                loginActivity.loginSuccess();
-            }
-        }else{
-            if(loginActivity != null) {
-                loginActivity.loginFailed();
-            }
-        }
+        new CheckIfDatasCorrect().execute(login, password);
     }
 
-    private boolean checkIfDatasCorrect(String login, String password) {
-        String query = String.format("SELECT * FROM %s WHERE %s = '%s' AND %s = '%s';", UsersTable.getTableName(), UsersTable.getSecondColumnName(), login, UsersTable.getThirdColumnName(), password);
-        Cursor cursor = menuDataBase.downloadDatas(query);
-        return cursor.getCount() > 0;
+
+    class CheckIfDatasCorrect extends AsyncTask<String, Integer, Integer>{
+
+        @Override
+        protected Integer doInBackground(String... params) {
+            if(loginActivity != null) {
+                MenuDataBase menuDataBase = MenuDataBase.getInstance(loginActivity);
+                String query = String.format("SELECT * FROM %s WHERE %s = '%s' AND %s = '%s';", UsersTable.getTableName(), UsersTable.getSecondColumnName(), params[0], UsersTable.getThirdColumnName(), params[1]);
+                Cursor cursor = menuDataBase.downloadDatas(query);
+                int count = cursor.getCount();
+                menuDataBase.close();
+                return count;
+            } return 0;
+        }
+
+        @Override
+        protected void onPostExecute(Integer integer) {
+            if(loginActivity != null) {
+                if (integer > 0) {
+                    loginActivity.loginSuccess();
+                }else{
+                    loginActivity.loginFailed();
+                }
+            }
+        }
     }
 }

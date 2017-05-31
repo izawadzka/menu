@@ -47,4 +47,8 @@ public class MealsTable {
     public static String getTableName() {
         return tableName;
     }
+
+    public static String getFirstColumnName() {
+        return firstColumnName;
+    }
 }

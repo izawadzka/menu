@@ -10,6 +10,7 @@ public class Meal {
     private int cumulativeNumberOfKcalPer100g;
     private int authorsId;
     private String recipe;
+    private String authorsName;
 
     public Meal(int mealsId, String name, int cumulativeNumberOfKcalPer100g, int authorsId, String recipe){
         this.mealsId = mealsId;
@@ -37,5 +38,13 @@ public class Meal {
 
     public String getRecipe() {
         return recipe;
+    }
+
+    public String getAuthorsName() {
+        return authorsName;
+    }
+
+    public void setAuthorsName(String authorsName) {
+        this.authorsName = authorsName;
     }
 }

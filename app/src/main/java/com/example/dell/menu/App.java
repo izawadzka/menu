@@ -4,8 +4,10 @@ import android.app.Application;
 import android.preference.PreferenceManager;
 
 import com.example.dell.menu.screens.login.LoginManager;
+import com.example.dell.menu.screens.meals.extendedMealInformation.FullMealInformationActivityManager;
 import com.example.dell.menu.screens.meals.MealsFragmentManager;
 import com.example.dell.menu.screens.products.ProductFragmentManager;
+import com.example.dell.menu.screens.products.addOrEdit.AddOrEditProductManager;
 import com.example.dell.menu.screens.register.RegisterManager;
 import com.squareup.otto.Bus;
 
@@ -14,37 +16,54 @@ import com.squareup.otto.Bus;
  */
 
 public class App extends Application {
-    private MenuDataBase menuDataBase;
+    //private MenuDataBase menuDataBase;
     private LoginManager loginManager;
     private RegisterManager registerManager;
     private ProductFragmentManager productFragmentManager;
     private MealsFragmentManager mealsFragmentManager;
+    private FullMealInformationActivityManager fullMealInformationActivityManager;
     private UserStorage userStorage;
     private Bus bus;
+    private AddOrEditProductManager addOrEditProductManager;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        menuDataBase = new MenuDataBase(this);
-        loginManager = new LoginManager(menuDataBase);
+        //menuDataBase = new MenuDataBase(this);
+        /*loginManager = new LoginManager(menuDataBase);
         registerManager = new RegisterManager(menuDataBase);
         productFragmentManager = new ProductFragmentManager(menuDataBase);
         mealsFragmentManager = new MealsFragmentManager(menuDataBase);
-        userStorage =  new UserStorage(PreferenceManager.getDefaultSharedPreferences(this));
+        fullMealInformationActivityManager = new FullMealInformationActivityManager(menuDataBase);*/
         bus = new Bus();
+        loginManager = new LoginManager();
+        registerManager = new RegisterManager();
+        productFragmentManager = new ProductFragmentManager(bus);
+        mealsFragmentManager = new MealsFragmentManager();
+        fullMealInformationActivityManager = new FullMealInformationActivityManager();
+        addOrEditProductManager = new AddOrEditProductManager();
+        userStorage =  new UserStorage(PreferenceManager.getDefaultSharedPreferences(this));
+    }
+
+    public FullMealInformationActivityManager getFullMealInformationActivityManager() {
+        return fullMealInformationActivityManager;
     }
 
     public MealsFragmentManager getMealsFragmentManager() {
         return mealsFragmentManager;
     }
 
+    public AddOrEditProductManager getAddOrEditProductManager() {
+        return addOrEditProductManager;
+    }
+
     public Bus getBus() {
         return bus;
     }
 
-    public MenuDataBase getMenuDataBase() {
-        return menuDataBase;
-    }
+    //public MenuDataBase getMenuDataBase() {
+     //   return menuDataBase;
+    //}
 
     public UserStorage getUserStorage() {
         return userStorage;

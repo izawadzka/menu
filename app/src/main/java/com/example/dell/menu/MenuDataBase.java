@@ -3,54 +3,56 @@ package com.example.dell.menu;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
-
-import com.example.dell.menu.tables.MealsTable;
-import com.example.dell.menu.tables.ProductsTable;
-import com.example.dell.menu.tables.UsersTable;
 
 /**
  * Created by Dell on 24.05.2017.
  */
 
-public class MenuDataBase extends SQLiteOpenHelper{
+public class MenuDataBase{
     private static final String DEBUG_TAG = "SqLiteTodoManager";
-    private static final int DB_VERSION = 1;
-    private static final String DB_NAME = "menu.db";
-    private final SQLiteDatabase db;
+    private SQLiteOpenHelper openHelper;
+    private SQLiteDatabase database;
+    private static MenuDataBase instance;
 
 
-    public MenuDataBase(Context context) {
-        super(context, DB_NAME, null, DB_VERSION);
-        db = this.getWritableDatabase();
+    private MenuDataBase(Context context) {
+        this.openHelper = new DatabaseOpenHelper(context);
+    }
+
+    public static MenuDataBase getInstance(Context context) {
+        if (instance == null) {
+            instance = new MenuDataBase(context);
+        }
+        return instance;
     }
 
 
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-        db.execSQL(UsersTable.create());
-        db.execSQL(ProductsTable.create());
-        db.execSQL(MealsTable.create());
+    public void open() {
+        this.database = openHelper.getWritableDatabase();
     }
 
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
+    public void close() {
+        if (database != null) {
+            this.database.close();
+        }
     }
 
     public long insert(String tableName, ContentValues contentValues){
-        //SQLiteDatabase db = this.getWritableDatabase();
-        long callback = db.insert(tableName, null, contentValues);
-        //db.close();
+        open();
+        long callback = database.insert(tableName, null, contentValues);
+        close();
         return callback;
     }
 
     public Cursor downloadDatas(String query) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        open();
+        return database.rawQuery(query, null);
+    }
 
-        return db.rawQuery(query, null);
+    public int delete(String tableName, String whereClause, String[] whereArgs){
+        open();
+        return database.delete(tableName, whereClause, whereArgs);
     }
 }

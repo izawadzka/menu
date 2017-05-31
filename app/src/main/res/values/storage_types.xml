@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="storageTypes">
+        <item>weight</item>
+        <item>item</item>
+        <item>volume</item>
+    </string-array>
+</resources>

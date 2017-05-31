@@ -10,6 +10,7 @@ public class Product {
     private int numberOfKcalPer100g;
     private String type;
     private String storageType;
+    private int quantity;
 
     public Product(int productId, String name, int numberOfKcalPer100g, String type, String storageType){
         this.productId = productId;
@@ -17,6 +18,20 @@ public class Product {
         this.numberOfKcalPer100g = numberOfKcalPer100g;
         this.type = type;
         this.storageType =storageType;
+    }
+
+    public int getProductId() {
+        return productId;
+    }
+
+    public Product(String name, int quantity, String storageType){  //constructor for products that are to be showed in meals full activity
+        this.name = name;
+        this.quantity = quantity;
+        this.storageType = storageType;
+    }
+
+    public int getQuantity() {
+        return quantity;
     }
 
     public String getName() {

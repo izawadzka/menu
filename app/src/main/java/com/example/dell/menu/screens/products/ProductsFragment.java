@@ -1,17 +1,23 @@
 package com.example.dell.menu.screens.products;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.dell.menu.App;
 import com.example.dell.menu.R;
 import com.example.dell.menu.objects.Product;
+import com.example.dell.menu.screens.products.addOrEdit.AddOrEditProductActivity;
 
 import java.util.List;
 
@@ -23,6 +29,10 @@ import butterknife.ButterKnife;
  */
 
 public class ProductsFragment extends Fragment {
+    public static final int REQUEST_CODE_ADD = 1;
+    public static final int RESULT_OK = 0;
+    public static final int RESULT_ERROR = -1;
+    public static final int RESULT_CANCEL = 1;
     @Bind(R.id.productRecyclerView)
     RecyclerView productRecyclerView;
 
@@ -48,7 +58,8 @@ public class ProductsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         productRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new ProductsAdapter();
+
+        adapter = new ProductsAdapter(((App)getActivity().getApplication()).getBus());
         productRecyclerView.setAdapter(adapter);
     }
 
@@ -56,6 +67,39 @@ public class ProductsFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         productFragmentManager = ((App)getActivity().getApplication()).getProductFragmentManager();
+        setHasOptionsMenu(true);
+
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.products, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if(item.getItemId() == R.id.action_add){
+            addNewProduct();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void addNewProduct() {
+        startActivityForResult(new Intent(getActivity(), AddOrEditProductActivity.class), REQUEST_CODE_ADD);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == REQUEST_CODE_ADD && resultCode == RESULT_OK){
+            Toast.makeText(getActivity(), "New product added", Toast.LENGTH_SHORT).show();
+        }else if(requestCode == REQUEST_CODE_ADD && resultCode == RESULT_ERROR){
+            Toast.makeText(getActivity(), "Failed to add a new product", Toast.LENGTH_LONG).show();
+        }else if(requestCode == REQUEST_CODE_ADD && resultCode == RESULT_CANCEL){
+            Toast.makeText(getActivity(), "Cancel adding product", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Nullable
@@ -76,6 +120,9 @@ public class ProductsFragment extends Fragment {
 
         adapter.setProducts(result);
         adapter.notifyDataSetChanged();
+    }
 
+    public void deleteSuccess() {
+        getFragmentManager().beginTransaction().detach(this).attach(this).commit();
     }
 }

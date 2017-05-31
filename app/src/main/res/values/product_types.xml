@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+   <string-array name="productTypes">
+       <item>dairy products</item>
+       <item>fruits</item>
+       <item>liquid</item>
+       <item>meat</item>
+       <item>fat</item>
+       <item>dry goods</item>
+       <item>spice</item>
+       <item>vegetables</item>
+       <item>fish</item>
+   </string-array>
+</resources>

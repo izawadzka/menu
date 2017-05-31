@@ -20,9 +20,10 @@ import butterknife.ButterKnife;
  * Created by Dell on 27.05.2017.
  */
 
-public class MealsAdapter extends RecyclerView.Adapter<MealsViewHolder> {
+public class MealsAdapter extends RecyclerView.Adapter<MealsAdapter.MealsViewHolder> {
     List<Meal> meals = new ArrayList<>();
 
+    public MealClickedListener mealClickedListener;
 
     @Override
     public MealsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -41,31 +42,52 @@ public class MealsAdapter extends RecyclerView.Adapter<MealsViewHolder> {
         notifyDataSetChanged();
     }
 
+    public void setMealClickedListener(MealClickedListener mealClickedListener) {
+        this.mealClickedListener = mealClickedListener;
+    }
+
     @Override
     public int getItemCount() {
         return meals.size();
     }
 
-}
-
-class MealsViewHolder extends RecyclerView.ViewHolder {
-    @Bind(R.id.mealNameTextView)
-    TextView mealNameTextView;
-    @Bind(R.id.caloriesTextView)
-    TextView caloriesTextView;
-    @Bind(R.id.editProductImageButton)
-    ImageButton editProductImageButton;
-    @Bind(R.id.deleteProductImageButton)
-    ImageButton deleteProductImageButton;
-
-
-    public MealsViewHolder(View itemView) {
-        super(itemView);
-        ButterKnife.bind(this, itemView);
+    private void itemClicked(Meal meal) {
+        if(mealClickedListener != null){
+            mealClickedListener.mealClicked(meal);
+        }
     }
 
-    public void setMeal(Meal meal) {
-        mealNameTextView.setText(meal.getName());
-        caloriesTextView.setText(String.format("%s kcal/100g", meal.getCumulativeNumberOfKcalPer100g()));
+    class MealsViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        @Bind(R.id.mealNameTextView)
+        TextView mealNameTextView;
+        @Bind(R.id.caloriesTextView)
+        TextView caloriesTextView;
+        @Bind(R.id.editProductImageButton)
+        ImageButton editProductImageButton;
+        @Bind(R.id.deleteProductImageButton)
+        ImageButton deleteProductImageButton;
+        private Meal meal;
+
+
+        public MealsViewHolder(View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+            itemView.setOnClickListener(this);
+        }
+
+        public void setMeal(Meal meal) {
+            this.meal = meal;
+            mealNameTextView.setText(meal.getName());
+            caloriesTextView.setText(String.format("%s kcal", meal.getCumulativeNumberOfKcalPer100g()));
+        }
+
+        @Override
+        public void onClick(View v) {
+            itemClicked(meal);
+        }
+    }
+
+    public interface MealClickedListener{
+        void mealClicked(Meal meal);
     }
 }
