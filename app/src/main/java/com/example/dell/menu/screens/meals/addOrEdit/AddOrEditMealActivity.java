@@ -1,5 +1,7 @@
 package com.example.dell.menu.screens.meals.addOrEdit;
 
+import android.app.Application;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -9,9 +11,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.dell.menu.App;
 import com.example.dell.menu.R;
+import com.example.dell.menu.events.meals.QuantityWasntTypedEvent;
+import com.example.dell.menu.objects.Meal;
+import com.example.dell.menu.objects.Product;
 import com.example.dell.menu.screens.meals.MealsFragment;
+import com.squareup.otto.Subscribe;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -19,6 +27,8 @@ import butterknife.OnClick;
 
 public class AddOrEditMealActivity extends AppCompatActivity {
 
+    public static final int REQUEST_CODE_ADD_PRODUCTS = 1;
+    private static final int RESULT_ADDED = 0;
     @Bind(R.id.addedMealNameEditText)
     EditText addedMealNameEditText;
     @Bind(R.id.cumulativeNumberOfKcalEditText)
@@ -35,7 +45,9 @@ public class AddOrEditMealActivity extends AppCompatActivity {
     ImageButton addProductsButton;
     @Bind(R.id.addedProductsRecyclerView)
     RecyclerView addedProductsRecyclerView;
+
     private AddedProductsAdapter adapter;
+    private AddOrEditMealManager addOrEditMealManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,24 +56,95 @@ public class AddOrEditMealActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         addedProductsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new AddedProductsAdapter();
+        adapter = new AddedProductsAdapter(((App)getApplication()).getBus());
         addedProductsRecyclerView.setAdapter(adapter);
+
+        addOrEditMealManager = ((App)getApplication()).getAddOrEditMealManager();
     }
 
 
-    @OnClick({R.id.saveMealButton, R.id.cancel_action})
+    @Override
+    protected void onStart() {
+        super.onStart();
+        addOrEditMealManager.onAttach(this);
+        adapter.setProducts(addOrEditMealManager.getListOfProducts());
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        addOrEditMealManager.onStop();
+    }
+
+    @OnClick({R.id.saveMealButton, R.id.cancel_action, R.id.addProductsButton})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.saveMealButton:
+                saveMeal();
                 break;
             case R.id.cancel_action:
                 cancel();
                 break;
+            case R.id.addProductsButton:
+                // TODO: 03.06.2017 saving typed datas before going to next activity (like name or recipe)
+                addProducts();
+                break;
         }
     }
 
+    private void saveMeal() {
+        boolean hasErrors = false;
+
+        if(addedMealNameEditText.length() < 5){
+            Toast.makeText(this, "Meal name has to have at least 5 characters", Toast.LENGTH_SHORT).show();
+            hasErrors = true;
+        }
+
+        if(addOrEditMealManager.getListOfProducts().size() == 0){
+            Toast.makeText(this, "You haven't choosen any products!", Toast.LENGTH_LONG).show();
+            hasErrors = true;
+        }
+        if(!hasErrors) {
+            addOrEditMealManager.addMeal(addedMealNameEditText.getText().toString(),
+                    cumulativeNumberOfKcalEditText.getText().toString(),
+                    ((App) getApplication()).getUserStorage().getUserId(), addedMealRecipeEditText.getText().toString());
+        }
+    }
+
+    private void addProducts() {
+        startActivityForResult(new Intent(this, ChooseFromProductsActivity.class), REQUEST_CODE_ADD_PRODUCTS);
+    }
+
     private void cancel() {
+        addOrEditMealManager.clearListOfProducts();
         setResult(MealsFragment.RESULT_CANCEL);
         finish();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == REQUEST_CODE_ADD_PRODUCTS && resultCode == RESULT_ADDED){
+        }
+    }
+
+
+    public void saveSuccess() {
+        addOrEditMealManager.clearListOfProducts();
+        setResult(MealsFragment.RESULT_OK);
+        finish();
+    }
+
+    public void saveFailed() {
+        addOrEditMealManager.clearListOfProducts();
+        setResult(MealsFragment.RESULT_ERROR);
+        finish();
+    }
+
+    public void productDeleteSuccess(Product productToDelete) {
+        adapter.deleteFromAddedProducts(productToDelete);
+    }
+
+    public void productDeleteFailed(String name) {
+        Toast.makeText(this, String.format("Error while trying to delete %s", name), Toast.LENGTH_SHORT);
     }
 }

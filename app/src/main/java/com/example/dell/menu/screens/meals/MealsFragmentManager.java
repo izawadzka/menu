@@ -5,9 +5,13 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.example.dell.menu.MenuDataBase;
+import com.example.dell.menu.events.meals.DeleteMealEvent;
 import com.example.dell.menu.objects.Meal;
+import com.example.dell.menu.tables.MealsProductsTable;
 import com.example.dell.menu.tables.MealsTable;
 import com.example.dell.menu.tables.UsersTable;
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +23,14 @@ import java.util.List;
 public class MealsFragmentManager {
 
     protected MealsFragment mealsFragment;
+    private Bus bus;
+    private Long currentMealId;
+    protected Meal currentMeal;
+
+    public MealsFragmentManager(Bus bus){
+        this.bus = bus;
+        bus.register(this);
+    }
 
     public void onAttach(MealsFragment mealsFragment){
         this.mealsFragment = mealsFragment;
@@ -32,6 +44,21 @@ public class MealsFragmentManager {
     public void loadMeals() {
         if(mealsFragment != null) {
             new DownloadMeals().execute();
+        }
+    }
+
+    private void deleteConnectionWithProducts() {
+        if(mealsFragment != null){
+            new DeleteAllConnectionsWithProducts().execute(currentMealId);
+        }
+    }
+
+    @Subscribe
+    public void onDeleteMeal(DeleteMealEvent event){
+        currentMealId = event.meal.getMealsId();
+        currentMeal = event.meal;
+        if(mealsFragment != null) {
+            new DeleteMeal().execute(event.meal.getMealsId());
         }
     }
 
@@ -50,6 +77,36 @@ public class MealsFragmentManager {
         return "";
     }
 
+    class DeleteMeal extends AsyncTask<Long, Integer, Integer>{
+
+        @Override
+        protected Integer doInBackground(Long... params) {
+            String[] mealId = {String.valueOf(params[0])};
+            MenuDataBase menuDataBase = MenuDataBase.getInstance(mealsFragment.getActivity());
+            return menuDataBase.delete(MealsTable.getTableName(), String.format("%s = ?", MealsTable.getFirstColumnName()), mealId);
+        }
+
+        @Override
+        protected void onPostExecute(Integer result) {
+            if(result > 0){
+                mealsFragment.deleteSuccess(currentMeal);
+                deleteConnectionWithProducts();
+            }else{
+                mealsFragment.deleteFailed();
+            }
+        }
+    }
+
+    class DeleteAllConnectionsWithProducts extends AsyncTask<Long, Integer, Integer>{
+
+        @Override
+        protected Integer doInBackground(Long... params) {
+            String[] mealId = {String.valueOf(params[0])};
+            MenuDataBase menuDataBase = MenuDataBase.getInstance(mealsFragment.getActivity());
+            return menuDataBase.delete(MealsProductsTable.getTableName(), String.format("%s = ?", MealsProductsTable.getSecondColumnName()), mealId);
+        }
+    }
+
     class DownloadMeals extends AsyncTask<Void, Integer, List<Meal>>{
 
         @Override
@@ -61,15 +118,16 @@ public class MealsFragmentManager {
             Cursor cursor = menuDataBase.downloadDatas(query);
 
             if (cursor.getCount() > 0) {
-                int mealsId, cumulativeNumberOfKcalPer100g, authorsId;
+                Long mealsId, authorsId;
+                int cumulativeNumberOfKcalPer100g;
                 String name, recipe;
                 cursor.moveToPosition(-1);
 
                 while (cursor.moveToNext()) {
-                    mealsId = cursor.getInt(0);
+                    mealsId = cursor.getLong(0);
                     name = cursor.getString(1);
                     cumulativeNumberOfKcalPer100g = cursor.getInt(2);
-                    authorsId = cursor.getInt(3);
+                    authorsId = cursor.getLong(3);
                     recipe = cursor.getString(4);
                     results.add(new Meal(mealsId, name, cumulativeNumberOfKcalPer100g, authorsId, recipe));
                 }

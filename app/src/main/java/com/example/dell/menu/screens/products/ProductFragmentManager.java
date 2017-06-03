@@ -2,6 +2,7 @@ package com.example.dell.menu.screens.products;
 
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.example.dell.menu.MenuDataBase;
 import com.example.dell.menu.events.products.DeleteProductAnywayEvent;
@@ -119,16 +120,14 @@ public class ProductFragmentManager {
                     MealsProductsTable.getFirstColumnName(), idOfProductToDelete);
             Cursor cursor = menuDataBase.downloadDatas(query);
 
-            int indx = 0;
             if(cursor.getCount()>0){
-                String [] mealsId = new String[cursor.getCount()];
                 cursor.moveToPosition(-1);
                 while (cursor.moveToNext()){
-                    mealsId[indx] = String.valueOf(cursor.getInt(0));
-                    indx++;
+                    String[] mealsId = {String.valueOf(cursor.getInt(0))};
+                    menuDataBase.delete(MealsProductsTable.getTableName(), String.format("%s = ?", MealsProductsTable.getSecondColumnName()), mealsId);
+                    menuDataBase.delete(MealsTable.getTableName(), String.format("%s = ?", MealsTable.getFirstColumnName()),  mealsId);
                 }
-                menuDataBase.delete(MealsProductsTable.getTableName(), String.format("%s = ?", MealsProductsTable.getSecondColumnName()), mealsId);
-                menuDataBase.delete(MealsTable.getTableName(), String.format("%s = ?", MealsTable.getFirstColumnName()),  mealsId);
+
                 menuDataBase.close();
             }
             return true;

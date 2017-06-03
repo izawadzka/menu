@@ -7,13 +7,13 @@ package com.example.dell.menu.objects;
 public class User {
     private String login;
     private String password;
-    private int userId;
+    private Long userId;
 
     public User(String login, String password){
         this.login = login;
         this.password = password;
 
-        userId = -1;
+        userId = Long.valueOf(-1);
     }
 
     public String getLogin() {
@@ -24,11 +24,11 @@ public class User {
         return password;
     }
 
-    public int getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(int usersId) {
+    public void setUserId(Long usersId) {
         this.userId = usersId;
     }
 }

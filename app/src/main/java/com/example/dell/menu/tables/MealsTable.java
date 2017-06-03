@@ -12,7 +12,7 @@ public class MealsTable {
     private final static String tableName = "Meals";
     private final static String firstColumnName = "mealsId";
     private final static String secondColumnName = "name";
-    private final static String thirdColumnName = "cumulativeNumberOfKcalPer100g";
+    private final static String thirdColumnName = "cumulativeNumberOfKcal";
     private final static String fourthColumnName = "authorsId";
     private final static String fifthColumnName = "recipe";
 
@@ -30,7 +30,7 @@ public class MealsTable {
     public static ContentValues getContentValues(Meal meal){
         ContentValues contentValues = new ContentValues();
         contentValues.put(secondColumnName, meal.getName());
-        contentValues.put(thirdColumnName, meal.getCumulativeNumberOfKcalPer100g());
+        contentValues.put(thirdColumnName, meal.getCumulativeNumberOfKcal());
         contentValues.put(fourthColumnName, meal.getAuthorsId());
         contentValues.put(fifthColumnName, meal.getRecipe());
         return contentValues;

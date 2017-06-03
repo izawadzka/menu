@@ -10,7 +10,7 @@ public class Product {
     private int numberOfKcalPer100g;
     private String type;
     private String storageType;
-    private int quantity;
+    private double quantity;
 
     public Product(int productId, String name, int numberOfKcalPer100g, String type, String storageType){
         this.productId = productId;
@@ -18,6 +18,10 @@ public class Product {
         this.numberOfKcalPer100g = numberOfKcalPer100g;
         this.type = type;
         this.storageType =storageType;
+    }
+
+    public void setQuantity(double quantity) {
+        this.quantity = quantity;
     }
 
     public int getProductId() {
@@ -30,7 +34,7 @@ public class Product {
         this.storageType = storageType;
     }
 
-    public int getQuantity() {
+    public double getQuantity() {
         return quantity;
     }
 

@@ -1,5 +1,6 @@
 package com.example.dell.menu.screens.register;
 
+import com.example.dell.menu.App;
 import com.example.dell.menu.MenuDataBase;
 import com.example.dell.menu.objects.User;
 import com.example.dell.menu.tables.UsersTable;
@@ -28,9 +29,11 @@ public class RegisterManager {
         if(registerActivity != null) {
             MenuDataBase menuDataBase = MenuDataBase.getInstance(registerActivity);
 
-            if (menuDataBase.insert(UsersTable.getTableName(), UsersTable.getContentValues(new User(login, password))) != -1) {
+            Long id = menuDataBase.insert(UsersTable.getTableName(), UsersTable.getContentValues(new User(login, password)));
+            if ( id != -1) {
                 //if(menuDataBase.createUser(new User(login, password)) != -1){
                 if (registerActivity != null) {
+                    ((App)registerActivity.getApplication()).getUserStorage().setUserId(id);
                     registerActivity.registerSuccess();
                 }
             } else {

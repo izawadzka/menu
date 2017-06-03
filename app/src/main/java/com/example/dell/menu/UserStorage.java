@@ -14,7 +14,7 @@ public class UserStorage {
     private final SharedPreferences preferences;
     private String login;
     private String password;
-    private int userId;
+    private Long userId;
     public UserStorage(SharedPreferences sharedPreferences){
         preferences = sharedPreferences;
     }
@@ -28,7 +28,7 @@ public class UserStorage {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString(LOGIN_KEY, login);
         editor.putString(PASSWORD_KEY, password);
-        editor.putInt("userId", userId);
+        editor.putLong("userId", userId);
         editor.apply();
     }
 
@@ -44,5 +44,13 @@ public class UserStorage {
 
     public String getLogin() {
         return login;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }

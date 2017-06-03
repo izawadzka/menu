@@ -10,5 +10,6 @@
        <item>spice</item>
        <item>vegetables</item>
        <item>fish</item>
+       <item>baked_goods</item>
    </string-array>
 </resources>

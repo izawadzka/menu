@@ -5,22 +5,29 @@ package com.example.dell.menu.objects;
  */
 
 public class Meal {
-    private int mealsId;
+    private Long mealsId;
     private String name;
-    private int cumulativeNumberOfKcalPer100g;
-    private int authorsId;
+    private int cumulativeNumberOfKcal;
+    private Long authorsId;
     private String recipe;
     private String authorsName;
 
-    public Meal(int mealsId, String name, int cumulativeNumberOfKcalPer100g, int authorsId, String recipe){
+    public Meal(Long mealsId, String name, int cumulativeNumberOfKcal, Long authorsId, String recipe){
         this.mealsId = mealsId;
         this.name = name;
-        this.cumulativeNumberOfKcalPer100g = cumulativeNumberOfKcalPer100g;
+        this.cumulativeNumberOfKcal = cumulativeNumberOfKcal;
         this.authorsId = authorsId;
         this.recipe = recipe;
     }
 
-    public int getMealsId() {
+    public Meal(String name, int cumulativeNumberOfKcal, Long authorsId, String recipe){
+        this.name = name;
+        this.cumulativeNumberOfKcal = cumulativeNumberOfKcal;
+        this.authorsId = authorsId;
+        this.recipe = recipe;
+    }
+
+    public Long getMealsId() {
         return mealsId;
     }
 
@@ -28,11 +35,11 @@ public class Meal {
         return name;
     }
 
-    public int getCumulativeNumberOfKcalPer100g() {
-        return cumulativeNumberOfKcalPer100g;
+    public int getCumulativeNumberOfKcal() {
+        return cumulativeNumberOfKcal;
     }
 
-    public int getAuthorsId() {
+    public Long getAuthorsId() {
         return authorsId;
     }
 

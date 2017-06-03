@@ -66,7 +66,7 @@ public class MealsFragment extends Fragment implements MealsAdapter.MealClickedL
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mealsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new MealsAdapter();
+        adapter = new MealsAdapter(((App)getActivity().getApplication()).getBus());
         adapter.setMealClickedListener(this);
         mealsRecyclerView.setAdapter(adapter);
     }
@@ -130,12 +130,11 @@ public class MealsFragment extends Fragment implements MealsAdapter.MealClickedL
         Log.d("MealsFragment", authorsName);
         Intent intent = new Intent(getActivity(), FullMealInformationActivity.class);
         intent.putExtra(MEAL_NAME_KEY, meal.getName());
-        intent.putExtra(MEAL_NUMBER_OF_KCAL_KEY, String.format("%s",meal.getCumulativeNumberOfKcalPer100g()));
+        intent.putExtra(MEAL_NUMBER_OF_KCAL_KEY, String.format("%s",meal.getCumulativeNumberOfKcal()));
         intent.putExtra(MEALS_AUTHOR_NAME_KEY, authorsName);
         intent.putExtra(MEALS_RECIPE_KEY, meal.getRecipe());
         intent.putExtra(MEALS_ID_KEY, String.format("%s",meal.getMealsId()));
         startActivityForResult(intent, REQUEST_CODE_SHOW);
-        //startActivity(intent);
     }
 
     @Override
@@ -151,5 +150,13 @@ public class MealsFragment extends Fragment implements MealsAdapter.MealClickedL
         }else if(requestCode == REQUEST_CODE_ADD && requestCode == RESULT_ERROR){
             Toast.makeText(getActivity(), "Failed to add a new meal", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public void deleteSuccess(Meal currentMeal) {
+        adapter.deleteMeal(currentMeal);
+    }
+
+    public void deleteFailed() {
+        Toast.makeText(getActivity(), "Fail while trying to delete a meal", Toast.LENGTH_SHORT).show();
     }
 }

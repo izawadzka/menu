@@ -20,6 +20,7 @@ public class ProductsType {
     public final static String SPICE = "spice";
     public final static String DAIRY_PRODUCTS = "dairy_products";
     public final static String FISH = "fish";
+    public final static String BAKED_GOODS = "baked_goods";
 
 
     public static List<String> getTypes(){
@@ -34,6 +35,7 @@ public class ProductsType {
         types.add(DRY_GOODS);
         types.add(DAIRY_PRODUCTS);
         types.add(FISH);
+        types.add(BAKED_GOODS);
         return types;
     }
 }

@@ -19,11 +19,11 @@ public class MealsProductsTable {
         String createCommand = String.format("create table %s(", tableName)
                 + String.format("%s INTEGER, ", firstColumnName)
                 + String.format("%s INTEGER, ", secondColumnName)
-                + String.format("%s INTEGER);", thirdColumnName);
+                + String.format("%s DOUBLE);", thirdColumnName);
         return createCommand;
     }
 
-    public static ContentValues getContentValues(int productId, int mealId, int quantity){
+    public static ContentValues getContentValues(int productId, Long mealId, double quantity){
         ContentValues contentValues = new ContentValues();
         contentValues.put(firstColumnName, productId);
         contentValues.put(secondColumnName, mealId);

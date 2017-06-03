@@ -4,6 +4,8 @@ import android.app.Application;
 import android.preference.PreferenceManager;
 
 import com.example.dell.menu.screens.login.LoginManager;
+import com.example.dell.menu.screens.meals.addOrEdit.AddOrEditMealManager;
+import com.example.dell.menu.screens.meals.addOrEdit.ChooseFromProductsManager;
 import com.example.dell.menu.screens.meals.extendedMealInformation.FullMealInformationActivityManager;
 import com.example.dell.menu.screens.meals.MealsFragmentManager;
 import com.example.dell.menu.screens.products.ProductFragmentManager;
@@ -25,6 +27,8 @@ public class App extends Application {
     private UserStorage userStorage;
     private Bus bus;
     private AddOrEditProductManager addOrEditProductManager;
+    private ChooseFromProductsManager chooseFromProductsManager;
+    private AddOrEditMealManager addOrEditMealManager;
 
     @Override
     public void onCreate() {
@@ -39,10 +43,20 @@ public class App extends Application {
         loginManager = new LoginManager();
         registerManager = new RegisterManager();
         productFragmentManager = new ProductFragmentManager(bus);
-        mealsFragmentManager = new MealsFragmentManager();
+        mealsFragmentManager = new MealsFragmentManager(bus);
         fullMealInformationActivityManager = new FullMealInformationActivityManager();
         addOrEditProductManager = new AddOrEditProductManager();
+        chooseFromProductsManager = new ChooseFromProductsManager();
+        addOrEditMealManager = new AddOrEditMealManager(bus);
         userStorage =  new UserStorage(PreferenceManager.getDefaultSharedPreferences(this));
+    }
+
+    public AddOrEditMealManager getAddOrEditMealManager() {
+        return addOrEditMealManager;
+    }
+
+    public ChooseFromProductsManager getChooseFromProductsManager() {
+        return chooseFromProductsManager;
     }
 
     public FullMealInformationActivityManager getFullMealInformationActivityManager() {

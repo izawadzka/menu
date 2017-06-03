@@ -51,6 +51,7 @@
             android:layout_height="wrap_content" />
 
         <android.support.v7.widget.RecyclerView
+            android:paddingTop="20dp"
             android:id="@+id/addedProductsRecyclerView"
             android:layout_below="@id/addProductsTextView"
             android:layout_width="match_parent"

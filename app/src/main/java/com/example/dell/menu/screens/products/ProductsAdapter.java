@@ -61,7 +61,7 @@ class ProductViewHolder extends RecyclerView.ViewHolder {
     TextView productNameTextView;
     @Bind(R.id.caloriesTextView)
     TextView caloriesTextView;
-    @Bind(R.id.editProductImageButton)
+    @Bind(R.id.editMealImageButton)
     ImageButton editProductImageButton;
     @Bind(R.id.deleteProductImageButton)
     ImageButton deleteProductImageButton;

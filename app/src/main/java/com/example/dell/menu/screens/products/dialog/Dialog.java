@@ -9,7 +9,6 @@ import android.support.v7.app.AlertDialog;
 import com.example.dell.menu.App;
 import com.example.dell.menu.R;
 import com.example.dell.menu.events.products.DeleteProductAnywayEvent;
-import com.squareup.otto.Bus;
 
 /**
  * Created by Dell on 28.05.2017.

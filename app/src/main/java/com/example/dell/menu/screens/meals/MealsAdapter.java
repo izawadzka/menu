@@ -8,31 +8,40 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.example.dell.menu.R;
+import com.example.dell.menu.events.meals.DeleteMealEvent;
 import com.example.dell.menu.objects.Meal;
+import com.squareup.otto.Bus;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by Dell on 27.05.2017.
  */
 
 public class MealsAdapter extends RecyclerView.Adapter<MealsAdapter.MealsViewHolder> {
+    private final Bus bus;
     List<Meal> meals = new ArrayList<>();
-
     public MealClickedListener mealClickedListener;
+    private MealsViewHolder holder;
+
+    public MealsAdapter(Bus bus){
+        this.bus = bus;
+    }
 
     @Override
     public MealsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        return new MealsViewHolder(inflater.inflate(R.layout.item_meal, parent, false));
+        return new MealsViewHolder(inflater.inflate(R.layout.item_meal, parent, false), bus);
     }
 
     @Override
     public void onBindViewHolder(MealsViewHolder holder, int position) {
+        this.holder = holder;
         holder.setMeal(meals.get(position));
     }
 
@@ -44,6 +53,10 @@ public class MealsAdapter extends RecyclerView.Adapter<MealsAdapter.MealsViewHol
 
     public void setMealClickedListener(MealClickedListener mealClickedListener) {
         this.mealClickedListener = mealClickedListener;
+    }
+
+    public void deleteMeal(Meal meal){
+        holder.deleteMeal(meal);
     }
 
     @Override
@@ -58,27 +71,39 @@ public class MealsAdapter extends RecyclerView.Adapter<MealsAdapter.MealsViewHol
     }
 
     class MealsViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        private final Bus bus;
         @Bind(R.id.mealNameTextView)
         TextView mealNameTextView;
         @Bind(R.id.caloriesTextView)
         TextView caloriesTextView;
-        @Bind(R.id.editProductImageButton)
-        ImageButton editProductImageButton;
-        @Bind(R.id.deleteProductImageButton)
-        ImageButton deleteProductImageButton;
+        @Bind(R.id.editMealImageButton)
+        ImageButton editMealImageButton;
+        @Bind(R.id.deleteMealImageButton)
+        ImageButton deleteMealImageButton;
         private Meal meal;
 
 
-        public MealsViewHolder(View itemView) {
+        public MealsViewHolder(View itemView, Bus bus) {
             super(itemView);
+            this.bus = bus;
             ButterKnife.bind(this, itemView);
             itemView.setOnClickListener(this);
+        }
+
+        public void deleteMeal(Meal meal){
+            meals.remove(meal);
+            notifyDataSetChanged();
         }
 
         public void setMeal(Meal meal) {
             this.meal = meal;
             mealNameTextView.setText(meal.getName());
-            caloriesTextView.setText(String.format("%s kcal", meal.getCumulativeNumberOfKcalPer100g()));
+            caloriesTextView.setText(String.format("%s kcal", meal.getCumulativeNumberOfKcal()));
+        }
+
+        @OnClick(R.id.deleteMealImageButton)
+        public void onDeleteMealImageButtonClicked(){
+            bus.post(new DeleteMealEvent(meal));
         }
 
         @Override

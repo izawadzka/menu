@@ -24,7 +24,7 @@
         android:layout_height="wrap_content" />
 
     <ImageButton
-        android:id="@+id/editProductImageButton"
+        android:id="@+id/editMealImageButton"
         android:layout_marginTop="8dp"
         android:layout_toLeftOf="@+id/deleteProductImageButton"
         android:src="@drawable/ic_edit"
