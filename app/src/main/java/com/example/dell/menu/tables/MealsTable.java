@@ -44,6 +44,10 @@ public class MealsTable {
         return thirdColumnName;
     }
 
+    public static String getFifthColumnName() {
+        return fifthColumnName;
+    }
+
     public static String getTableName() {
         return tableName;
     }

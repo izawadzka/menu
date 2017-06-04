@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.example.dell.menu.R;
 import com.example.dell.menu.events.meals.DeleteMealEvent;
+import com.example.dell.menu.events.meals.EditMealEvent;
 import com.example.dell.menu.objects.Meal;
 import com.squareup.otto.Bus;
 
@@ -104,6 +105,11 @@ public class MealsAdapter extends RecyclerView.Adapter<MealsAdapter.MealsViewHol
         @OnClick(R.id.deleteMealImageButton)
         public void onDeleteMealImageButtonClicked(){
             bus.post(new DeleteMealEvent(meal));
+        }
+
+        @OnClick(R.id.editMealImageButton)
+        public void onEditMealImageButtonclicked(){
+            bus.post(new EditMealEvent(meal));
         }
 
         @Override

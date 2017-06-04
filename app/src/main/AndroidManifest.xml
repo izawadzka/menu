@@ -24,10 +24,17 @@
         <activity android:name=".screens.meals.extendedMealInformation.FullMealInformationActivity" />
         <activity android:name=".screens.products.addOrEdit.AddOrEditProductActivity" />
         <activity android:name=".screens.meals.addOrEdit.AddOrEditMealActivity" />
-        <activity android:name=".screens.meals.addOrEdit.ChooseFromProductsActivity" android:parentActivityName=".screens.meals.addOrEdit.AddOrEditMealActivity">
-            <meta-data android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.dell.menu.screens.meals.addOrEdit.AddOrEditMealActivity"/>
+        <activity
+            android:name=".screens.meals.addOrEdit.ChooseFromProductsActivity"
+            android:parentActivityName=".screens.meals.addOrEdit.AddOrEditMealActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.dell.menu.screens.meals.addOrEdit.AddOrEditMealActivity" />
         </activity>
+        <activity
+            android:name=".screens.menus.addOrEdit.AddOrEditMenuActivity"
+            android:label="@string/title_activity_add_or_edit_menu"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

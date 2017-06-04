@@ -17,9 +17,12 @@ import android.widget.Toast;
 
 import com.example.dell.menu.App;
 import com.example.dell.menu.R;
+import com.example.dell.menu.events.meals.EditMealEvent;
 import com.example.dell.menu.objects.Meal;
 import com.example.dell.menu.screens.meals.addOrEdit.AddOrEditMealActivity;
 import com.example.dell.menu.screens.meals.extendedMealInformation.FullMealInformationActivity;
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 
 import java.util.List;
@@ -43,15 +46,19 @@ public class MealsFragment extends Fragment implements MealsAdapter.MealClickedL
     public static final String MEALS_AUTHOR_NAME_KEY = "mealsAuthorName";
     public static final String MEALS_RECIPE_KEY = "mealsRecipe";
     public static final String MEALS_ID_KEY = "mealsId";
+    public static final int REQUEST_CODE_EDIT = 15;
+    public static final String EDIT_MODE_KEY = "edit mode";
 
     @Bind(R.id.mealsRecyclerView)
     RecyclerView mealsRecyclerView;
     private MealsFragmentManager mealsFragmentManager;
     private MealsAdapter adapter;
+    private Bus bus;
 
     @Override
     public void onStart() {
         super.onStart();
+        bus.register(this);
         mealsFragmentManager.onAttach(this);
         mealsFragmentManager.loadMeals();
     }
@@ -59,6 +66,7 @@ public class MealsFragment extends Fragment implements MealsAdapter.MealClickedL
     @Override
     public void onStop() {
         super.onStop();
+        bus.unregister(this);
         mealsFragmentManager.onStop();
     }
 
@@ -66,7 +74,7 @@ public class MealsFragment extends Fragment implements MealsAdapter.MealClickedL
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mealsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new MealsAdapter(((App)getActivity().getApplication()).getBus());
+        adapter = new MealsAdapter(bus);
         adapter.setMealClickedListener(this);
         mealsRecyclerView.setAdapter(adapter);
     }
@@ -76,6 +84,7 @@ public class MealsFragment extends Fragment implements MealsAdapter.MealClickedL
         super.onCreate(savedInstanceState);
         mealsFragmentManager = ((App) getActivity().getApplication()).getMealsFragmentManager();
         setHasOptionsMenu(true);
+        bus = ((App) getActivity().getApplication()).getBus();
     }
 
     @Override
@@ -119,7 +128,6 @@ public class MealsFragment extends Fragment implements MealsAdapter.MealClickedL
 
     @Override
     public void mealClicked(Meal meal) {
-        Log.d("Meals fragment", String.format("%s", meal.getAuthorsId()));
         String authorsName;
         if(meal.getAuthorsId() == 0){
             authorsName = "authomaticly_generated";
@@ -127,7 +135,6 @@ public class MealsFragment extends Fragment implements MealsAdapter.MealClickedL
             authorsName = mealsFragmentManager.getAuthorsName(meal);
         }
 
-        Log.d("MealsFragment", authorsName);
         Intent intent = new Intent(getActivity(), FullMealInformationActivity.class);
         intent.putExtra(MEAL_NAME_KEY, meal.getName());
         intent.putExtra(MEAL_NUMBER_OF_KCAL_KEY, String.format("%s",meal.getCumulativeNumberOfKcal()));
@@ -157,6 +164,14 @@ public class MealsFragment extends Fragment implements MealsAdapter.MealClickedL
     }
 
     public void deleteFailed() {
-        Toast.makeText(getActivity(), "Fail while trying to delete a meal", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), "Failed while trying to delete a meal", Toast.LENGTH_SHORT).show();
+    }
+
+    @Subscribe
+    public void onEditMeal(EditMealEvent event){
+        Intent intent = new Intent(getActivity(), AddOrEditMealActivity.class);
+        intent.putExtra(EDIT_MODE_KEY, "true");
+        intent.putExtra(MEALS_ID_KEY, event.meal.getMealsId());
+        startActivityForResult(intent, REQUEST_CODE_EDIT);
     }
 }

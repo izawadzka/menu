@@ -8,6 +8,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.example.dell.menu.R;
+import com.example.dell.menu.StorageType;
 import com.example.dell.menu.events.meals.DeleteProductFromMealEvent;
 import com.example.dell.menu.objects.Product;
 import com.squareup.otto.Bus;
@@ -86,7 +87,7 @@ public class AddedProductsAdapter extends RecyclerView.Adapter<AddedProductsAdap
         public void setProduct(Product product) {
             this.product = product;
             productInMealName.setText(product.getName());
-            productInMealQuantity.setText(String.valueOf(product.getQuantity()));
+            productInMealQuantity.setText(String.valueOf(product.getQuantity())+ StorageType.getUnit(product.getStorageType()));
         }
 
 

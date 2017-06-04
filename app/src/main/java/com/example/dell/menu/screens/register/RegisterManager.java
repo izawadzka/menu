@@ -1,5 +1,7 @@
 package com.example.dell.menu.screens.register;
 
+import android.util.Log;
+
 import com.example.dell.menu.App;
 import com.example.dell.menu.MenuDataBase;
 import com.example.dell.menu.objects.User;
@@ -17,9 +19,6 @@ public class RegisterManager {
         this.registerActivity = registerActivity;
     }
 
-   // public RegisterManager(MenuDataBase menuDataBase){
-        //this.menuDataBase = menuDataBase;
-    //}
 
     public void onStop(){
         registerActivity = null;
@@ -31,7 +30,6 @@ public class RegisterManager {
 
             Long id = menuDataBase.insert(UsersTable.getTableName(), UsersTable.getContentValues(new User(login, password)));
             if ( id != -1) {
-                //if(menuDataBase.createUser(new User(login, password)) != -1){
                 if (registerActivity != null) {
                     ((App)registerActivity.getApplication()).getUserStorage().setUserId(id);
                     registerActivity.registerSuccess();

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 
 import com.example.dell.menu.App;
 import com.example.dell.menu.R;
+import com.example.dell.menu.StorageType;
 import com.example.dell.menu.events.meals.QuantityWasntTypedEvent;
 import com.example.dell.menu.objects.Meal;
 import com.example.dell.menu.objects.Product;
@@ -48,6 +50,7 @@ public class AddOrEditMealActivity extends AppCompatActivity {
 
     private AddedProductsAdapter adapter;
     private AddOrEditMealManager addOrEditMealManager;
+    private boolean edit_mode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,13 +63,33 @@ public class AddOrEditMealActivity extends AppCompatActivity {
         addedProductsRecyclerView.setAdapter(adapter);
 
         addOrEditMealManager = ((App)getApplication()).getAddOrEditMealManager();
-    }
+        if(getIntent().getStringExtra(MealsFragment.EDIT_MODE_KEY) != null){
+            edit_mode = true;
+        }
 
+    }
 
     @Override
     protected void onStart() {
         super.onStart();
         addOrEditMealManager.onAttach(this);
+
+        if(edit_mode){
+            addOrEditMealManager.setEditMode();
+            addOrEditMealManager.downloadMealForEdit(getIntent().getLongExtra(MealsFragment.MEALS_ID_KEY, 0));
+        }else{
+            getState();
+            setProducts();
+        }
+    }
+
+    private void getState() {
+        addedMealNameEditText.setText(addOrEditMealManager.getStateName());
+        cumulativeNumberOfKcalEditText.setText(addOrEditMealManager.getStateKcal());
+        addedMealRecipeEditText.setText(addOrEditMealManager.getStateRecipe());
+    }
+
+    public void setProducts() {
         adapter.setProducts(addOrEditMealManager.getListOfProducts());
     }
 
@@ -104,14 +127,31 @@ public class AddOrEditMealActivity extends AppCompatActivity {
             Toast.makeText(this, "You haven't choosen any products!", Toast.LENGTH_LONG).show();
             hasErrors = true;
         }
+
+        try{
+           Integer.parseInt(cumulativeNumberOfKcalEditText.getText().toString());
+        }catch (NumberFormatException e){
+            Toast.makeText(this, "kcal has to be a number!", Toast.LENGTH_SHORT).show();
+            hasErrors = true;
+        }
+
         if(!hasErrors) {
+            addOrEditMealManager.saveState("", "", "");
+            if(addOrEditMealManager.isEditMode()){
+                addOrEditMealManager.edit(addedMealNameEditText.getText().toString(),
+                        cumulativeNumberOfKcalEditText.getText().toString(),
+                        addedMealRecipeEditText.getText().toString());
+            }else{
             addOrEditMealManager.addMeal(addedMealNameEditText.getText().toString(),
                     cumulativeNumberOfKcalEditText.getText().toString(),
                     ((App) getApplication()).getUserStorage().getUserId(), addedMealRecipeEditText.getText().toString());
+            }
         }
     }
 
     private void addProducts() {
+        addOrEditMealManager.saveState(addedMealNameEditText.getText().toString(),
+                cumulativeNumberOfKcalEditText.getText().toString(), addedMealRecipeEditText.getText().toString());
         startActivityForResult(new Intent(this, ChooseFromProductsActivity.class), REQUEST_CODE_ADD_PRODUCTS);
     }
 
@@ -146,5 +186,35 @@ public class AddOrEditMealActivity extends AppCompatActivity {
 
     public void productDeleteFailed(String name) {
         Toast.makeText(this, String.format("Error while trying to delete %s", name), Toast.LENGTH_SHORT);
+    }
+
+    public void downloadingMealSuccess(Meal meal) {
+        addedMealNameEditText.setText(meal.getName());
+        cumulativeNumberOfKcalEditText.setText(String.valueOf(meal.getCumulativeNumberOfKcal()));
+        addedMealRecipeEditText.setText(meal.getRecipe());
+
+        addOrEditMealManager.downloadProductsInMeal(meal.getMealsId());
+    }
+
+    public void downloadingMealFailed() {
+        Toast.makeText(this, "Error while downloading meal to edit", Toast.LENGTH_SHORT).show();
+        addOrEditMealManager.resetEditMode();
+        setResult(MealsFragment.RESULT_ERROR);
+        finish();
+    }
+
+    public void updateSuccess() {
+        Log.d(getPackageName(), String.valueOf(addOrEditMealManager.getListOfProducts().size()));
+        addOrEditMealManager.clearListOfProducts();
+        addOrEditMealManager.resetEditMode();
+        setResult(MealsFragment.RESULT_OK);
+        finish();
+    }
+
+    public void updateFailed() {
+        addOrEditMealManager.clearListOfProducts();
+        addOrEditMealManager.resetEditMode();
+        setResult(MealsFragment.RESULT_ERROR);
+        finish();
     }
 }

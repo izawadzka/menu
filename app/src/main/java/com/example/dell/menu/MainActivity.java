@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.example.dell.menu.screens.login.LoginActivity;
 import com.example.dell.menu.screens.meals.MealsFragment;
+import com.example.dell.menu.screens.menus.MenusFragment;
 import com.example.dell.menu.screens.products.ProductsFragment;
 
 public class MainActivity extends AppCompatActivity
@@ -108,7 +109,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_meal) {
             showFragment(new MealsFragment());
         } else if (id == R.id.nav_menu) {
-
+            showFragment(new MenusFragment());
         } else if (id == R.id.nav_shoppingList) {
 
         } else if (id == R.id.nav_share) {

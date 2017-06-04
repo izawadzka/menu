@@ -8,6 +8,8 @@ import com.example.dell.menu.screens.meals.addOrEdit.AddOrEditMealManager;
 import com.example.dell.menu.screens.meals.addOrEdit.ChooseFromProductsManager;
 import com.example.dell.menu.screens.meals.extendedMealInformation.FullMealInformationActivityManager;
 import com.example.dell.menu.screens.meals.MealsFragmentManager;
+import com.example.dell.menu.screens.menus.MenusAdapter;
+import com.example.dell.menu.screens.menus.MenusManager;
 import com.example.dell.menu.screens.products.ProductFragmentManager;
 import com.example.dell.menu.screens.products.addOrEdit.AddOrEditProductManager;
 import com.example.dell.menu.screens.register.RegisterManager;
@@ -29,26 +31,26 @@ public class App extends Application {
     private AddOrEditProductManager addOrEditProductManager;
     private ChooseFromProductsManager chooseFromProductsManager;
     private AddOrEditMealManager addOrEditMealManager;
+    private MenusManager menusManager;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        //menuDataBase = new MenuDataBase(this);
-        /*loginManager = new LoginManager(menuDataBase);
-        registerManager = new RegisterManager(menuDataBase);
-        productFragmentManager = new ProductFragmentManager(menuDataBase);
-        mealsFragmentManager = new MealsFragmentManager(menuDataBase);
-        fullMealInformationActivityManager = new FullMealInformationActivityManager(menuDataBase);*/
         bus = new Bus();
         loginManager = new LoginManager();
         registerManager = new RegisterManager();
         productFragmentManager = new ProductFragmentManager(bus);
         mealsFragmentManager = new MealsFragmentManager(bus);
+        menusManager = new MenusManager(bus);
         fullMealInformationActivityManager = new FullMealInformationActivityManager();
         addOrEditProductManager = new AddOrEditProductManager();
         chooseFromProductsManager = new ChooseFromProductsManager();
         addOrEditMealManager = new AddOrEditMealManager(bus);
         userStorage =  new UserStorage(PreferenceManager.getDefaultSharedPreferences(this));
+    }
+
+    public MenusManager getMenusManager() {
+        return menusManager;
     }
 
     public AddOrEditMealManager getAddOrEditMealManager() {

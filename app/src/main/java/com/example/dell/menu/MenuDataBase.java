@@ -55,4 +55,9 @@ public class MenuDataBase{
         open();
         return database.delete(tableName, whereClause, whereArgs);
     }
+
+    public int update(String tableName, ContentValues newContentValues, String whereClause, String[] whereArgs){
+        open();
+        return database.update(tableName, newContentValues, whereClause, whereArgs);
+    }
 }
