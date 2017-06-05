@@ -84,10 +84,11 @@ public class MenusAdapter extends RecyclerView.Adapter<MenusAdapter.MenuViewHold
 
         @Override
         public void onClick(View v) {
-
+// TODO: 04.06.2017
         }
 
         public void setMenu(Menu menu) {
+            this.menu = menu;
             menuNameTextView.setText(menu.getName());
             creationDateTextView.setText(String.valueOf(menu.getCreationDate()));
         }

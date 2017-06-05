@@ -76,7 +76,7 @@ public class AddOrEditMealActivity extends AppCompatActivity {
 
         if(edit_mode){
             addOrEditMealManager.setEditMode();
-            addOrEditMealManager.downloadMealForEdit(getIntent().getLongExtra(MealsFragment.MEALS_ID_KEY, 0));
+            addOrEditMealManager.downloadMealForEdit(getIntent().getIntExtra(MealsFragment.MEALS_ID_KEY, 0));
         }else{
             getState();
             setProducts();

@@ -15,7 +15,7 @@ import android.view.ViewGroup;
 import com.example.dell.menu.App;
 import com.example.dell.menu.R;
 import com.example.dell.menu.objects.Menu;
-import com.example.dell.menu.screens.menus.addOrEdit.AddOrEditMenuActivity;
+import com.example.dell.menu.screens.menus.addOrEditMenu.AddOrEditMenuActivity;
 
 import java.util.List;
 

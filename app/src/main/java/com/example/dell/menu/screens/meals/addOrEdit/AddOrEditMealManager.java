@@ -108,11 +108,12 @@ public class AddOrEditMealManager {
     public void downloadMealForEdit(long mealId) {
         if(addOrEditMealActivity != null){
             this.mealId = mealId;
+            Log.d("DOWNLOAD", String.valueOf(mealId));
             new DownloadMealToEdit().execute(mealId);
         }
     }
 
-    public void downloadProductsInMeal(Long mealsId) {
+    public void downloadProductsInMeal(int mealsId) {
         if(addOrEditMealActivity != null){
             new DownloadProductsInMeal().execute(mealsId);
         }
@@ -202,10 +203,10 @@ public class AddOrEditMealManager {
     }
 
 
-    class DownloadProductsInMeal extends AsyncTask<Long, Integer, List<Product>>{
+    class DownloadProductsInMeal extends AsyncTask<Integer, Integer, List<Product>>{
 
         @Override
-        protected List<Product> doInBackground(Long... params) {
+        protected List<Product> doInBackground(Integer... params) {
             MenuDataBase menuDataBase = MenuDataBase.getInstance(addOrEditMealActivity);
             List<Product> result = new ArrayList<>();
             String query = String.format("SELECT %s, %s, %s, %s FROM %s p JOIN %s mp\n" +
@@ -248,17 +249,15 @@ public class AddOrEditMealManager {
             MenuDataBase menuDataBase = MenuDataBase.getInstance(addOrEditMealActivity);
             String query = String.format("SELECT * FROM %s WHERE %s = '%s'",
                     MealsTable.getTableName(), MealsTable.getFirstColumnName(), params[0]);
-            Log.d("query", query);
             Cursor cursor = menuDataBase.downloadDatas(query);
-            Log.d("curs", String.format("%s", cursor.getCount()));
             if(cursor.getCount() == 1){
                 cursor.moveToPosition(0);
-                Meal meal = new Meal(cursor.getLong(0), cursor.getString(1), cursor.getInt(2),
-                        cursor.getLong(3),cursor.getString(4));
-                menuDataBase.close();
+                Meal meal = new Meal(cursor.getInt(0), cursor.getString(1), cursor.getInt(2),
+                        cursor.getInt(3),cursor.getString(4));
+                //menuDataBase.close();
                 return meal;
             }else{
-                menuDataBase.close();
+                //menuDataBase.close();
                 return null;
             }
         }
@@ -280,7 +279,6 @@ public class AddOrEditMealManager {
             MenuDataBase menuDataBase = MenuDataBase.getInstance(addOrEditMealActivity);
             try {
                 for (Product product : params[0]) {
-                    Log.d("Manager, nazwa", String.valueOf(product.getName()));
                     if(menuDataBase.insert(MealsProductsTable.getTableName(), MealsProductsTable.getContentValues(product.getProductId(), mealId, product.getQuantity())) == -1){
                         menuDataBase.close();
                         return Long.valueOf(-1);
@@ -320,7 +318,7 @@ public class AddOrEditMealManager {
                 MenuDataBase menuDataBase = MenuDataBase.getInstance(addOrEditMealActivity);
                 String name = params[0];
                 int kcal = Integer.parseInt(params[1]);
-                Long usersId = Long.parseLong(params[2]);
+                int usersId = Integer.parseInt(params[2]);
                 String recipe = params[3];
 
                 ContentValues contentValues = MealsTable.getContentValues(new Meal(name, kcal, usersId, recipe));

@@ -24,7 +24,7 @@ public class MealsFragmentManager {
 
     protected MealsFragment mealsFragment;
     private Bus bus;
-    private Long currentMealId;
+    private int currentMealId;
     protected Meal currentMeal;
 
     public MealsFragmentManager(Bus bus){
@@ -77,10 +77,10 @@ public class MealsFragmentManager {
         return "";
     }
 
-    class DeleteMeal extends AsyncTask<Long, Integer, Integer>{
+    class DeleteMeal extends AsyncTask<Integer, Integer, Integer>{
 
         @Override
-        protected Integer doInBackground(Long... params) {
+        protected Integer doInBackground(Integer... params) {
             String[] mealId = {String.valueOf(params[0])};
             MenuDataBase menuDataBase = MenuDataBase.getInstance(mealsFragment.getActivity());
             return menuDataBase.delete(MealsTable.getTableName(), String.format("%s = ?", MealsTable.getFirstColumnName()), mealId);
@@ -97,10 +97,10 @@ public class MealsFragmentManager {
         }
     }
 
-    class DeleteAllConnectionsWithProducts extends AsyncTask<Long, Integer, Integer>{
+    class DeleteAllConnectionsWithProducts extends AsyncTask<Integer, Integer, Integer>{
 
         @Override
-        protected Integer doInBackground(Long... params) {
+        protected Integer doInBackground(Integer... params) {
             String[] mealId = {String.valueOf(params[0])};
             MenuDataBase menuDataBase = MenuDataBase.getInstance(mealsFragment.getActivity());
             return menuDataBase.delete(MealsProductsTable.getTableName(), String.format("%s = ?", MealsProductsTable.getSecondColumnName()), mealId);
@@ -118,16 +118,16 @@ public class MealsFragmentManager {
             Cursor cursor = menuDataBase.downloadDatas(query);
 
             if (cursor.getCount() > 0) {
-                Long mealsId, authorsId;
+                int mealsId, authorsId;
                 int cumulativeNumberOfKcalPer100g;
                 String name, recipe;
                 cursor.moveToPosition(-1);
 
                 while (cursor.moveToNext()) {
-                    mealsId = cursor.getLong(0);
+                    mealsId = cursor.getInt(0);
                     name = cursor.getString(1);
                     cumulativeNumberOfKcalPer100g = cursor.getInt(2);
-                    authorsId = cursor.getLong(3);
+                    authorsId = cursor.getInt(3);
                     recipe = cursor.getString(4);
                     results.add(new Meal(mealsId, name, cumulativeNumberOfKcalPer100g, authorsId, recipe));
                 }

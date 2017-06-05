@@ -9,6 +9,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -17,6 +18,9 @@ import com.example.dell.menu.screens.login.LoginActivity;
 import com.example.dell.menu.screens.meals.MealsFragment;
 import com.example.dell.menu.screens.menus.MenusFragment;
 import com.example.dell.menu.screens.products.ProductsFragment;
+import com.example.dell.menu.tables.mealTypes.BreakfastTable;
+import com.example.dell.menu.tables.mealTypes.DinnerTable;
+import com.example.dell.menu.tables.mealTypes.LunchTable;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -54,7 +58,6 @@ public class MainActivity extends AppCompatActivity
 
         TextView usernameTextView = (TextView) navigationView.getHeaderView(0).findViewById(R.id.usernameTextView);
         usernameTextView.setText(userStorage.getLogin());
-
     }
 
 

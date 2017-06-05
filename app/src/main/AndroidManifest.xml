@@ -32,9 +32,16 @@
                 android:value="com.example.dell.menu.screens.meals.addOrEdit.AddOrEditMealActivity" />
         </activity>
         <activity
-            android:name=".screens.menus.addOrEdit.AddOrEditMenuActivity"
+            android:name=".screens.menus.addOrEditMenu.AddOrEditMenuActivity"
             android:label="@string/title_activity_add_or_edit_menu"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".screens.menus.addOrEditMenu.createNewDailyMenu.CreateNewDailyMenuActivity" />
+        <activity android:name=".screens.menus.addOrEditMenu.createNewDailyMenu.ChooseFromMealsActivity"
+            android:parentActivityName=".screens.menus.addOrEditMenu.createNewDailyMenu.CreateNewDailyMenuActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.dell.menu.screens.menus.addOrEditMenu.createNewDailyMenu.CreateNewDailyMenuActivity" />
+        </activity>
     </application>
 
 </manifest>

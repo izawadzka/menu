@@ -10,6 +10,9 @@ import com.example.dell.menu.screens.meals.extendedMealInformation.FullMealInfor
 import com.example.dell.menu.screens.meals.MealsFragmentManager;
 import com.example.dell.menu.screens.menus.MenusAdapter;
 import com.example.dell.menu.screens.menus.MenusManager;
+import com.example.dell.menu.screens.menus.addOrEditMenu.createNewDailyMenu.ChooseFromMealsActivity;
+import com.example.dell.menu.screens.menus.addOrEditMenu.createNewDailyMenu.ChooseFromMealsManager;
+import com.example.dell.menu.screens.menus.addOrEditMenu.createNewDailyMenu.CreateNewDailyMenuManager;
 import com.example.dell.menu.screens.products.ProductFragmentManager;
 import com.example.dell.menu.screens.products.addOrEdit.AddOrEditProductManager;
 import com.example.dell.menu.screens.register.RegisterManager;
@@ -20,7 +23,6 @@ import com.squareup.otto.Bus;
  */
 
 public class App extends Application {
-    //private MenuDataBase menuDataBase;
     private LoginManager loginManager;
     private RegisterManager registerManager;
     private ProductFragmentManager productFragmentManager;
@@ -32,6 +34,8 @@ public class App extends Application {
     private ChooseFromProductsManager chooseFromProductsManager;
     private AddOrEditMealManager addOrEditMealManager;
     private MenusManager menusManager;
+    private ChooseFromMealsManager chooseFromMealsManager;
+    private CreateNewDailyMenuManager createNewDailyMenuManager;
 
     @Override
     public void onCreate() {
@@ -42,6 +46,8 @@ public class App extends Application {
         productFragmentManager = new ProductFragmentManager(bus);
         mealsFragmentManager = new MealsFragmentManager(bus);
         menusManager = new MenusManager(bus);
+        chooseFromMealsManager = new ChooseFromMealsManager(bus);
+        createNewDailyMenuManager = new CreateNewDailyMenuManager(bus);
         fullMealInformationActivityManager = new FullMealInformationActivityManager();
         addOrEditProductManager = new AddOrEditProductManager();
         chooseFromProductsManager = new ChooseFromProductsManager();
@@ -49,8 +55,16 @@ public class App extends Application {
         userStorage =  new UserStorage(PreferenceManager.getDefaultSharedPreferences(this));
     }
 
+    public CreateNewDailyMenuManager getCreateNewDailyMenuManager() {
+        return createNewDailyMenuManager;
+    }
+
     public MenusManager getMenusManager() {
         return menusManager;
+    }
+
+    public ChooseFromMealsManager getChooseFromMealsManager() {
+        return chooseFromMealsManager;
     }
 
     public AddOrEditMealManager getAddOrEditMealManager() {
