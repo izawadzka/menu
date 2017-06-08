@@ -1,6 +1,7 @@
 package com.example.dell.menu.screens.menus;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,14 +9,20 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.example.dell.menu.R;
+import com.example.dell.menu.events.shoppingLists.GenerateShoppingListButtonClickedEvent;
+import com.example.dell.menu.events.shoppingLists.ShowShoppingListEvent;
 import com.example.dell.menu.objects.Menu;
 import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by Dell on 04.06.2017.
@@ -71,6 +78,8 @@ public class MenusAdapter extends RecyclerView.Adapter<MenusAdapter.MenuViewHold
         ImageButton editMenuImageButton;
         @Bind(R.id.deleteMenuImageButton)
         ImageButton deleteMenuImageButton;
+        @Bind(R.id.generateShoppingList)
+        ImageButton generateShoppingList;
 
         private final Bus bus;
         private Menu menu;
@@ -84,13 +93,24 @@ public class MenusAdapter extends RecyclerView.Adapter<MenusAdapter.MenuViewHold
 
         @Override
         public void onClick(View v) {
-// TODO: 04.06.2017
+            itemClicked(menu);
         }
 
         public void setMenu(Menu menu) {
             this.menu = menu;
             menuNameTextView.setText(menu.getName());
-            creationDateTextView.setText(String.valueOf(menu.getCreationDate()));
+            DateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
+            try {
+                creationDateTextView.setText(dateFormat.format(menu.getCreationDate()));
+            } catch (Exception e) {
+                Log.e("MenusAdapter", e.getLocalizedMessage());
+            }
+        }
+
+        @OnClick(R.id.generateShoppingList)
+        public void onGenerateShoppingListButtonClicked(){
+            bus.post(new ShowShoppingListEvent(menu));
+            bus.post(new GenerateShoppingListButtonClickedEvent(menu));
         }
     }
 

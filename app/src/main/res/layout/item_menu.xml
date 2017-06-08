@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:paddingTop="5dp"
     android:paddingLeft="5dp"
     android:paddingBottom="5dp"
@@ -10,13 +10,19 @@
     <TextView
         android:id="@+id/menuNameTextView"
         tool:text="Moj jadlospis"
-        android:textSize="25dp"
+        android:textSize="23dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
     <TextView
         android:id="@+id/creationDateTextView"
         android:layout_below="@+id/menuNameTextView"
         tool:text="created: 04.06.2017"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <ImageButton
+        android:id="@+id/generateShoppingList"
+        android:src="@drawable/ic_generate_shopping_list"
+        android:layout_toLeftOf="@+id/editMenuImageButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
     <ImageButton

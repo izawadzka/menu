@@ -38,6 +38,10 @@ public class Product {
         this.storageType = storageType;
     }
 
+    public void addQuantity(int quantity){
+        this.quantity += quantity;
+    }
+
     public double getQuantity() {
         return quantity;
     }

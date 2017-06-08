@@ -8,16 +8,31 @@ import java.util.Vector;
  */
 
 public class DailyMenu {
-    private int dailyMenuId;
+    public static final String BREAKFAST_KEY = "breakfast";
+    public static final String LUNCH_KEY = "lunch";
+    public static final String DINNER_KEY = "dinner";
+    public static final String TEATIME_KEY = "teatime";
+    public static final String SUPPER_KEY = "supper";
+    private Long dailyMenuId;
     private Date date;
-    private Vector<Integer> breakfast;
-    private Vector<Integer> lunch;
-    private Vector<Integer> dinner;
-    private Vector<Integer> teatime;
-    private Vector<Integer> supper;
+    private int cumulativeNumberOfKcal = 0;
+    private Vector<Meal> breakfast = new Vector<>();
+    private Vector<Meal> lunch = new Vector<>();
+    private Vector<Meal> dinner = new Vector<>();
+    private Vector<Meal> teatime = new Vector<>();
+    private Vector<Meal> supper = new Vector<>();
 
+    public DailyMenu(Long dailyMenuId, Date date){
+        this.dailyMenuId = dailyMenuId;
+        this.date = date;
+    }
 
-    public DailyMenu(Date date, Vector<Integer> breakfast, Vector<Integer> lunch, Vector<Integer> dinner, Vector<Integer> teatime, Vector<Integer> supper){
+    public DailyMenu(Date date){
+        this.date = date;
+    }
+
+    public DailyMenu(Date date, Vector<Meal> breakfast,Vector<Meal> lunch,
+                     Vector<Meal> dinner,Vector<Meal> teatime, Vector<Meal> supper){
         this.date = date;
         this.breakfast = breakfast;
         this.lunch = lunch;
@@ -26,11 +41,11 @@ public class DailyMenu {
         this.supper = supper;
     }
 
-    public void setDailyMenuId(int dailyMenuId) {
+    public void setDailyMenuId(Long dailyMenuId) {
         this.dailyMenuId = dailyMenuId;
     }
 
-    public int getDailyMenuId() {
+    public Long getDailyMenuId() {
         return dailyMenuId;
     }
 
@@ -38,23 +53,44 @@ public class DailyMenu {
         return date;
     }
 
-    public Vector<Integer> getBreakfast() {
+
+    public void addMeal(Meal meal, String mealType){
+        switch (mealType){
+            case BREAKFAST_KEY: breakfast.add(meal);
+                                break;
+            case LUNCH_KEY: lunch.add(meal);
+                                break;
+            case DINNER_KEY: dinner.add(meal);
+                                break;
+            case TEATIME_KEY: teatime.add(meal);
+                                break;
+            case SUPPER_KEY: supper.add(meal);
+                                break;
+        }
+        cumulativeNumberOfKcal+= meal.getCumulativeNumberOfKcal();
+    }
+
+    public int getCumulativeNumberOfKcal() {
+        return cumulativeNumberOfKcal;
+    }
+
+    public Vector<Meal> getBreakfast() {
         return breakfast;
     }
 
-    public Vector<Integer> getLunch() {
+    public Vector<Meal> getLunch() {
         return lunch;
     }
 
-    public Vector<Integer> getDinner() {
+    public Vector<Meal> getDinner() {
         return dinner;
     }
 
-    public Vector<Integer> getTeatime() {
+    public Vector<Meal> getTeatime() {
         return teatime;
     }
 
-    public Vector<Integer> getSupper() {
+    public Vector<Meal> getSupper() {
         return supper;
     }
 }

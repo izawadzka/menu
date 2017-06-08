@@ -33,4 +33,6 @@
     <string name="dinner">Dinner:</string>
     <string name="teatime">Teatime:</string>
     <string name="supper">Supper:</string>
+    <string name="menu_name_hint">Menu name</string>
+    <string name="reports">Reports</string>
 </resources>

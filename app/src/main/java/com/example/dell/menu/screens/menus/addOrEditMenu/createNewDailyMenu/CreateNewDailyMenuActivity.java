@@ -80,13 +80,14 @@ public class CreateNewDailyMenuActivity extends AppCompatActivity {
         setChosenMeals();
     }
 
-    private void setChosenMeals() {
+    public void setChosenMeals() {
         breakfastElementsTextView.setText(getMealsNames(manager.getBreakfastMeals()));
         lunchElementsTextView.setText(getMealsNames(manager.getLunchMeals()));
         dinnerElementsTextView.setText(getMealsNames(manager.getDinnerMeals()));
         teatimeElementsTextView.setText(getMealsNames(manager.getTeatimeMeals()));
         supperElementsTextView.setText(getMealsNames(manager.getSupperMeals()));
     }
+
 
     @NonNull
     private String getMealsNames(Vector<Meal> vector) {
@@ -105,7 +106,7 @@ public class CreateNewDailyMenuActivity extends AppCompatActivity {
     }
 
     private void setState() {
-        if(dateEditText.getText().toString() != null) {
+        if(!dateEditText.getText().toString().equals("")) {
             DateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
             try {
                 manager.setDailyMenuDate(dateFormat.parse(dateEditText.getText().toString()));
@@ -127,9 +128,19 @@ public class CreateNewDailyMenuActivity extends AppCompatActivity {
         }
     }
 
+    public void hideButtons(){
+        saveDailyMenuButton.setVisibility(View.INVISIBLE);
+        addMealForBreakfastImageButton.setVisibility(View.INVISIBLE);
+        addMealForLunchImageButton.setVisibility(View.INVISIBLE);
+        addMealForDinnerImageButton.setVisibility(View.INVISIBLE);
+        addMealForTeatimeImageButton.setVisibility(View.INVISIBLE);
+        addMealForSupperImageButton.setVisibility(View.INVISIBLE);
+    }
+
     private void cancel() {
         setResult(AddOrEditMenuActivity.RESULT_CODE_CANCEL);
         manager.clearVectorsOfMeals();
+        dateEditText.setText("");
         manager.setDailyMenuDate(null);
         finish();
     }
@@ -139,7 +150,10 @@ public class CreateNewDailyMenuActivity extends AppCompatActivity {
                 && manager.getDinnerMeals().size()==0 && manager.getTeatimeMeals().size()==0
                 && manager.getSupperMeals().size()==0){
             Toast.makeText(this, "Your menu can't be empty! Choose at least one meal", Toast.LENGTH_LONG).show();
-        }else{
+        }else if(dateEditText.length() == 0){
+            Toast.makeText(this, "You should type date", Toast.LENGTH_SHORT).show();
+        }
+        else{
             setState();
             manager.saveDailyMenu();
         }
@@ -192,6 +206,7 @@ public class CreateNewDailyMenuActivity extends AppCompatActivity {
         Toast.makeText(this, "Error while saving menu", Toast.LENGTH_SHORT).show();
         setResult(AddOrEditMenuActivity.RESULT_CODE_ERROR);
         manager.clearVectorsOfMeals();
+        dateEditText.setText("");
         manager.setDailyMenuDate(null);
         finish();
     }
@@ -199,6 +214,7 @@ public class CreateNewDailyMenuActivity extends AppCompatActivity {
     public void saveSuccess() {
         setResult(AddOrEditMenuActivity.RESULT_CODE_ADDED);
         manager.clearVectorsOfMeals();
+        dateEditText.setText("");
         manager.setDailyMenuDate(null);
         finish();
     }

@@ -1,6 +1,7 @@
 package com.example.dell.menu.screens.menus.addOrEditMenu;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,14 +9,18 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.example.dell.menu.R;
+import com.example.dell.menu.events.menus.DeleteDailyMenuEvent;
 import com.example.dell.menu.objects.DailyMenu;
 import com.squareup.otto.Bus;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by Dell on 04.06.2017.
@@ -46,13 +51,18 @@ public class DailyMenusAdapter extends RecyclerView.Adapter<DailyMenusAdapter.Da
         return dailyMenus.size();
     }
 
-    public void setDailyMenus(List<DailyMenu> result){
+    public void setDailyMenus(List<DailyMenu> result) {
         dailyMenus.clear();
         dailyMenus.addAll(result);
         notifyDataSetChanged();
     }
 
-    public void setDailyMenuClickedListener(DailyMenuClickedListener dailyMenuClickedListener){
+    public void deleteDailyMenu(int position){
+        dailyMenus.remove(position);
+        notifyDataSetChanged();
+    }
+
+    public void setDailyMenuClickedListener(DailyMenuClickedListener dailyMenuClickedListener) {
         this.dailyMenuClickedListener = dailyMenuClickedListener;
     }
 
@@ -69,9 +79,12 @@ public class DailyMenusAdapter extends RecyclerView.Adapter<DailyMenusAdapter.Da
         ImageButton deleteDailyMenuImageButton;
         @Bind(R.id.editDailyMenuImageButton)
         ImageButton editDailyMenuImageButton;
+        @Bind(R.id.dailyMenuDateTextView)
+        TextView dailyMenuDateTextView;
 
         private final Bus bus;
         private DailyMenu dailyMenu;
+        private int position;
 
         public DailyMenuViewHolder(View itemView, Bus bus) {
             super(itemView);
@@ -81,13 +94,25 @@ public class DailyMenusAdapter extends RecyclerView.Adapter<DailyMenusAdapter.Da
         }
 
         public void setDailyMenu(DailyMenu dailyMenu, int position) {
-            this.dailyMenu  = dailyMenu;
-            dayRecordNumber.setText(String.format("Day %s", position));
+            this.dailyMenu = dailyMenu;
+            this.position = position;
+            dayRecordNumber.setText(String.format("Day %s", position+1));
+            try {
+                DateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
+                dailyMenuDateTextView.setText(dateFormat.format(dailyMenu.getDate()));
+            }catch (Exception e){
+                dailyMenuDateTextView.setText("NN");
+            }
+        }
+
+        @OnClick(R.id.deleteDailyMenuImageButton)
+        public void deleteDailyMenuButtonClicked(){
+            bus.post(new DeleteDailyMenuEvent(position));
         }
 
         @Override
         public void onClick(View v) {
-            // TODO: 04.06.2017
+            itemClicked(dailyMenu);
         }
     }
 

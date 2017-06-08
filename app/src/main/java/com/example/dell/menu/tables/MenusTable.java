@@ -10,7 +10,7 @@ import com.example.dell.menu.objects.Menu;
 
 public class MenusTable {
     private final static String tableName = "Menus";
-    private final static String firstColumnName = "menusId";
+    private final static String firstColumnName = "menuId";
     private final static String secondColumnName = "name";
     private final static String thirdColumnName = "creationDate";
     private final static String fourthColumnName = "cumulativeNumberOfKcal";

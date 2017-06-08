@@ -1,15 +1,19 @@
 package com.example.dell.menu.screens.menus.addOrEditMenu.createNewDailyMenu;
 
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import com.example.dell.menu.MenuDataBase;
 import com.example.dell.menu.events.menus.AddMealToDailyMenuEvent;
+import com.example.dell.menu.events.menus.AddNewDailyMenuEvent;
 import com.example.dell.menu.events.menus.MealAddedEvent;
+import com.example.dell.menu.events.menus.ShowDailyMenuEvent;
 import com.example.dell.menu.objects.DailyMenu;
 import com.example.dell.menu.objects.Meal;
 import com.example.dell.menu.objects.Menu;
 import com.example.dell.menu.tables.DailyMenusTable;
+import com.example.dell.menu.tables.MealsTable;
 import com.example.dell.menu.tables.mealTypes.BreakfastTable;
 import com.example.dell.menu.tables.mealTypes.DinnerTable;
 import com.example.dell.menu.tables.mealTypes.LunchTable;
@@ -20,6 +24,7 @@ import com.squareup.otto.Subscribe;
 
 import java.util.Date;
 import java.util.Vector;
+import java.util.concurrent.SynchronousQueue;
 
 /**
  * Created by Dell on 05.06.2017.
@@ -35,6 +40,7 @@ public class CreateNewDailyMenuManager {
     private CreateNewDailyMenuActivity createNewDailyMenuActivity;
     private final Bus bus;
     private Date dailyMenuDate;
+    protected Long dailyMenuId;
 
 
     public Date getDailyMenuDate() {
@@ -125,100 +131,139 @@ public class CreateNewDailyMenuManager {
     }
 
     public void saveDailyMenu() {
-        if(createNewDailyMenuActivity != null) {
-            new SaveDailyMenu().execute();
-        }
-    }
-
-    private void saveMeals(Long result) {
-        if(createNewDailyMenuActivity != null){
-            new SaveMeals().execute(result);
-        }
-    }
-
-
-    class SaveMeals extends AsyncTask<Long, Integer, Long>{
-
-        @Override
-        protected Long doInBackground(Long... params) {
-            MenuDataBase menuDataBase = MenuDataBase.getInstance(createNewDailyMenuActivity);
+        try {
+            DailyMenu dailyMenu = new DailyMenu(dailyMenuDate);
 
             for (Meal breakfastMeal : breakfastMeals) {
-                Long result = menuDataBase.insert(BreakfastTable.getTableName(),
-                        BreakfastTable.getContentValues(params[0], breakfastMeal.getMealsId()));
-                if( result == -1){
-                    menuDataBase.close();
-                    return result;
-                }
+                dailyMenu.addMeal(breakfastMeal, DailyMenu.BREAKFAST_KEY);
             }
 
             for (Meal lunchMeal : lunchMeals) {
-                Long result = menuDataBase.insert(LunchTable.getTableName(),
-                        LunchTable.getContentValues(params[0], lunchMeal.getMealsId()));
-                if(result == -1){
-                    menuDataBase.close();
-                    return result;
-                }
+                dailyMenu.addMeal(lunchMeal, DailyMenu.LUNCH_KEY);
             }
 
             for (Meal dinnerMeal : dinnerMeals) {
-                Long result = menuDataBase.insert(DinnerTable.getTableName(),
-                        DinnerTable.getContentValues(params[0], dinnerMeal.getMealsId()));
-                if(result == -1){
-                    menuDataBase.close();
-                    return result;
-                }
+                dailyMenu.addMeal(dinnerMeal, DailyMenu.DINNER_KEY);
             }
 
             for (Meal teatimeMeal : teatimeMeals) {
-                Long result = menuDataBase.insert(TeatimeTable.getTableName(),
-                        TeatimeTable.getContentValues(params[0], teatimeMeal.getMealsId()));
-                if(result == -1){
-                    menuDataBase.close();
-                    return result;
-                }
+                dailyMenu.addMeal(teatimeMeal, DailyMenu.TEATIME_KEY);
             }
 
-            for (Meal supperMeal : supperMeals) {
-                Long result = menuDataBase.insert(SupperTable.getTableName(),
-                        SupperTable.getContentValues(params[0], supperMeal.getMealsId()));
-                if(result == -1){
-                    menuDataBase.close();
-                    return result;
-                }
+            for(Meal supperMeal : supperMeals){
+                dailyMenu.addMeal(supperMeal, DailyMenu.SUPPER_KEY);
             }
-            menuDataBase.close();
-            return Long.valueOf(0);
 
-        }
 
-        @Override
-        protected void onPostExecute(Long result) {
-            if(result == Long.valueOf(0)){
-                Log.d("MEALS", "OK");
-                createNewDailyMenuActivity.saveSuccess();
-            }else{
-                createNewDailyMenuActivity.saveFailed();
-            }
+            createNewDailyMenuActivity.saveSuccess();
+            bus.post(new AddNewDailyMenuEvent(dailyMenu));
+        }catch (Exception e){
+            Log.d(createNewDailyMenuActivity.getPackageName(), e.getLocalizedMessage());
+            createNewDailyMenuActivity.saveFailed();
         }
     }
 
-    class SaveDailyMenu extends AsyncTask<Void, Integer, Long> {
+    @Subscribe
+    public void onShowDailyMenuEvent(ShowDailyMenuEvent event){
+            clearVectorsOfMeals();
+
+            dailyMenuDate = event.dailyMenu.getDate();
+            Log.d("DATA", dailyMenuDate.toString());
+            breakfastMeals.addAll(event.dailyMenu.getBreakfast());
+            lunchMeals.addAll(event.dailyMenu.getLunch());
+            dinnerMeals.addAll(event.dailyMenu.getDinner());
+            teatimeMeals.addAll(event.dailyMenu.getTeatime());
+            supperMeals.addAll(event.dailyMenu.getSupper());
+
+            if(event.is_showe_mode){
+                if(createNewDailyMenuActivity != null){
+                    createNewDailyMenuActivity.hideButtons();
+                }
+            }
+
+            if(createNewDailyMenuActivity != null){
+                createNewDailyMenuActivity.setChosenMeals();
+            }
+    }
+
+    class LoadFullDetails extends  AsyncTask<DailyMenu, Integer, DailyMenu>{
 
         @Override
-        protected Long doInBackground(Void... params) {
+        protected DailyMenu doInBackground(DailyMenu... params) {
             MenuDataBase menuDataBase = MenuDataBase.getInstance(createNewDailyMenuActivity);
-            Long result =  menuDataBase.insert(DailyMenusTable.getTableName(), DailyMenusTable.getContentValues(dailyMenuDate));
-            menuDataBase.close();
-            return result;
+            for(Meal mealToShow : params[0].getBreakfast()) {
+                String mealNames = String.format("SELECT %s FROM %s WHERE %s = '%s'",
+                        MealsTable.getSecondColumnName(), MealsTable.getTableName(),
+                        MealsTable.getFirstColumnName(), mealToShow.getMealsId());
+                Cursor breakfastCursor = menuDataBase.downloadDatas(mealNames);
+                if(breakfastCursor.getCount() == 1){
+                    breakfastCursor.moveToPosition(-1);
+                    while(breakfastCursor.moveToNext()) {
+                        mealToShow.setName(breakfastCursor.getString(0));
+                    }
+                }
+            }
+
+            for(Meal mealToShow : params[0].getLunch()) {
+                String mealNames = String.format("SELECT %s FROM %s WHERE %s = '%s'",
+                        MealsTable.getSecondColumnName(), MealsTable.getTableName(),
+                        MealsTable.getFirstColumnName(), mealToShow.getMealsId());
+                Cursor lunchCursor = menuDataBase.downloadDatas(mealNames);
+                if(lunchCursor.getCount() == 1){
+                    lunchCursor.moveToPosition(-1);
+                    while(lunchCursor.moveToNext()) {
+                        mealToShow.setName(lunchCursor.getString(0));
+                    }
+                }
+            }
+
+            for(Meal mealToShow : params[0].getDinner()) {
+                String mealNames = String.format("SELECT %s FROM %s WHERE %s = '%s'",
+                        MealsTable.getSecondColumnName(), MealsTable.getTableName(),
+                        MealsTable.getFirstColumnName(), mealToShow.getMealsId());
+                Cursor dinnerCursor = menuDataBase.downloadDatas(mealNames);
+                if(dinnerCursor.getCount() == 1){
+                    dinnerCursor.moveToPosition(-1);
+                    while(dinnerCursor.moveToNext()) {
+                        mealToShow.setName(dinnerCursor.getString(0));
+                    }
+                }
+            }
+
+            for(Meal mealToShow : params[0].getTeatime()) {
+                String mealNames = String.format("SELECT %s FROM %s WHERE %s = '%s'",
+                        MealsTable.getSecondColumnName(), MealsTable.getTableName(),
+                        MealsTable.getFirstColumnName(), mealToShow.getMealsId());
+                Cursor teatimeCursor = menuDataBase.downloadDatas(mealNames);
+                if(teatimeCursor.getCount() == 1){
+                    teatimeCursor.moveToPosition(-1);
+                    while(teatimeCursor.moveToNext()) {
+                        mealToShow.setName(teatimeCursor.getString(0));
+                    }
+                }
+            }
+
+            for(Meal mealToShow : params[0].getSupper()) {
+                String mealNames = String.format("SELECT %s FROM %s WHERE %s = '%s'",
+                        MealsTable.getSecondColumnName(), MealsTable.getTableName(),
+                        MealsTable.getFirstColumnName(), mealToShow.getMealsId());
+                Cursor supperCursor = menuDataBase.downloadDatas(mealNames);
+                if(supperCursor.getCount() == 1){
+                   supperCursor.moveToPosition(-1);
+                    while(supperCursor.moveToNext()) {
+                        mealToShow.setName(supperCursor.getString(0));
+                    }
+                }
+            }
+            return params[0];
         }
 
         @Override
-        protected void onPostExecute(Long result) {
-            if (result != -1) {
-                saveMeals(result);
-            }else{
-                createNewDailyMenuActivity.saveFailed();
+        protected void onPostExecute(DailyMenu dailyMenu) {
+            if(dailyMenu != null){
+                if(createNewDailyMenuActivity != null){
+                    createNewDailyMenuActivity.setChosenMeals();
+                }
             }
         }
     }

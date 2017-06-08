@@ -2,39 +2,30 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tool="http://schemas.android.com/tools"
     android:orientation="vertical"
-    android:paddingTop="5dp"
-    android:paddingLeft="5dp"
-    android:paddingBottom="5dp"
-    android:paddingRight="5dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
-
     <TextView
-        android:id="@+id/day_record_number"
-        tool:text="Day 1"
-        android:paddingTop="5dp"
+        android:paddingTop="7dp"
+        android:id="@+id/productName"
+        tool:text="Cucumber"
         android:textSize="20dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+
     <TextView
-        android:id="@+id/dailyMenuDateTextView"
-        tool:text="01.05.2017"
-        android:layout_below="@+id/day_record_number"
+        android:id="@+id/productInMealQuantity"
+        tool:text="120"
+        android:layout_below="@+id/productName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
+
+
     <ImageButton
-        android:id="@+id/deleteDailyMenuImageButton"
+        android:id="@+id/deleteProductsButton"
         android:src="@drawable/ic_delete"
-        android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
-    <ImageButton
-        android:id="@+id/editDailyMenuImageButton"
-        android:src="@drawable/ic_edit"
-        android:layout_toLeftOf="@+id/deleteDailyMenuImageButton"
+        android:layout_alignParentRight="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 

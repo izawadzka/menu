@@ -16,21 +16,12 @@
             android:title="@string/menus" />
         <item
             android:id="@+id/nav_shoppingList"
-            android:icon="@drawable/ic_menu_manage"
+            android:icon="@drawable/ic_generate_shopping_list"
             android:title="@string/shopping_lists" />
+        <item
+            android:id="@+id/nav_reports"
+            android:icon="@drawable/ic_reports"
+            android:title="@string/reports" />
     </group>
-
-    <item android:title="Communicate">
-        <menu>
-            <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
-            <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Send" />
-        </menu>
-    </item>
 
 </menu>

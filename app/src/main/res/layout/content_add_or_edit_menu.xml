@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/content_add_or_edit_menu"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingBottom="@dimen/activity_vertical_margin"
@@ -12,10 +13,35 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.example.dell.menu.screens.menus.addOrEditMenu.AddOrEditMenuActivity"
     tools:showIn="@layout/activity_add_or_edit_menu">
-
-    <android.support.v7.widget.RecyclerView
+    <EditText
+        android:id="@+id/newMenuNameTextView"
+        android:hint="@string/menu_name_hint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+<ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_height="wrap_content">
+        <android.support.v7.widget.RecyclerView
         android:id="@+id/dailyMenusRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"></android.support.v7.widget.RecyclerView>
+        <Button
+            android:id="@+id/saveMenuButton"
+            android:text="@string/save_button_text"
+            android:layout_below="@+id/dailyMenusRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/cancelAddingMenuButton"
+            android:text="@string/cancel_button_text"
+            android:layout_below="@+id/saveMenuButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+</ScrollView>
 
 </LinearLayout>

@@ -8,14 +8,15 @@ import com.example.dell.menu.screens.meals.addOrEdit.AddOrEditMealManager;
 import com.example.dell.menu.screens.meals.addOrEdit.ChooseFromProductsManager;
 import com.example.dell.menu.screens.meals.extendedMealInformation.FullMealInformationActivityManager;
 import com.example.dell.menu.screens.meals.MealsFragmentManager;
-import com.example.dell.menu.screens.menus.MenusAdapter;
 import com.example.dell.menu.screens.menus.MenusManager;
-import com.example.dell.menu.screens.menus.addOrEditMenu.createNewDailyMenu.ChooseFromMealsActivity;
+import com.example.dell.menu.screens.menus.addOrEditMenu.AddOrEditMenuManager;
 import com.example.dell.menu.screens.menus.addOrEditMenu.createNewDailyMenu.ChooseFromMealsManager;
 import com.example.dell.menu.screens.menus.addOrEditMenu.createNewDailyMenu.CreateNewDailyMenuManager;
 import com.example.dell.menu.screens.products.ProductFragmentManager;
 import com.example.dell.menu.screens.products.addOrEdit.AddOrEditProductManager;
 import com.example.dell.menu.screens.register.RegisterManager;
+import com.example.dell.menu.screens.shoppingLists.ShoppingListsManager;
+import com.example.dell.menu.screens.shoppingLists.ShowProductsInListManager;
 import com.squareup.otto.Bus;
 
 /**
@@ -36,6 +37,9 @@ public class App extends Application {
     private MenusManager menusManager;
     private ChooseFromMealsManager chooseFromMealsManager;
     private CreateNewDailyMenuManager createNewDailyMenuManager;
+    private AddOrEditMenuManager addOrEditMenuManager;
+    private ShoppingListsManager shoppingListsManager;
+    private ShowProductsInListManager showProductsInListManager;
 
     @Override
     public void onCreate() {
@@ -50,13 +54,28 @@ public class App extends Application {
         createNewDailyMenuManager = new CreateNewDailyMenuManager(bus);
         fullMealInformationActivityManager = new FullMealInformationActivityManager();
         addOrEditProductManager = new AddOrEditProductManager();
+        addOrEditMenuManager = new AddOrEditMenuManager(bus);
+        shoppingListsManager = new ShoppingListsManager(bus);
         chooseFromProductsManager = new ChooseFromProductsManager();
+        showProductsInListManager = new ShowProductsInListManager();
         addOrEditMealManager = new AddOrEditMealManager(bus);
         userStorage =  new UserStorage(PreferenceManager.getDefaultSharedPreferences(this));
     }
 
+    public ShowProductsInListManager getShowProductsInListManager() {
+        return showProductsInListManager;
+    }
+
     public CreateNewDailyMenuManager getCreateNewDailyMenuManager() {
         return createNewDailyMenuManager;
+    }
+
+    public ShoppingListsManager getShoppingListsManager() {
+        return shoppingListsManager;
+    }
+
+    public AddOrEditMenuManager getAddOrEditMenuManager() {
+        return addOrEditMenuManager;
     }
 
     public MenusManager getMenusManager() {

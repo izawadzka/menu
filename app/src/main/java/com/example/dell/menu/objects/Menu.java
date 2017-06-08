@@ -11,9 +11,10 @@ public class Menu {
     private String name;
     private Date creationDate;
     private int cumulativeNumberOfKcal;
-    private int authorsId;
+    private long authorsId;
+    private String authorsName;
 
-    public Menu(String name, Date creationDate, int cumulativeNumberOfKcal, int authorsId){
+    public Menu(String name, Date creationDate, int cumulativeNumberOfKcal, long authorsId){
         this.name = name;
         this.creationDate = creationDate;
         this.cumulativeNumberOfKcal = cumulativeNumberOfKcal;
@@ -22,6 +23,10 @@ public class Menu {
 
     public void setMenuId(int menuId) {
         this.menuId = menuId;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public int getMenuId() {
@@ -40,7 +45,7 @@ public class Menu {
         return cumulativeNumberOfKcal;
     }
 
-    public int getAuthorsId() {
+    public long getAuthorsId() {
         return authorsId;
     }
 }

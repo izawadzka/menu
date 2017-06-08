@@ -9,24 +9,25 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.example.dell.menu.events.shoppingLists.ShowShoppingListEvent;
 import com.example.dell.menu.screens.login.LoginActivity;
 import com.example.dell.menu.screens.meals.MealsFragment;
 import com.example.dell.menu.screens.menus.MenusFragment;
 import com.example.dell.menu.screens.products.ProductsFragment;
-import com.example.dell.menu.tables.mealTypes.BreakfastTable;
-import com.example.dell.menu.tables.mealTypes.DinnerTable;
-import com.example.dell.menu.tables.mealTypes.LunchTable;
+import com.example.dell.menu.screens.shoppingLists.ShoppingListsFragment;
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private UserStorage userStorage;
     private DrawerLayout drawer;
+    private Bus bus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,10 +57,29 @@ public class MainActivity extends AppCompatActivity
         navigationView.setCheckedItem(R.id.nav_shoppingList);
         onNavigationItemSelected(navigationView.getMenu().findItem(R.id.nav_shoppingList));
 
+        bus = ((App)getApplication()).getBus();
+
         TextView usernameTextView = (TextView) navigationView.getHeaderView(0).findViewById(R.id.usernameTextView);
         usernameTextView.setText(userStorage.getLogin());
     }
 
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        bus.register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        bus.unregister(this);
+    }
+
+    @Subscribe
+    public void onShowShoppingList(ShowShoppingListEvent event){
+        showFragment(new ShoppingListsFragment());
+    }
 
     @Override
     public void onBackPressed() {
@@ -114,10 +134,8 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_menu) {
             showFragment(new MenusFragment());
         } else if (id == R.id.nav_shoppingList) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
+            showFragment(new ShoppingListsFragment());
+        } else if (id == R.id.nav_reports) {
 
         }
 

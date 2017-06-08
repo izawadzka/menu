@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import com.example.dell.menu.App;
 import com.example.dell.menu.R;
 import com.example.dell.menu.objects.Menu;
+import com.example.dell.menu.screens.meals.addOrEdit.AddOrEditMealActivity;
 import com.example.dell.menu.screens.menus.addOrEditMenu.AddOrEditMenuActivity;
 
 import java.util.List;
@@ -26,8 +27,11 @@ import butterknife.ButterKnife;
  * Created by Dell on 04.06.2017.
  */
 
-public class MenusFragment extends Fragment {
+public class MenusFragment extends Fragment implements MenusAdapter.MenuClickedListener {
     public static final int REQUEST_CODE_ADD = 1;
+    public static final String SHOW_MODE_KEY = "show_mode";
+    public static final String MENU_ID_KEY = "menuId";
+    public static final int REQUEST_CODE_SHOW = 2;
     @Bind(R.id.menusRecyclerView)
     RecyclerView menusRecyclerView;
 
@@ -56,12 +60,26 @@ public class MenusFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        menusManager.onAttach(this);
+        menusManager.loadMenus();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        menusManager.onStop();
+    }
+
+    @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         menusRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         adapter = new MenusAdapter(((App)getActivity().getApplication()).getBus());
+        adapter.setMenuClickedListener(this);
         menusRecyclerView.setAdapter(adapter);
     }
 
@@ -87,5 +105,13 @@ public class MenusFragment extends Fragment {
 
     public void showMenus(List<Menu> result){
         adapter.setMenus(result);
+    }
+
+    @Override
+    public void menuClicked(Menu menu) {
+        Intent intent = new Intent(getActivity(), AddOrEditMenuActivity.class);
+        intent.putExtra(SHOW_MODE_KEY, true);
+        intent.putExtra(MENU_ID_KEY, menu.getMenuId());
+        startActivityForResult(intent, REQUEST_CODE_SHOW);
     }
 }

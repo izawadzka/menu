@@ -102,7 +102,6 @@ public class MealsToChooseAdapter extends RecyclerView.Adapter<MealsToChooseAdap
 
         @Override
         public void onClick(View v) {
-            Log.d("click", "click");
             itemClicked(meal);
         }
     }
