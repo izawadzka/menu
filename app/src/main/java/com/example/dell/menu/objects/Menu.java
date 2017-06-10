@@ -9,12 +9,12 @@ import java.util.Date;
 public class Menu {
     private int menuId;
     private String name;
-    private Date creationDate;
+    private String creationDate;
     private int cumulativeNumberOfKcal;
     private long authorsId;
     private String authorsName;
 
-    public Menu(String name, Date creationDate, int cumulativeNumberOfKcal, long authorsId){
+    public Menu(String name, String creationDate, int cumulativeNumberOfKcal, long authorsId){
         this.name = name;
         this.creationDate = creationDate;
         this.cumulativeNumberOfKcal = cumulativeNumberOfKcal;
@@ -37,7 +37,7 @@ public class Menu {
         return name;
     }
 
-    public Date getCreationDate() {
+    public String getCreationDate() {
         return creationDate;
     }
 

@@ -23,7 +23,6 @@ import java.util.List;
  */
 
 public class ProductFragmentManager {
-    //private final MenuDataBase menuDataBase;
     protected ProductsFragment productsFragment;
     private final Bus bus;
     private int idOfProductToDelete;
@@ -32,10 +31,6 @@ public class ProductFragmentManager {
         this.bus = bus;
         bus.register(this);
     }
-
-    //public ProductFragmentManager(MenuDataBase menuDataBase){
-        //this.menuDataBase = menuDataBase;
-    //}
 
     public void onAttach(ProductsFragment productsFragment){
         this.productsFragment = productsFragment;

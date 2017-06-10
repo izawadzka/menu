@@ -97,12 +97,7 @@ public class DailyMenusAdapter extends RecyclerView.Adapter<DailyMenusAdapter.Da
             this.dailyMenu = dailyMenu;
             this.position = position;
             dayRecordNumber.setText(String.format("Day %s", position+1));
-            try {
-                DateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
-                dailyMenuDateTextView.setText(dateFormat.format(dailyMenu.getDate()));
-            }catch (Exception e){
-                dailyMenuDateTextView.setText("NN");
-            }
+            dailyMenuDateTextView.setText(dailyMenu.getDate());
         }
 
         @OnClick(R.id.deleteDailyMenuImageButton)

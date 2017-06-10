@@ -1,0 +1,246 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.example.dell.menu.screens.reports.ReportsFragment">
+
+    <TextView
+        android:id="@+id/titleTextView"
+        android:text="Basic report"
+        android:textSize="25dp"
+        android:paddingTop="10dp"
+        android:gravity="center_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/dateTextView"
+        tools:text="Today is: 09.06.2017"
+        android:layout_below="@+id/titleTextView"
+        android:gravity="center_horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/vegetables"
+        android:layout_below="@+id/dateTextView"
+        android:textSize="18dp"
+        android:text="Vegetables: "
+        android:paddingTop="25dp"
+        android:paddingLeft="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:id="@+id/vegetablesQuantity"
+        tools:text="200g"
+        android:textSize="18dp"
+        android:paddingTop="25dp"
+        android:layout_below="@+id/dateTextView"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:paddingRight="100dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/fruits"
+        android:layout_below="@+id/vegetables"
+        android:textSize="18dp"
+        android:text="Fruits: "
+        android:paddingTop="10dp"
+        android:paddingLeft="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:id="@+id/fruitsQuantity"
+        tools:text="200g"
+        android:textSize="18dp"
+        android:paddingTop="10dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:paddingRight="100dp"
+        android:layout_below="@+id/vegetables"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/liquid"
+        android:layout_below="@+id/fruits"
+        android:textSize="18dp"
+        android:text="Liquid: "
+        android:paddingTop="10dp"
+        android:paddingLeft="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:id="@+id/liquidQuantity"
+        tools:text="200g"
+        android:textSize="18dp"
+        android:paddingTop="10dp"
+        android:layout_below="@+id/fruits"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:paddingRight="100dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/meat"
+        android:layout_below="@+id/liquid"
+        android:textSize="18dp"
+        android:text="Meat: "
+        android:paddingTop="10dp"
+        android:paddingLeft="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:id="@+id/meatQuantity"
+        tools:text="200g"
+        android:textSize="18dp"
+        android:paddingTop="10dp"
+        android:layout_below="@+id/liquid"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:paddingRight="100dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+
+    <TextView
+        android:id="@+id/fat"
+        android:layout_below="@+id/meat"
+        android:textSize="18dp"
+        android:text="Fat: "
+        android:paddingTop="10dp"
+        android:paddingLeft="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:id="@+id/fatQuantity"
+        tools:text="200g"
+        android:textSize="18dp"
+        android:paddingTop="10dp"
+        android:layout_below="@+id/meat"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:paddingRight="100dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+
+    <TextView
+        android:id="@+id/dry_goods"
+        android:layout_below="@+id/fat"
+        android:textSize="18dp"
+        android:text="Dry goods: "
+        android:paddingTop="10dp"
+        android:paddingLeft="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:id="@+id/dry_goodsQuantity"
+        tools:text="200g"
+        android:textSize="18dp"
+        android:paddingTop="10dp"
+        android:layout_below="@+id/fat"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:paddingRight="100dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/spice"
+        android:layout_below="@+id/dry_goods"
+        android:textSize="18dp"
+        android:text="Spice: "
+        android:paddingTop="10dp"
+        android:paddingLeft="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:id="@+id/spiceQuantity"
+        tools:text="200g"
+        android:textSize="18dp"
+        android:paddingTop="10dp"
+        android:layout_below="@+id/dry_goods"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:paddingRight="100dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/dairy_products"
+        android:layout_below="@+id/spice"
+        android:textSize="18dp"
+        android:text="Dairy products: "
+        android:paddingTop="10dp"
+        android:paddingLeft="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:id="@+id/dairy_productsQuantity"
+        tools:text="200g"
+        android:textSize="18dp"
+        android:paddingTop="10dp"
+        android:layout_below="@+id/spice"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:paddingRight="100dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/fish"
+        android:layout_below="@+id/dairy_products"
+        android:textSize="18dp"
+        android:text="Fish: "
+        android:paddingTop="10dp"
+        android:paddingLeft="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:id="@+id/fishQuantity"
+        tools:text="200g"
+        android:textSize="18dp"
+        android:paddingTop="10dp"
+        android:layout_below="@+id/dairy_products"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:paddingRight="100dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/bread_goods"
+        android:layout_below="@+id/fish"
+        android:textSize="18dp"
+        android:text="Baked goods: "
+        android:paddingTop="10dp"
+        android:paddingLeft="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:id="@+id/bread_goodsQuantity"
+        tools:text="200g"
+        android:textSize="18dp"
+        android:paddingTop="10dp"
+        android:layout_below="@+id/fish"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:paddingRight="100dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:text="planed to be used from today "
+        android:textSize="19dp"
+        android:gravity="center_horizontal"
+        android:paddingBottom="30dp"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</RelativeLayout>

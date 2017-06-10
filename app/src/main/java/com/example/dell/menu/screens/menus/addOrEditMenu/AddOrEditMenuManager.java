@@ -23,9 +23,11 @@ import com.example.dell.menu.tables.mealTypes.TeatimeTable;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.SimpleTimeZone;
 import java.util.Vector;
 
 /**
@@ -146,7 +148,7 @@ public class AddOrEditMenuManager {
         @Override
         protected DailyMenu doInBackground(DailyMenu... params) {
             MenuDataBase menuDataBase = MenuDataBase.getInstance(addOrEditMenuActivity);
-
+            params[0].clearVectors();
             String breakfastQuery = String.format("SELECT %s, %s FROM %s bf JOIN  %s me ON bf.%s = me.%s WHERE bf.%s = '%s';",
                     MealsTable.getFirstColumnName(), MealsTable.getSecondColumnName(),
                     BreakfastTable.getTableName(), MealsTable.getTableName(),
@@ -239,7 +241,7 @@ public class AddOrEditMenuManager {
                 if(datesCursor.getCount() > 0){
                     datesCursor.moveToPosition(-1);
                     while (datesCursor.moveToNext()){
-                        listOfDailyMenus.add(new DailyMenu(Long.valueOf(dailyMenuId), new Date(datesCursor.getInt(0))));
+                        listOfDailyMenus.add(new DailyMenu(Long.valueOf(dailyMenuId), datesCursor.getString(0)));
                     }
                 }else {
                     return -1;
@@ -416,8 +418,10 @@ public class AddOrEditMenuManager {
                 cumulativeNumberOfKcal += listOfDailyMenu.getCumulativeNumberOfKcal();
             }
             MenuDataBase menuDataBase = MenuDataBase.getInstance(addOrEditMenuActivity);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd-MM-yy");
+
             long result = menuDataBase.insert(MenusTable.getTableName(),
-                    MenusTable.getContentValues(new Menu(menusName, new Date(),
+                    MenusTable.getContentValues(new Menu(menusName, dateFormat.format(new Date()),
                             cumulativeNumberOfKcal,
                             ((App)addOrEditMenuActivity.getApplication()).getUserStorage().getUserId())));
             menuDataBase.close();

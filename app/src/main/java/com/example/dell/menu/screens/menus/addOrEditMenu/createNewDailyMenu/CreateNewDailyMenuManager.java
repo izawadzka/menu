@@ -39,15 +39,15 @@ public class CreateNewDailyMenuManager {
 
     private CreateNewDailyMenuActivity createNewDailyMenuActivity;
     private final Bus bus;
-    private Date dailyMenuDate;
+    private String dailyMenuDate;
     protected Long dailyMenuId;
 
 
-    public Date getDailyMenuDate() {
+    public String getDailyMenuDate() {
         return dailyMenuDate;
     }
 
-    public void setDailyMenuDate(Date dailyMenuDate) {
+    public void setDailyMenuDate(String dailyMenuDate) {
         this.dailyMenuDate = dailyMenuDate;
     }
 
@@ -168,7 +168,6 @@ public class CreateNewDailyMenuManager {
             clearVectorsOfMeals();
 
             dailyMenuDate = event.dailyMenu.getDate();
-            Log.d("DATA", dailyMenuDate.toString());
             breakfastMeals.addAll(event.dailyMenu.getBreakfast());
             lunchMeals.addAll(event.dailyMenu.getLunch());
             dinnerMeals.addAll(event.dailyMenu.getDinner());

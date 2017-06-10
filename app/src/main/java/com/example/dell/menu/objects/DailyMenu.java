@@ -14,7 +14,7 @@ public class DailyMenu {
     public static final String TEATIME_KEY = "teatime";
     public static final String SUPPER_KEY = "supper";
     private Long dailyMenuId;
-    private Date date;
+    private String date;
     private int cumulativeNumberOfKcal = 0;
     private Vector<Meal> breakfast = new Vector<>();
     private Vector<Meal> lunch = new Vector<>();
@@ -22,16 +22,16 @@ public class DailyMenu {
     private Vector<Meal> teatime = new Vector<>();
     private Vector<Meal> supper = new Vector<>();
 
-    public DailyMenu(Long dailyMenuId, Date date){
+    public DailyMenu(Long dailyMenuId, String date){
         this.dailyMenuId = dailyMenuId;
         this.date = date;
     }
 
-    public DailyMenu(Date date){
+    public DailyMenu(String date){
         this.date = date;
     }
 
-    public DailyMenu(Date date, Vector<Meal> breakfast,Vector<Meal> lunch,
+    public DailyMenu(String date, Vector<Meal> breakfast,Vector<Meal> lunch,
                      Vector<Meal> dinner,Vector<Meal> teatime, Vector<Meal> supper){
         this.date = date;
         this.breakfast = breakfast;
@@ -49,7 +49,7 @@ public class DailyMenu {
         return dailyMenuId;
     }
 
-    public Date getDate() {
+    public String getDate() {
         return date;
     }
 
@@ -92,5 +92,13 @@ public class DailyMenu {
 
     public Vector<Meal> getSupper() {
         return supper;
+    }
+
+    public void clearVectors(){
+        breakfast.clear();
+        lunch.clear();
+        dinner.clear();
+        teatime.clear();
+        supper.clear();
     }
 }

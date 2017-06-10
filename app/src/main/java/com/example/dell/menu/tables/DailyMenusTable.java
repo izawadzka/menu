@@ -15,9 +15,9 @@ public class DailyMenusTable {
     private final static String firstColumnName = "dailyMenuId";
     private final static String secondColumnName = "date";
 
-    public static ContentValues getContentValues(Date date){
+    public static ContentValues getContentValues(String date){
         ContentValues contentValues = new ContentValues();
-        contentValues.put(secondColumnName, date.getTime());
+        contentValues.put(secondColumnName, date);
         return contentValues;
     }
 
@@ -25,7 +25,7 @@ public class DailyMenusTable {
     public static String create(){
         String createCommand = String.format("create table %s(", tableName)
                 + String.format("%s INTEGER PRIMARY KEY, ", firstColumnName)
-                + String.format("%s INTEGER); ", secondColumnName);
+                + String.format("%s DATE); ", secondColumnName);
 
         return createCommand;
     }

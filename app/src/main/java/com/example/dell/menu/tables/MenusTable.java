@@ -19,7 +19,7 @@ public class MenusTable {
     public static ContentValues getContentValues(Menu menu){
         ContentValues contentValues = new ContentValues();
         contentValues.put(secondColumnName, menu.getName());
-        contentValues.put(thirdColumnName, menu.getCreationDate().getTime());
+        contentValues.put(thirdColumnName, menu.getCreationDate());
         contentValues.put(fourthColumnName, menu.getCumulativeNumberOfKcal());
         contentValues.put(fifthColumnName, menu.getAuthorsId());
         return contentValues;

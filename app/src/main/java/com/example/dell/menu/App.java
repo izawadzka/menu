@@ -15,6 +15,7 @@ import com.example.dell.menu.screens.menus.addOrEditMenu.createNewDailyMenu.Crea
 import com.example.dell.menu.screens.products.ProductFragmentManager;
 import com.example.dell.menu.screens.products.addOrEdit.AddOrEditProductManager;
 import com.example.dell.menu.screens.register.RegisterManager;
+import com.example.dell.menu.screens.reports.ReportsManager;
 import com.example.dell.menu.screens.shoppingLists.ShoppingListsManager;
 import com.example.dell.menu.screens.shoppingLists.ShowProductsInListManager;
 import com.squareup.otto.Bus;
@@ -40,6 +41,7 @@ public class App extends Application {
     private AddOrEditMenuManager addOrEditMenuManager;
     private ShoppingListsManager shoppingListsManager;
     private ShowProductsInListManager showProductsInListManager;
+    private ReportsManager reportsManager;
 
     @Override
     public void onCreate() {
@@ -59,7 +61,12 @@ public class App extends Application {
         chooseFromProductsManager = new ChooseFromProductsManager();
         showProductsInListManager = new ShowProductsInListManager();
         addOrEditMealManager = new AddOrEditMealManager(bus);
+        reportsManager = new ReportsManager();
         userStorage =  new UserStorage(PreferenceManager.getDefaultSharedPreferences(this));
+    }
+
+    public ReportsManager getReportsManager() {
+        return reportsManager;
     }
 
     public ShowProductsInListManager getShowProductsInListManager() {

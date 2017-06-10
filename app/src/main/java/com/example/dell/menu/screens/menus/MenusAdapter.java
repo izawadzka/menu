@@ -99,12 +99,9 @@ public class MenusAdapter extends RecyclerView.Adapter<MenusAdapter.MenuViewHold
         public void setMenu(Menu menu) {
             this.menu = menu;
             menuNameTextView.setText(menu.getName());
-            DateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
-            try {
-                creationDateTextView.setText(dateFormat.format(menu.getCreationDate()));
-            } catch (Exception e) {
-                Log.e("MenusAdapter", e.getLocalizedMessage());
-            }
+
+            creationDateTextView.setText(menu.getCreationDate());
+
         }
 
         @OnClick(R.id.generateShoppingList)

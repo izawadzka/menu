@@ -107,12 +107,12 @@ public class CreateNewDailyMenuActivity extends AppCompatActivity {
 
     private void setState() {
         if(!dateEditText.getText().toString().equals("")) {
-            DateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
-            try {
-                manager.setDailyMenuDate(dateFormat.parse(dateEditText.getText().toString()));
-            } catch (ParseException e) {
-                Log.e(getPackageName(), e.getLocalizedMessage());
-            }
+            //DateFormat dateFormat = new SimpleDateFormat("dd-MM-yy");
+            //try {
+                manager.setDailyMenuDate(dateEditText.getText().toString());
+            //} catch (ParseException e) {
+              //  Log.e(getPackageName(), e.getLocalizedMessage());
+            //}
         }
     }
 
@@ -197,8 +197,7 @@ public class CreateNewDailyMenuActivity extends AppCompatActivity {
 
     public void getState() {
         if(manager.getDailyMenuDate() != null) {
-            DateFormat dateFormat = new SimpleDateFormat("dd/MM/yy");
-            dateEditText.setText(dateFormat.format(manager.getDailyMenuDate()));
+            dateEditText.setText(manager.getDailyMenuDate());
         }
     }
 

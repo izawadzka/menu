@@ -182,6 +182,7 @@ public class AddOrEditMenuActivity extends AppCompatActivity implements DailyMen
         }
 
         if(!hasErrors){
+            setState();
             addOrEditMenuManager.saveMenu();
         }
     }

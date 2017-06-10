@@ -16,17 +16,6 @@ public class MealsTable {
     private final static String fourthColumnName = "authorsId";
     private final static String fifthColumnName = "recipe";
 
-    public static String create(){
-        String createCommand = String.format("create table %s(", tableName)
-                + String.format("%s INTEGER PRIMARY KEY, ", firstColumnName)
-                + String.format("%s TEXT, ", secondColumnName)
-                + String.format("%s INTEGER, ", thirdColumnName)
-                + String.format("%s INTEGER, ", fourthColumnName)
-                + String.format("%s TEXT);", fifthColumnName);
-
-        return createCommand;
-    }
-
     public static ContentValues getContentValues(Meal meal){
         ContentValues contentValues = new ContentValues();
         contentValues.put(secondColumnName, meal.getName());
@@ -54,5 +43,17 @@ public class MealsTable {
 
     public static String getFirstColumnName() {
         return firstColumnName;
+    }
+
+
+    public static String create(){
+        String createCommand = String.format("create table %s(", tableName)
+                + String.format("%s INTEGER PRIMARY KEY, ", firstColumnName)
+                + String.format("%s TEXT, ", secondColumnName)
+                + String.format("%s INTEGER, ", thirdColumnName)
+                + String.format("%s INTEGER, ", fourthColumnName)
+                + String.format("%s TEXT);", fifthColumnName);
+
+        return createCommand;
     }
 }

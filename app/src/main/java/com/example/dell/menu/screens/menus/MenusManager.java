@@ -8,6 +8,8 @@ import com.example.dell.menu.objects.Menu;
 import com.example.dell.menu.tables.MenusTable;
 import com.squareup.otto.Bus;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -48,15 +50,16 @@ public class MenusManager {
             Cursor cursor = menuDataBase.downloadDatas(query);
             if(cursor.getCount() > 0){
                 cursor.moveToPosition(-1);
-                int menuId, creationDate, cumulativeNumberOfKcal, authorsId;
+                int menuId, cumulativeNumberOfKcal, authorsId;
+                String creationDate;
                 String name;
                 while(cursor.moveToNext()){
                     menuId = cursor.getInt(0);
                     name = cursor.getString(1);
-                    creationDate = cursor.getInt(2);
+                    creationDate = cursor.getString(2);
                     cumulativeNumberOfKcal = cursor.getInt(3);
                     authorsId = cursor.getInt(4);
-                    result.add(new Menu(name, new Date(creationDate), cumulativeNumberOfKcal, authorsId));
+                    result.add(new Menu(name, creationDate, cumulativeNumberOfKcal, authorsId));
                     result.get(result.size()-1).setMenuId(menuId);
                 }
             }

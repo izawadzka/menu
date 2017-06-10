@@ -18,6 +18,7 @@ import com.example.dell.menu.screens.login.LoginActivity;
 import com.example.dell.menu.screens.meals.MealsFragment;
 import com.example.dell.menu.screens.menus.MenusFragment;
 import com.example.dell.menu.screens.products.ProductsFragment;
+import com.example.dell.menu.screens.reports.ReportsFragment;
 import com.example.dell.menu.screens.shoppingLists.ShoppingListsFragment;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -136,7 +137,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_shoppingList) {
             showFragment(new ShoppingListsFragment());
         } else if (id == R.id.nav_reports) {
-
+            showFragment(new ReportsFragment());
         }
 
 
