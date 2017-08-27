@@ -9,10 +9,13 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.example.dell.menu.events.shoppingLists.ShowShoppingListEvent;
 import com.example.dell.menu.screens.login.LoginActivity;
 import com.example.dell.menu.screens.meals.MealsFragment;
@@ -55,13 +58,17 @@ public class MainActivity extends AppCompatActivity
 
         navigationView.setNavigationItemSelectedListener(this);
 
-        navigationView.setCheckedItem(R.id.nav_shoppingList);
-        onNavigationItemSelected(navigationView.getMenu().findItem(R.id.nav_shoppingList));
+        navigationView.setCheckedItem(R.id.nav_menu);
+        onNavigationItemSelected(navigationView.getMenu().findItem(R.id.nav_menu));
 
         bus = ((App)getApplication()).getBus();
 
-        TextView usernameTextView = (TextView) navigationView.getHeaderView(0).findViewById(R.id.usernameTextView);
-        usernameTextView.setText(userStorage.getLogin());
+        ImageView backgroundImageView = (ImageView) navigationView.getHeaderView(0).findViewById(R.id.backgroundImageView);
+        String backgroundImageName = "food.jpg";
+        Glide.with(backgroundImageView.getContext())
+                .load("file:///android_asset/" + backgroundImageName)
+                .into(backgroundImageView);
+
     }
 
 

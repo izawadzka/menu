@@ -9,8 +9,11 @@ import com.example.dell.menu.objects.Meal;
 public class AddMealToDailyMenuEvent {
     public Meal meal;
     public String mealType;
-    public AddMealToDailyMenuEvent(Meal meal, String mealType){
+    public final long dailyMenuId;
+
+    public AddMealToDailyMenuEvent(Meal meal, String mealType, long dailyMenuId){
         this.meal = meal;
         this.mealType = mealType;
+        this.dailyMenuId = dailyMenuId;
     }
 }

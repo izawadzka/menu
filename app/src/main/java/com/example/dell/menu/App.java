@@ -9,9 +9,9 @@ import com.example.dell.menu.screens.meals.addOrEdit.ChooseFromProductsManager;
 import com.example.dell.menu.screens.meals.extendedMealInformation.FullMealInformationActivityManager;
 import com.example.dell.menu.screens.meals.MealsFragmentManager;
 import com.example.dell.menu.screens.menus.MenusManager;
-import com.example.dell.menu.screens.menus.addOrEditMenu.AddOrEditMenuManager;
-import com.example.dell.menu.screens.menus.addOrEditMenu.createNewDailyMenu.ChooseFromMealsManager;
-import com.example.dell.menu.screens.menus.addOrEditMenu.createNewDailyMenu.CreateNewDailyMenuManager;
+import com.example.dell.menu.screens.menus.addOrEditMenu.DailyMenusManager;
+import com.example.dell.menu.screens.menus.addOrEditMenu.dailyMenu.chooseMeals.ChooseFromMealsManager;
+import com.example.dell.menu.screens.menus.addOrEditMenu.dailyMenu.CreateNewDailyMenuManager;
 import com.example.dell.menu.screens.products.ProductFragmentManager;
 import com.example.dell.menu.screens.products.addOrEdit.AddOrEditProductManager;
 import com.example.dell.menu.screens.register.RegisterManager;
@@ -38,10 +38,14 @@ public class App extends Application {
     private MenusManager menusManager;
     private ChooseFromMealsManager chooseFromMealsManager;
     private CreateNewDailyMenuManager createNewDailyMenuManager;
-    private AddOrEditMenuManager addOrEditMenuManager;
     private ShoppingListsManager shoppingListsManager;
     private ShowProductsInListManager showProductsInListManager;
     private ReportsManager reportsManager;
+    private DailyMenusManager dailyMenusManager;
+
+    public DailyMenusManager getDailyMenusManager() {
+        return dailyMenusManager;
+    }
 
     @Override
     public void onCreate() {
@@ -49,20 +53,20 @@ public class App extends Application {
         bus = new Bus();
         loginManager = new LoginManager();
         registerManager = new RegisterManager();
+        userStorage =  new UserStorage(PreferenceManager.getDefaultSharedPreferences(this));
         productFragmentManager = new ProductFragmentManager(bus);
         mealsFragmentManager = new MealsFragmentManager(bus);
-        menusManager = new MenusManager(bus);
+        menusManager = new MenusManager(bus, userStorage);
         chooseFromMealsManager = new ChooseFromMealsManager(bus);
         createNewDailyMenuManager = new CreateNewDailyMenuManager(bus);
         fullMealInformationActivityManager = new FullMealInformationActivityManager();
         addOrEditProductManager = new AddOrEditProductManager();
-        addOrEditMenuManager = new AddOrEditMenuManager(bus);
         shoppingListsManager = new ShoppingListsManager(bus);
         chooseFromProductsManager = new ChooseFromProductsManager();
         showProductsInListManager = new ShowProductsInListManager();
         addOrEditMealManager = new AddOrEditMealManager(bus);
+        dailyMenusManager = new DailyMenusManager(bus);
         reportsManager = new ReportsManager();
-        userStorage =  new UserStorage(PreferenceManager.getDefaultSharedPreferences(this));
     }
 
     public ReportsManager getReportsManager() {
@@ -81,9 +85,6 @@ public class App extends Application {
         return shoppingListsManager;
     }
 
-    public AddOrEditMenuManager getAddOrEditMenuManager() {
-        return addOrEditMenuManager;
-    }
 
     public MenusManager getMenusManager() {
         return menusManager;

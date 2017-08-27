@@ -19,9 +19,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".screens.login.LoginActivity" />
-        <activity android:name=".screens.register.RegisterActivity" />
-        <activity android:name=".screens.meals.extendedMealInformation.FullMealInformationActivity" />
+        <activity
+            android:name=".screens.login.LoginActivity"
+            android:label="Log in" />
+        <activity
+            android:name=".screens.register.RegisterActivity"
+            android:label="Register" />
+        <activity
+            android:name=".screens.meals.extendedMealInformation.FullMealInformationActivity"
+            android:label="Meal information" />
         <activity android:name=".screens.products.addOrEdit.AddOrEditProductActivity" />
         <activity android:name=".screens.meals.addOrEdit.AddOrEditMealActivity" />
         <activity
@@ -32,18 +38,25 @@
                 android:value="com.example.dell.menu.screens.meals.addOrEdit.AddOrEditMealActivity" />
         </activity>
         <activity
-            android:name=".screens.menus.addOrEditMenu.AddOrEditMenuActivity"
-            android:label="@string/title_activity_add_or_edit_menu"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".screens.menus.addOrEditMenu.createNewDailyMenu.CreateNewDailyMenuActivity" />
-        <activity
-            android:name=".screens.menus.addOrEditMenu.createNewDailyMenu.ChooseFromMealsActivity"
-            android:parentActivityName=".screens.menus.addOrEditMenu.createNewDailyMenu.CreateNewDailyMenuActivity">
+            android:name=".screens.menus.addOrEditMenu.dailyMenu.chooseMeals.ChooseFromMealsActivity"
+            android:parentActivityName=".screens.menus.addOrEditMenu.dailyMenu.CreateNewDailyMenuActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.dell.menu.screens.menus.addOrEditMenu.createNewDailyMenu.CreateNewDailyMenuActivity" />
+                android:value="com.example.dell.menu.screens.menus.addOrEditMenu.dailyMenu.CreateNewDailyMenuActivity" />
         </activity>
-        <activity android:name=".screens.shoppingLists.ShowProductsInListActivity"></activity>
+        <activity android:name=".screens.shoppingLists.ShowProductsInListActivity" />
+        <activity
+            android:name=".screens.menus.addOrEditMenu.DailyMenusActivity"
+            android:label="Daily menus">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.dell.menu.MainActivity" />
+        </activity>
+
+        <activity
+            android:name=".screens.menus.addOrEditMenu.dailyMenu.CreateNewDailyMenuActivity"
+            android:label="Create new daily menu">
+        </activity>
     </application>
 
 </manifest>

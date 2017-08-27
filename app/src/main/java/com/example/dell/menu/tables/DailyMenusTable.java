@@ -14,10 +14,12 @@ public class DailyMenusTable {
     private final static String tableName = "DailyMenus";
     private final static String firstColumnName = "dailyMenuId";
     private final static String secondColumnName = "date";
+    private final static String thirdColumnName = "cumulativeNumberOfKcal";
 
-    public static ContentValues getContentValues(String date){
+    public static ContentValues getContentValues(String date, int cumulativeNumberOfKcal){
         ContentValues contentValues = new ContentValues();
         contentValues.put(secondColumnName, date);
+        contentValues.put(thirdColumnName, cumulativeNumberOfKcal);
         return contentValues;
     }
 
@@ -25,7 +27,7 @@ public class DailyMenusTable {
     public static String create(){
         String createCommand = String.format("create table %s(", tableName)
                 + String.format("%s INTEGER PRIMARY KEY, ", firstColumnName)
-                + String.format("%s DATE); ", secondColumnName);
+                + String.format("%s DATE, %s INT); ", secondColumnName, thirdColumnName);
 
         return createCommand;
     }
@@ -41,5 +43,9 @@ public class DailyMenusTable {
 
     public static String getSecondColumnName() {
         return secondColumnName;
+    }
+
+    public static String getThirdColumnName() {
+        return thirdColumnName;
     }
 }

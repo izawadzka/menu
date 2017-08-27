@@ -2,13 +2,15 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
+    android:paddingLeft="10dp"
+    android:paddingRight="@dimen/right_padding_for_buttons"
+    android:paddingTop="5dp"
+    android:background="@color/appBackgroundColor"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
     <TextView
         android:id="@+id/mealNameTextView"
-        android:paddingTop="5dp"
-        android:paddingLeft="10dp"
         tools:text="Spaghetti"
         android:textSize="20dp"
         android:layout_width="wrap_content"
@@ -16,8 +18,6 @@
 
     <TextView
         android:id="@+id/caloriesTextView"
-        android:paddingTop="5dp"
-        android:paddingLeft="10dp"
         android:layout_below="@+id/mealNameTextView"
         tools:text="120 kcal"
         android:layout_width="wrap_content"
@@ -25,20 +25,21 @@
 
     <ImageButton
         android:id="@+id/editMealImageButton"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="3dp"
         android:layout_toLeftOf="@+id/deleteMealImageButton"
         android:src="@drawable/ic_edit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        style="@style/buttonStyle"
+        />
 
     <ImageButton
         android:id="@+id/deleteMealImageButton"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="3dp"
+        android:layout_marginLeft="5dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:src="@drawable/ic_delete"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:src="@drawable/ic_delete_button_without_bckgrnd"
+        style="@style/buttonStyle"
+        />
 
 
 </RelativeLayout>

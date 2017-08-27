@@ -2,20 +2,10 @@ package com.example.dell.menu.screens.shoppingLists;
 
 import android.database.Cursor;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.example.dell.menu.MenuDataBase;
 import com.example.dell.menu.objects.Product;
-import com.example.dell.menu.tables.MealsProductsTable;
-import com.example.dell.menu.tables.MenusDailyMenusTable;
-import com.example.dell.menu.tables.ProductsTable;
 import com.example.dell.menu.tables.ShoppingListsMenusTable;
-import com.example.dell.menu.tables.mealTypes.BreakfastTable;
-import com.example.dell.menu.tables.mealTypes.DinnerTable;
-import com.example.dell.menu.tables.mealTypes.LunchTable;
-import com.example.dell.menu.tables.mealTypes.MealTypeBaseTable;
-import com.example.dell.menu.tables.mealTypes.SupperTable;
-import com.example.dell.menu.tables.mealTypes.TeatimeTable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,7 +76,7 @@ public class ShowProductsInListManager {
                     " mp.mealId IN\n" +
                     "(SELECT mealId FROM Breakfast WHERE dailyMenuId IN\n" +
                     "(SELECT dailyMenuId FROM MenusDailyMenus WHERE menuId = '%s'))", menuId));
-            Cursor breakfastCursor = menuDataBase.downloadDatas(breakfastQuery);
+            Cursor breakfastCursor = menuDataBase.downloadData(breakfastQuery);
             if(breakfastCursor.getCount() > 0){
                 breakfastCursor.moveToPosition(-1);
                 while (breakfastCursor.moveToNext()) {
@@ -107,7 +97,7 @@ public class ShowProductsInListManager {
                     " mp.mealId IN\n" +
                     "(SELECT mealId FROM Lunch WHERE dailyMenuId IN\n" +
                     "(SELECT dailyMenuId FROM MenusDailyMenus WHERE menuId = '%s'))", menuId));
-            Cursor lunchCursor = menuDataBase.downloadDatas(lunchQuery);
+            Cursor lunchCursor = menuDataBase.downloadData(lunchQuery);
             if(lunchCursor.getCount() > 0){
                lunchCursor.moveToPosition(-1);
                 while (lunchCursor.moveToNext()) {
@@ -128,7 +118,7 @@ public class ShowProductsInListManager {
                     " mp.mealId IN\n" +
                     "(SELECT mealId FROM Dinner WHERE dailyMenuId IN\n" +
                     "(SELECT dailyMenuId FROM MenusDailyMenus WHERE menuId = '%s'))", menuId));
-            Cursor dinnerCursor = menuDataBase.downloadDatas(dinnerQuery);
+            Cursor dinnerCursor = menuDataBase.downloadData(dinnerQuery);
             if(dinnerCursor.getCount() > 0){
                 dinnerCursor.moveToPosition(-1);
                 while (dinnerCursor.moveToNext()) {
@@ -151,7 +141,7 @@ public class ShowProductsInListManager {
                     " mp.mealId IN\n" +
                     "(SELECT mealId FROM Teatime WHERE dailyMenuId IN\n" +
                     "(SELECT dailyMenuId FROM MenusDailyMenus WHERE menuId = '%s'))", menuId));
-            Cursor teatimCursor = menuDataBase.downloadDatas(teatimeQuery);
+            Cursor teatimCursor = menuDataBase.downloadData(teatimeQuery);
             if(teatimCursor.getCount() > 0){
                 teatimCursor.moveToPosition(-1);
                 while (teatimCursor.moveToNext()) {
@@ -174,7 +164,7 @@ public class ShowProductsInListManager {
                     " mp.mealId IN\n" +
                     "(SELECT mealId FROM Supper WHERE dailyMenuId IN\n" +
                     "(SELECT dailyMenuId FROM MenusDailyMenus WHERE menuId = '%s'))", menuId));
-            Cursor supperCursor = menuDataBase.downloadDatas(supperQuery);
+            Cursor supperCursor = menuDataBase.downloadData(supperQuery);
             if(supperCursor.getCount() > 0){
                 supperCursor.moveToPosition(-1);
                 while (supperCursor.moveToNext()) {
@@ -226,7 +216,7 @@ public class ShowProductsInListManager {
                     ShoppingListsMenusTable.getFirstColumnName(),
                     shoppingListId);
 
-            Cursor cursor = menuDataBase.downloadDatas(query);
+            Cursor cursor = menuDataBase.downloadData(query);
             if(cursor.getCount() == 1){
                 cursor.moveToPosition(-1);
                 while (cursor.moveToNext()){

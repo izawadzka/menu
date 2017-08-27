@@ -1,4 +1,4 @@
-package com.example.dell.menu.screens.menus.addOrEditMenu.createNewDailyMenu;
+package com.example.dell.menu.screens.menus.addOrEditMenu.dailyMenu.chooseMeals;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,7 +8,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -19,6 +18,7 @@ import com.example.dell.menu.R;
 import com.example.dell.menu.objects.Meal;
 import com.example.dell.menu.screens.meals.MealsFragment;
 import com.example.dell.menu.screens.meals.extendedMealInformation.FullMealInformationActivity;
+import com.example.dell.menu.screens.menus.addOrEditMenu.dailyMenu.DailyMenuFragment;
 
 import java.util.List;
 
@@ -33,6 +33,7 @@ public class ChooseFromMealsActivity extends AppCompatActivity implements MealsT
     private ChooseFromMealsManager chooseFromMealsManager;
     private MealsToChooseAdapter adapter;
     private String mealType;
+    private long currentDailyMenuId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +41,8 @@ public class ChooseFromMealsActivity extends AppCompatActivity implements MealsT
         setContentView(R.layout.activity_choose_from_meals);
         ButterKnife.bind(this);
 
-        mealType = getIntent().getStringExtra(CreateNewDailyMenuActivity.MEAL_TYPE_KEY);
+        mealType = getIntent().getStringExtra(DailyMenuFragment.MEAL_TYPE_KEY);
+        currentDailyMenuId = getIntent().getLongExtra(DailyMenuFragment.DAILY_MENU_ID_KEY, -1);
 
         actionBar = getSupportActionBar();
         actionBar.setDefaultDisplayHomeAsUpEnabled(true);
@@ -48,7 +50,7 @@ public class ChooseFromMealsActivity extends AppCompatActivity implements MealsT
         chooseFromMealsManager = ((App)getApplication()).getChooseFromMealsManager();
 
         mealsToChooseRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new MealsToChooseAdapter(((App) getApplication()).getBus(), mealType);
+        adapter = new MealsToChooseAdapter(((App) getApplication()).getBus(), mealType, currentDailyMenuId);
         adapter.setMealClickedListener(this);
         mealsToChooseRecyclerView.setAdapter(adapter);
     }
@@ -57,6 +59,7 @@ public class ChooseFromMealsActivity extends AppCompatActivity implements MealsT
     protected void onStart() {
         super.onStart();
         chooseFromMealsManager.onAttach(this);
+        chooseFromMealsManager.loadMeals();
     }
 
     @Override
@@ -89,7 +92,7 @@ public class ChooseFromMealsActivity extends AppCompatActivity implements MealsT
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId() == android.R.id.home){
-            setResult(CreateNewDailyMenuActivity.RESULT_OK);
+            setResult(DailyMenuFragment.RESULT_OK);
             NavUtils.navigateUpFromSameTask(this);
             return true;
         }

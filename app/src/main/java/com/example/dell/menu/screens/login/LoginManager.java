@@ -1,7 +1,6 @@
 package com.example.dell.menu.screens.login;
 
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 
 import com.example.dell.menu.MenuDataBase;
@@ -39,7 +38,7 @@ public class LoginManager {
             if(loginActivity != null) {
                 MenuDataBase menuDataBase = MenuDataBase.getInstance(loginActivity);
                 String query = String.format("SELECT * FROM %s WHERE %s = '%s' AND %s = '%s';", UsersTable.getTableName(), UsersTable.getSecondColumnName(), params[0], UsersTable.getThirdColumnName(), params[1]);
-                Cursor cursor = menuDataBase.downloadDatas(query);
+                Cursor cursor = menuDataBase.downloadData(query);
                 int count = cursor.getCount();
                 menuDataBase.close();
                 return count;

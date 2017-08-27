@@ -1,10 +1,12 @@
 package com.example.dell.menu.objects;
 
+import java.io.Serializable;
+
 /**
  * Created by Dell on 27.05.2017.
  */
 
-public class Meal {
+public class Meal implements Serializable{
     private int mealsId;
     private String name;
     private int cumulativeNumberOfKcal;
@@ -14,6 +16,10 @@ public class Meal {
 
     public Meal(int mealsId){
         this.mealsId = mealsId;
+    }
+    public Meal(int mealsId, String name){
+        this.mealsId = mealsId;
+        this.name = name;
     }
 
     public Meal(int mealsId, String name, int cumulativeNumberOfKcal,int authorsId, String recipe){
@@ -65,5 +71,10 @@ public class Meal {
 
     public void setAuthorsName(String authorsName) {
         this.authorsName = authorsName;
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }

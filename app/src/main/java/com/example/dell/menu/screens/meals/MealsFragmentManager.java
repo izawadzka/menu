@@ -2,7 +2,6 @@ package com.example.dell.menu.screens.meals;
 
 import android.database.Cursor;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.example.dell.menu.MenuDataBase;
 import com.example.dell.menu.events.meals.DeleteMealEvent;
@@ -66,7 +65,7 @@ public class MealsFragmentManager {
         if(mealsFragment != null){
             MenuDataBase menuDataBase = MenuDataBase.getInstance(mealsFragment.getActivity());
         String query = String.format("SELECT %s FROM %s WHERE %s = '%s';", UsersTable.getSecondColumnName(), UsersTable.getTableName(), UsersTable.getFirstColumnName(), meal.getAuthorsId());
-        Cursor cursor = menuDataBase.downloadDatas(query);
+        Cursor cursor = menuDataBase.downloadData(query);
         if(cursor.getCount() != 0){
             cursor.moveToPosition(-1);
             cursor.moveToNext();
@@ -115,7 +114,7 @@ public class MealsFragmentManager {
 
             List<Meal> results = new ArrayList<>();
             String query = String.format("SELECT * FROM %s ", MealsTable.getTableName());
-            Cursor cursor = menuDataBase.downloadDatas(query);
+            Cursor cursor = menuDataBase.downloadData(query);
 
             if (cursor.getCount() > 0) {
                 int mealsId, authorsId;

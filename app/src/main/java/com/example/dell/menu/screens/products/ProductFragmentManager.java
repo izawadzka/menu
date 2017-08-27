@@ -2,7 +2,6 @@ package com.example.dell.menu.screens.products;
 
 import android.database.Cursor;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.example.dell.menu.MenuDataBase;
 import com.example.dell.menu.events.products.DeleteProductAnywayEvent;
@@ -72,7 +71,7 @@ public class ProductFragmentManager {
             MenuDataBase menuDataBase = MenuDataBase.getInstance(productsFragment.getActivity());
 
             String query = String.format("SELECT * FROM %s ", ProductsTable.getTableName());
-            Cursor cursor = menuDataBase.downloadDatas(query);
+            Cursor cursor = menuDataBase.downloadData(query);
             List<Product> results =  new ArrayList<>();
 
             if (cursor.getCount() > 0) {
@@ -113,7 +112,7 @@ public class ProductFragmentManager {
             String query = String.format("SELECT %s FROM %s WHERE %s = '%s'",
                     MealsProductsTable.getSecondColumnName(), MealsProductsTable.getTableName(),
                     MealsProductsTable.getFirstColumnName(), idOfProductToDelete);
-            Cursor cursor = menuDataBase.downloadDatas(query);
+            Cursor cursor = menuDataBase.downloadData(query);
 
             if(cursor.getCount()>0){
                 cursor.moveToPosition(-1);

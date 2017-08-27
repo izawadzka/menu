@@ -9,16 +9,18 @@ import java.util.Date;
 public class Menu {
     private int menuId;
     private String name;
-    private String creationDate;
+    private String creationDateString;
+    private java.sql.Date creationDate;
     private int cumulativeNumberOfKcal;
     private long authorsId;
     private String authorsName;
 
-    public Menu(String name, String creationDate, int cumulativeNumberOfKcal, long authorsId){
+    public Menu(String name, java.sql.Date creationDate, int cumulativeNumberOfKcal, long authorsId){
         this.name = name;
         this.creationDate = creationDate;
         this.cumulativeNumberOfKcal = cumulativeNumberOfKcal;
         this.authorsId = authorsId;
+        creationDateString = creationDate.toString();
     }
 
     public void setMenuId(int menuId) {
@@ -38,7 +40,7 @@ public class Menu {
     }
 
     public String getCreationDate() {
-        return creationDate;
+        return creationDateString;
     }
 
     public int getCumulativeNumberOfKcal() {
@@ -47,5 +49,9 @@ public class Menu {
 
     public long getAuthorsId() {
         return authorsId;
+    }
+
+    public void setCumulativeNumberOfKcal(int cumulativeNumberOfKcal) {
+        this.cumulativeNumberOfKcal = cumulativeNumberOfKcal;
     }
 }

@@ -51,6 +51,7 @@ public class ChooseFromProductsActivity extends AppCompatActivity {
         super.onStart();
         chooseFromProductsManager.onAttach(this);
         ((App) getApplication()).getBus().register(this);
+        chooseFromProductsManager.loadProducts();
     }
 
     @Override

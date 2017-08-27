@@ -1,7 +1,6 @@
 package com.example.dell.menu.screens.meals.addOrEdit;
 
 import android.content.ContentValues;
-import android.content.SearchRecentSuggestionsProvider;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -221,7 +220,7 @@ public class AddOrEditMealManager {
                     ProductsTable.getFirstColumnName(),
                     MealsProductsTable.getSecondColumnName(),
                     params[0]);
-            Cursor cursor = menuDataBase.downloadDatas(query);
+            Cursor cursor = menuDataBase.downloadData(query);
             if(cursor.getCount() > 0){
                 cursor.moveToPosition(-1);
                 while (cursor.moveToNext()){
@@ -249,7 +248,7 @@ public class AddOrEditMealManager {
             MenuDataBase menuDataBase = MenuDataBase.getInstance(addOrEditMealActivity);
             String query = String.format("SELECT * FROM %s WHERE %s = '%s'",
                     MealsTable.getTableName(), MealsTable.getFirstColumnName(), params[0]);
-            Cursor cursor = menuDataBase.downloadDatas(query);
+            Cursor cursor = menuDataBase.downloadData(query);
             if(cursor.getCount() == 1){
                 cursor.moveToPosition(0);
                 Meal meal = new Meal(cursor.getInt(0), cursor.getString(1), cursor.getInt(2),

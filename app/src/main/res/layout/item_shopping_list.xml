@@ -2,9 +2,10 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tool="http://schemas.android.com/tools"
     android:orientation="vertical"
-    android:paddingLeft="5dp"
+    android:paddingLeft="10dp"
     android:paddingTop="5dp"
     android:paddingRight="5dp"
+    android:background="@color/appBackgroundColor"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
     <TextView
@@ -21,10 +22,11 @@
         android:layout_height="wrap_content" />
     <ImageButton
         android:id="@+id/deleteShoppingListImageButton"
-        android:src="@drawable/ic_delete"
+        android:src="@drawable/ic_delete_button_without_bckgrnd"
+        android:layout_marginTop="7dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        style="@style/buttonStyle"
+        />
 
 </RelativeLayout>

@@ -4,19 +4,23 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.dell.menu.App;
 import com.example.dell.menu.R;
 import com.example.dell.menu.objects.Menu;
-import com.example.dell.menu.screens.meals.addOrEdit.AddOrEditMealActivity;
-import com.example.dell.menu.screens.menus.addOrEditMenu.AddOrEditMenuActivity;
+import com.example.dell.menu.screens.menus.addOrEditMenu.DailyMenusActivity;
 
 import java.util.List;
 
@@ -28,15 +32,13 @@ import butterknife.ButterKnife;
  */
 
 public class MenusFragment extends Fragment implements MenusAdapter.MenuClickedListener {
-    public static final int REQUEST_CODE_ADD = 1;
-    public static final String SHOW_MODE_KEY = "show_mode";
     public static final String MENU_ID_KEY = "menuId";
-    public static final int REQUEST_CODE_SHOW = 2;
     @Bind(R.id.menusRecyclerView)
     RecyclerView menusRecyclerView;
 
     private MenusAdapter adapter;
     private MenusManager menusManager;
+    private LayoutInflater layoutInflater;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -48,7 +50,8 @@ public class MenusFragment extends Fragment implements MenusAdapter.MenuClickedL
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_menus, container, false);
+        this.layoutInflater = inflater;
+        View view = this.layoutInflater.inflate(R.layout.fragment_menus, container, false);
         ButterKnife.bind(this, view);
         return view;
     }
@@ -100,7 +103,31 @@ public class MenusFragment extends Fragment implements MenusAdapter.MenuClickedL
     }
 
     private void addNewMenu() {
-        startActivityForResult(new Intent(getActivity(), AddOrEditMenuActivity.class), REQUEST_CODE_ADD);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        View view = layoutInflater.inflate(R.layout.create_new_menu_dialog_layout, null);
+        final EditText menuNameEditText = (EditText) view.findViewById(R.id.addMenuNameEditText);
+        builder.setView(view);
+        final AlertDialog dialog = builder.create();
+        dialog.show();
+        Button addNewMenu = (Button) view.findViewById(R.id.addMenuButton);
+        addNewMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String menuName = menuNameEditText.getText().toString();
+                if(menuName.length() > 0){
+                    dialog.dismiss();
+                    menusManager.addNewMenu(menuName);
+                }else menuNameEditText.setError("Menu must have a name!");
+            }
+        });
+
+        Button cancelButton = (Button) view.findViewById(R.id.cancelButton);
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
     }
 
     public void showMenus(List<Menu> result){
@@ -109,9 +136,19 @@ public class MenusFragment extends Fragment implements MenusAdapter.MenuClickedL
 
     @Override
     public void menuClicked(Menu menu) {
-        Intent intent = new Intent(getActivity(), AddOrEditMenuActivity.class);
-        intent.putExtra(SHOW_MODE_KEY, true);
-        intent.putExtra(MENU_ID_KEY, menu.getMenuId());
-        startActivityForResult(intent, REQUEST_CODE_SHOW);
+        Intent intent = new Intent(getContext(), DailyMenusActivity.class);
+        intent.putExtra(MENU_ID_KEY, (long)menu.getMenuId());
+        startActivity(intent);
+    }
+
+    public void addNewMenuSuccess(Long menuId) {
+        Toast.makeText(getContext(), "Successfully added new menu!", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(getContext(), DailyMenusActivity.class);
+        intent.putExtra(MENU_ID_KEY, menuId);
+        startActivity(intent);
+    }
+
+    public void addNewMenuFailed() {
+        Toast.makeText(getContext(), "An error occurred while trying to create new menu!", Toast.LENGTH_SHORT).show();
     }
 }

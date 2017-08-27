@@ -32,7 +32,7 @@ public class Product {
         return productId;
     }
 
-    public Product(String name, int quantity, String storageType){  //constructor for products that are to be showed in meals full activity
+    public Product(String name, double quantity, String storageType){  //constructor for products that are to be showed in meals full activity
         this.name = name;
         this.quantity = quantity;
         this.storageType = storageType;

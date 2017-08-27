@@ -4,8 +4,8 @@
     android:orientation="horizontal"
     android:paddingTop="10dp"
     android:paddingLeft="10dp"
-    android:paddingBottom="10dp"
-    android:paddingRight="10dp"
+    android:paddingRight="@dimen/right_padding_for_buttons"
+    android:background="@color/appBackgroundColor"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -20,6 +20,7 @@
     <EditText
         android:id="@+id/quantityEditText"
         android:layout_toLeftOf="@+id/quantityUnitTextView"
+        android:layout_toStartOf="@+id/quantityUnitTextView"
         android:layout_width="50dp"
         android:layout_height="wrap_content" />
 
@@ -28,16 +29,19 @@
         tool:text="g"
         android:textSize="20dp"
         android:paddingTop="7dp"
+        android:paddingRight="5dp"
         android:layout_toLeftOf="@+id/addProductToIngredientsButton"
+        android:layout_toStartOf="@+id/addProductToIngredientsButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
     <ImageButton
         android:id="@+id/addProductToIngredientsButton"
         android:src="@drawable/ic_add"
+        android:layout_marginTop="7dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        style="@style/buttonStyle"
+        />
 
 </RelativeLayout>

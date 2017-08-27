@@ -1,7 +1,6 @@
-package com.example.dell.menu.screens.menus.addOrEditMenu.createNewDailyMenu;
+package com.example.dell.menu.screens.menus.addOrEditMenu.dailyMenu.chooseMeals;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,12 +26,14 @@ import butterknife.OnClick;
 public class MealsToChooseAdapter extends RecyclerView.Adapter<MealsToChooseAdapter.MealsToChooseViewHolder> {
     private final Bus bus;
     private final String mealType;
+    private final long currentDailyMenuId;
     List<Meal> meals = new ArrayList<>();
     private MealToChooseClickedListener mealToChooseClickedListener;
 
-    public MealsToChooseAdapter(Bus bus, String mealType) {
+    public MealsToChooseAdapter(Bus bus, String mealType, long currentDailyMenuId) {
         this.bus = bus;
         this.mealType = mealType;
+        this.currentDailyMenuId = currentDailyMenuId;
     }
 
     @Override
@@ -96,7 +97,7 @@ public class MealsToChooseAdapter extends RecyclerView.Adapter<MealsToChooseAdap
 
         @OnClick(R.id.addMealToDailyMenuImageButton)
         public void onAddClicked() {
-            bus.post(new AddMealToDailyMenuEvent(meal, mealType));
+            bus.post(new AddMealToDailyMenuEvent(meal, mealType, currentDailyMenuId));
         }
 
 

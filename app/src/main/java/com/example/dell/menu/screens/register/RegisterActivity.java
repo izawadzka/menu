@@ -52,7 +52,6 @@ public class RegisterActivity extends AppCompatActivity {
 
     @OnClick(R.id.registerButton)
     public void onRegisterClicked() {
-        // TODO: 25.05.2017 walidacja danych
         registerManager.register(registerUsernameEditText.getText().toString(), registerPasswordEditText.getText().toString());
     }
 

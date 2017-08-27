@@ -2,11 +2,9 @@ package com.example.dell.menu.screens.meals.extendedMealInformation;
 
 import android.database.Cursor;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.example.dell.menu.MenuDataBase;
 import com.example.dell.menu.objects.Product;
-import com.example.dell.menu.screens.meals.extendedMealInformation.FullMealInformationActivity;
 import com.example.dell.menu.tables.MealsProductsTable;
 import com.example.dell.menu.tables.ProductsTable;
 
@@ -63,12 +61,12 @@ public class FullMealInformationActivityManager {
                     ProductsTable.getFirstColumnName(),
                     MealsProductsTable.getSecondColumnName(),
                     getCurrentMealsId());
-            Cursor cursor = menuDataBase.downloadDatas(query);
+            Cursor cursor = menuDataBase.downloadData(query);
 
             if(cursor.getCount() > 0){
                 cursor.moveToPosition(-1);
                 while (cursor.moveToNext()){
-                    result.add(new Product(cursor.getString(0), cursor.getInt(2), cursor.getString(1)));
+                    result.add(new Product(cursor.getString(0), cursor.getDouble(2), cursor.getString(1)));
                 }
             }
             menuDataBase.close();

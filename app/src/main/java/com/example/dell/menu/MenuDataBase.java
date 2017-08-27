@@ -20,15 +20,12 @@ public class MenuDataBase{
     private MenuDataBase(Context context) {
         this.openHelper = new DatabaseOpenHelper(context);
     }
-
     public static MenuDataBase getInstance(Context context) {
         if (instance == null) {
             instance = new MenuDataBase(context);
         }
         return instance;
     }
-
-
     public void open() {
         this.database = openHelper.getWritableDatabase();
     }
@@ -46,7 +43,7 @@ public class MenuDataBase{
         return callback;
     }
 
-    public Cursor downloadDatas(String query) {
+    public Cursor downloadData(String query) {
         open();
         return database.rawQuery(query, null);
     }

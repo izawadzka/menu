@@ -27,7 +27,7 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_add_or_edit_menu">Create menu</string>
-    <string name="date_hint">Date: e.g. 01/10/2016</string>
+    <string name="date_hint">e.g. 2016-01-01</string>
     <string name="breakfast">Breakfast:</string>
     <string name="lunch">Lunch:</string>
     <string name="dinner">Dinner:</string>
@@ -35,4 +35,6 @@
     <string name="supper">Supper:</string>
     <string name="menu_name_hint">Menu name</string>
     <string name="reports">Reports</string>
+    <string name="new_menu_name_hint">new menu name</string>
+    <string name="delete_daily_menu_button">delete daily menu</string>
 </resources>

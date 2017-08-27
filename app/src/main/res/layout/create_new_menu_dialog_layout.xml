@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/appBackgroundColor"
+    android:paddingTop="20dp"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp"
+    android:paddingBottom="20dp"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <EditText
+        android:id="@+id/addMenuNameEditText"
+        android:hint="@string/new_menu_name_hint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:text="add new menu"
+        android:id="@+id/addMenuButton"
+        android:layout_gravity="center_horizontal"
+        style="@style/wideButtonStyle" />
+    <Button
+        android:id="@+id/cancelButton"
+        android:text="cancel"
+        android:layout_gravity="center_horizontal"
+        style="@style/wideButtonStyle" />
+
+
+</LinearLayout>

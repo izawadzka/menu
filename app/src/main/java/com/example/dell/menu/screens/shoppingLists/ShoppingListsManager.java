@@ -2,15 +2,11 @@ package com.example.dell.menu.screens.shoppingLists;
 
 import android.database.Cursor;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.example.dell.menu.MenuDataBase;
 import com.example.dell.menu.events.shoppingLists.GenerateShoppingListButtonClickedEvent;
 import com.example.dell.menu.objects.Menu;
-import com.example.dell.menu.objects.Product;
 import com.example.dell.menu.objects.ShoppingList;
-import com.example.dell.menu.screens.login.LoginActivity;
-import com.example.dell.menu.tables.MenusTable;
 import com.example.dell.menu.tables.ShoppingListsMenusTable;
 import com.example.dell.menu.tables.ShoppingListsTable;
 import com.example.dell.menu.tables.UsersTable;
@@ -89,7 +85,7 @@ public class ShoppingListsManager {
             List<ShoppingList> shoppingLists = new ArrayList<>();
             MenuDataBase menuDataBase = MenuDataBase.getInstance(shoppingListsFragment.getActivity());
             String query = String.format("SELECT * FROM %s", ShoppingListsTable.getTableName());
-            Cursor cursor = menuDataBase.downloadDatas(query);
+            Cursor cursor = menuDataBase.downloadData(query);
             if(cursor.getCount() > 0){
                 cursor.moveToPosition(-1);
                 while (cursor.moveToNext()){
@@ -104,7 +100,7 @@ public class ShoppingListsManager {
                 String authorsNameQuery = String.format("SELECT %s FROM %s WHERE %s = '%s'",
                         UsersTable.getSecondColumnName(), UsersTable.getTableName(),
                         UsersTable.getFirstColumnName(), shoppingList.getAuthorsId());
-                Cursor authorsNameCursor = menuDataBase.downloadDatas(authorsNameQuery);
+                Cursor authorsNameCursor = menuDataBase.downloadData(authorsNameQuery);
                 if(authorsNameCursor.getCount() > 0){
                     authorsNameCursor.moveToPosition(-1);
                     while (authorsNameCursor.moveToNext()){

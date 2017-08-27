@@ -1,18 +1,13 @@
 package com.example.dell.menu.screens.reports;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.os.AsyncTask;
-import android.text.LoginFilter;
-import android.util.Log;
 
 import com.example.dell.menu.MenuDataBase;
 import com.example.dell.menu.objects.Report;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
-import java.util.Vector;
 
 /**
  * Created by Dell on 09.06.2017.
@@ -50,7 +45,7 @@ public class ReportsManager {
                     "(SELECT dailyMenuId FROM DailyMenus WHERE " +
                     "DailyMenus.date > %s))" +
                     "GROUP BY type", dateFormat.format(new Date()));
-            Cursor breakfastCursor = menuDataBase.downloadDatas(breakfastsReportQuery);
+            Cursor breakfastCursor = menuDataBase.downloadData(breakfastsReportQuery);
             if(breakfastCursor.getCount() > 0){
                 breakfastCursor.moveToPosition(-1);
                 while (breakfastCursor.moveToNext()){
@@ -65,7 +60,7 @@ public class ReportsManager {
                     "(SELECT dailyMenuId FROM DailyMenus WHERE " +
                     "DailyMenus.date > %s))" +
                     "GROUP BY type", dateFormat.format(new Date()));
-            Cursor lunchCursor = menuDataBase.downloadDatas(lunchesReportQuery);
+            Cursor lunchCursor = menuDataBase.downloadData(lunchesReportQuery);
             if(lunchCursor.getCount() > 0){
                 lunchCursor.moveToPosition(-1);
                 while (lunchCursor.moveToNext()){
@@ -81,7 +76,7 @@ public class ReportsManager {
                     "(SELECT dailyMenuId FROM DailyMenus WHERE " +
                     "DailyMenus.date > %s))" +
                     "GROUP BY type", dateFormat.format(new Date()));
-            Cursor dinnerCursor = menuDataBase.downloadDatas(dinnerReportQuery);
+            Cursor dinnerCursor = menuDataBase.downloadData(dinnerReportQuery);
             if(dinnerCursor.getCount() > 0){
                 dinnerCursor.moveToPosition(-1);
                 while (dinnerCursor.moveToNext()){
@@ -96,7 +91,7 @@ public class ReportsManager {
                     "(SELECT dailyMenuId FROM DailyMenus WHERE " +
                     "DailyMenus.date > %s))" +
                     "GROUP BY type", dateFormat.format(new Date()));
-            Cursor teatimeCursor = menuDataBase.downloadDatas(teatimeReportQuery);
+            Cursor teatimeCursor = menuDataBase.downloadData(teatimeReportQuery);
             if(teatimeCursor.getCount() > 0){
                 teatimeCursor.moveToPosition(-1);
                 while (teatimeCursor.moveToNext()){
@@ -112,7 +107,7 @@ public class ReportsManager {
                     "(SELECT dailyMenuId FROM DailyMenus WHERE " +
                     "DailyMenus.date > %s))" +
                     "GROUP BY type", dateFormat.format(new Date()));
-            Cursor supperCursor = menuDataBase.downloadDatas(suppersReportQuery);
+            Cursor supperCursor = menuDataBase.downloadData(suppersReportQuery);
             if(supperCursor.getCount() > 0){
                 supperCursor.moveToPosition(-1);
                 while (supperCursor.moveToNext()){

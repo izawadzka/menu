@@ -6,6 +6,7 @@
     android:paddingLeft="5dp"
     android:paddingBottom="5dp"
     android:paddingRight="5dp"
+    android:background="@color/appBackgroundColor"
     xmlns:tool="http://schemas.android.com/tools">
     <TextView
         android:id="@+id/menuNameTextView"
@@ -22,20 +23,24 @@
     <ImageButton
         android:id="@+id/generateShoppingList"
         android:src="@drawable/ic_generate_shopping_list"
+        android:layout_marginTop="7dp"
+        android:layout_marginRight="@dimen/right_padding_for_buttons"
         android:layout_toLeftOf="@+id/editMenuImageButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_toStartOf="@+id/editMenuImageButton"
+        style="@style/buttonStyle" />
     <ImageButton
         android:id="@+id/editMenuImageButton"
         android:src="@drawable/ic_edit"
+        android:layout_marginTop="7dp"
+        android:layout_marginRight="@dimen/right_padding_for_buttons"
         android:layout_toLeftOf="@+id/deleteMenuImageButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_toStartOf="@+id/deleteMenuImageButton"
+        style="@style/buttonStyle" />
     <ImageButton
         android:id="@+id/deleteMenuImageButton"
         android:src="@drawable/ic_delete"
+        android:layout_marginTop="7dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        style="@style/buttonStyle" />
 </RelativeLayout>
