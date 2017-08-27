@@ -11,13 +11,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.cunoraz.tagview.Tag;
 import com.cunoraz.tagview.TagView;
+import com.example.dell.menu.App;
 import com.example.dell.menu.R;
 import com.example.dell.menu.colors.ColorsBase;
 import com.example.dell.menu.objects.DailyMenu;
 import com.example.dell.menu.objects.Meal;
+import com.example.dell.menu.screens.meals.MealsFragment;
+import com.example.dell.menu.screens.meals.extendedMealInformation.FullMealInformationActivity;
 import com.example.dell.menu.screens.menus.addOrEditMenu.DailyMenusActivity;
 
 import java.util.ArrayList;
@@ -115,8 +119,39 @@ public class DailyMenuFragment extends Fragment {
         tagView.setOnTagClickListener(new TagView.OnTagClickListener() {
             @Override
             public void onTagClick(Tag tag, int position) {
-                // TODO: 15.08.2017
-                Log.d("Tag", "klikniety");
+                String authorsName;
+                Meal clickedMeal;
+
+                switch (mealType){
+                    case BREAKFAST_KEY: clickedMeal = dailyMenu.getBreakfast().elementAt(position);
+                        break;
+                    case LUNCH_KEY: clickedMeal = dailyMenu.getLunch().elementAt(position);
+                        break;
+                    case DINNER_KEY: clickedMeal = dailyMenu.getDinner().elementAt(position);
+                        break;
+                    case TEATIME_KEY: clickedMeal = dailyMenu.getTeatime().elementAt(position);
+                        break;
+                    case SUPPER_KEY: clickedMeal = dailyMenu.getSupper().elementAt(position);
+                        break;
+                    default: clickedMeal = null;
+                }
+
+                if(clickedMeal == null) Toast.makeText(getContext(),"Error. Enabled to show information about meal", Toast.LENGTH_SHORT).show();
+                else{
+                    if(clickedMeal.getAuthorsId() == 0){
+                        authorsName = "authomaticly_generated";
+                    }else{
+                        authorsName = ((App)getActivity().getApplication()).getMealsFragmentManager().getAuthorsName(clickedMeal);
+                    }
+
+                    Intent intent = new Intent(getContext(), FullMealInformationActivity.class);
+                    intent.putExtra(MealsFragment.MEAL_NAME_KEY, clickedMeal.getName());
+                    intent.putExtra(MealsFragment.MEAL_NUMBER_OF_KCAL_KEY, String.format("%s",clickedMeal.getCumulativeNumberOfKcal()));
+                    intent.putExtra(MealsFragment.MEALS_AUTHOR_NAME_KEY, authorsName);
+                    intent.putExtra(MealsFragment.MEALS_RECIPE_KEY, clickedMeal.getRecipe());
+                    intent.putExtra(MealsFragment.MEALS_ID_KEY, String.format("%s",clickedMeal.getMealsId()));
+                    startActivityForResult(intent, MealsFragment.REQUEST_CODE_SHOW);
+                }
             }
         });
     }

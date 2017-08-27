@@ -9,6 +9,8 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.example.dell.menu.R;
+import com.example.dell.menu.events.menus.DeleteMenuEvent;
+import com.example.dell.menu.events.menus.EditMenuNameEvent;
 import com.example.dell.menu.events.shoppingLists.GenerateShoppingListButtonClickedEvent;
 import com.example.dell.menu.events.shoppingLists.ShowShoppingListEvent;
 import com.example.dell.menu.objects.Menu;
@@ -74,7 +76,7 @@ public class MenusAdapter extends RecyclerView.Adapter<MenusAdapter.MenuViewHold
         TextView menuNameTextView;
         @Bind(R.id.creationDateTextView)
         TextView creationDateTextView;
-        @Bind(R.id.editMenuImageButton)
+        @Bind(R.id.editMenuNameImageButton)
         ImageButton editMenuImageButton;
         @Bind(R.id.deleteMenuImageButton)
         ImageButton deleteMenuImageButton;
@@ -108,6 +110,16 @@ public class MenusAdapter extends RecyclerView.Adapter<MenusAdapter.MenuViewHold
         public void onGenerateShoppingListButtonClicked(){
             bus.post(new ShowShoppingListEvent(menu));
             bus.post(new GenerateShoppingListButtonClickedEvent(menu));
+        }
+
+        @OnClick(R.id.editMenuNameImageButton)
+        public void onEditMenuImageButtonClicked(){
+            bus.post(new EditMenuNameEvent(menu));
+        }
+
+        @OnClick(R.id.deleteMenuImageButton)
+        public void onDeleteMenuImageButtonClicked(){
+            bus.post(new DeleteMenuEvent(menu));
         }
     }
 

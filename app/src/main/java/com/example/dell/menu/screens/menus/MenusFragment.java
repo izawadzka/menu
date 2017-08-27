@@ -7,7 +7,6 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -39,11 +38,14 @@ public class MenusFragment extends Fragment implements MenusAdapter.MenuClickedL
     private MenusAdapter adapter;
     private MenusManager menusManager;
     private LayoutInflater layoutInflater;
+    private EditText menuNameEditText;
+    private Button addMenuButton;
+    private Button cancelButton;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        menusManager = ((App)getActivity().getApplication()).getMenusManager();
+        menusManager = ((App) getActivity().getApplication()).getMenusManager();
         setHasOptionsMenu(true);
     }
 
@@ -81,7 +83,7 @@ public class MenusFragment extends Fragment implements MenusAdapter.MenuClickedL
 
         menusRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        adapter = new MenusAdapter(((App)getActivity().getApplication()).getBus());
+        adapter = new MenusAdapter(((App) getActivity().getApplication()).getBus());
         adapter.setMenuClickedListener(this);
         menusRecyclerView.setAdapter(adapter);
     }
@@ -94,7 +96,7 @@ public class MenusFragment extends Fragment implements MenusAdapter.MenuClickedL
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == R.id.action_add_menu){
+        if (item.getItemId() == R.id.action_add_menu) {
             addNewMenu();
             return true;
         }
@@ -103,25 +105,19 @@ public class MenusFragment extends Fragment implements MenusAdapter.MenuClickedL
     }
 
     private void addNewMenu() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        View view = layoutInflater.inflate(R.layout.create_new_menu_dialog_layout, null);
-        final EditText menuNameEditText = (EditText) view.findViewById(R.id.addMenuNameEditText);
-        builder.setView(view);
-        final AlertDialog dialog = builder.create();
+        final AlertDialog dialog = createAlertDialogForMenuName();
         dialog.show();
-        Button addNewMenu = (Button) view.findViewById(R.id.addMenuButton);
-        addNewMenu.setOnClickListener(new View.OnClickListener() {
+        addMenuButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String menuName = menuNameEditText.getText().toString();
-                if(menuName.length() > 0){
+                if (menuName.length() > 0) {
                     dialog.dismiss();
                     menusManager.addNewMenu(menuName);
-                }else menuNameEditText.setError("Menu must have a name!");
+                } else menuNameEditText.setError("Menu must have a name!");
             }
         });
 
-        Button cancelButton = (Button) view.findViewById(R.id.cancelButton);
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -130,14 +126,52 @@ public class MenusFragment extends Fragment implements MenusAdapter.MenuClickedL
         });
     }
 
-    public void showMenus(List<Menu> result){
+    private AlertDialog createAlertDialogForMenuName() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        View view = layoutInflater.inflate(R.layout.create_new_menu_dialog_layout, null);
+        menuNameEditText = (EditText) view.findViewById(R.id.addMenuNameEditText);
+        addMenuButton = (Button) view.findViewById(R.id.addMenuButton);
+        cancelButton = (Button) view.findViewById(R.id.cancelButton);
+        builder.setView(view);
+        return builder.create();
+    }
+
+    public void editMenuName(final Menu menu) {
+        final AlertDialog dialog = createAlertDialogForMenuName();
+        dialog.setMessage("You can change menu's name  here");
+        dialog.show();
+        menuNameEditText.setText(menu.getName());
+
+        addMenuButton.setText("change name");
+        addMenuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                menu.setName(menuNameEditText.getText().toString());
+                dialog.dismiss();
+                menusManager.editMenuName(menu);
+            }
+        });
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+    }
+
+    public void makeAStatement(String statement, int duration){
+        Toast.makeText(getContext(), statement, duration).show();
+    }
+
+    public void showMenus(List<Menu> result) {
         adapter.setMenus(result);
     }
 
     @Override
     public void menuClicked(Menu menu) {
         Intent intent = new Intent(getContext(), DailyMenusActivity.class);
-        intent.putExtra(MENU_ID_KEY, (long)menu.getMenuId());
+        intent.putExtra(MENU_ID_KEY, (long) menu.getMenuId());
         startActivity(intent);
     }
 
@@ -150,5 +184,14 @@ public class MenusFragment extends Fragment implements MenusAdapter.MenuClickedL
 
     public void addNewMenuFailed() {
         Toast.makeText(getContext(), "An error occurred while trying to create new menu!", Toast.LENGTH_SHORT).show();
+    }
+
+    public void editMenusNameSuccess() {
+        makeAStatement("Successfully edited menu's name", Toast.LENGTH_SHORT);
+        menusManager.loadMenus();
+    }
+
+    public void editMenusNameFailed() {
+        makeAStatement("An error occurred while an attempt to update menu's name", Toast.LENGTH_LONG);
     }
 }

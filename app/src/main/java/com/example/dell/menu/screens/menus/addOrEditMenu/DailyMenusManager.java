@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.example.dell.menu.MenuDataBase;
@@ -150,6 +149,7 @@ public class DailyMenusManager {
             if(dailyMenusActivity != null){
                 if(result){
                     dailyMenusActivity.dailyMenuDeleteSuccess();
+                    updateMenuCumulativeNumberOfKcal();
                 }else dailyMenusActivity.dailyMenuDeleteFailed();
             }
         }
@@ -285,7 +285,6 @@ public class DailyMenusManager {
             for (Meal meal : params[0].getBreakfast()) {
                 if(menuDataBase.insert(BreakfastTable.getTableName(), BreakfastTable.getContentValues(params[0].getDailyMenuId(), meal.getMealsId())) == -1){
                     menuDataBase.close();
-                    Log.d("br", "tu sie wywala");
                     return false;
                 }
             }
@@ -293,7 +292,6 @@ public class DailyMenusManager {
             for (Meal meal : params[0].getLunch()) {
                 if(menuDataBase.insert(LunchTable.getTableName(), LunchTable.getContentValues(params[0].getDailyMenuId(), meal.getMealsId())) == -1){
                     menuDataBase.close();
-                    Log.d("l", "tu sie wywala");
                     return false;
                 }
             }
@@ -301,7 +299,6 @@ public class DailyMenusManager {
             for (Meal meal : params[0].getDinner()) {
                 if(menuDataBase.insert(DinnerTable.getTableName(), DinnerTable.getContentValues(params[0].getDailyMenuId(), meal.getMealsId())) == -1){
                     menuDataBase.close();
-                    Log.d("d", "tu sie wywala");
                     return false;
                 }
             }
@@ -309,7 +306,6 @@ public class DailyMenusManager {
             for (Meal meal : params[0].getTeatime()) {
                 if(menuDataBase.insert(TeatimeTable.getTableName(), TeatimeTable.getContentValues(params[0].getDailyMenuId(), meal.getMealsId())) == -1){
                     menuDataBase.close();
-                    Log.d("t", "tu sie wywala");
                     return false;
                 }
             }
@@ -317,7 +313,6 @@ public class DailyMenusManager {
             for (Meal meal : params[0].getSupper()) {
                 if(menuDataBase.insert(SupperTable.getTableName(), SupperTable.getContentValues(params[0].getDailyMenuId(), meal.getMealsId())) == -1){
                     menuDataBase.close();
-                    Log.d("s", "tu sie wywala");
                     return false;
                 }
             }
@@ -667,78 +662,6 @@ public class DailyMenusManager {
                                     supperCursor.getString(4)), DailyMenu.SUPPER_KEY);
                         }
                     }
-/*
-                    //breakfast
-                    String breakfastQuery = String.format("SELECT %s, %s FROM %s bf JOIN  %s me ON bf.%s = me.%s WHERE bf.%s = '%s';",
-                            MealsTable.getFirstColumnName(), MealsTable.getSecondColumnName(),
-                            BreakfastTable.getTableName(), MealsTable.getTableName(),
-                            BreakfastTable.getSecondColumnName(), MealsTable.getFirstColumnName(),
-                            BreakfastTable.getFirstColumnName(), dailyMenu.getDailyMenuId());
-                    Cursor breakfastCursor = menuDataBase.downloadData(breakfastQuery);
-                    if(breakfastCursor.getCount() > 0){
-                        breakfastCursor.moveToPosition(-1);
-                        while (breakfastCursor.moveToNext()){
-                            dailyMenu.addMeal(new Meal(breakfastCursor.getInt(0),breakfastCursor.getString(1)), DailyMenu.BREAKFAST_KEY);
-                        }
-                    }
-
-
-                    //lunch
-                    String lunchQuery = String.format("SELECT %s, %s FROM %s bf JOIN  %s me ON bf.%s = me.%s WHERE bf.%s = '%s';",
-                            MealsTable.getFirstColumnName(), MealsTable.getSecondColumnName(),
-                            LunchTable.getTableName(), MealsTable.getTableName(),
-                            LunchTable.getSecondColumnName(), MealsTable.getFirstColumnName(),
-                            LunchTable.getFirstColumnName(), dailyMenu.getDailyMenuId());
-                    Cursor lunchCursor = menuDataBase.downloadData(lunchQuery);
-                    if(lunchCursor.getCount() > 0){
-                        lunchCursor.moveToPosition(-1);
-                        while (lunchCursor.moveToNext()){
-                            dailyMenu.addMeal(new Meal(lunchCursor.getInt(0),lunchCursor.getString(1)), DailyMenu.LUNCH_KEY);
-                        }
-                    }
-
-
-                    //dinner
-                    String dinnerQuery = String.format("SELECT %s, %s FROM %s bf JOIN  %s me ON bf.%s = me.%s WHERE bf.%s = '%s';",
-                            MealsTable.getFirstColumnName(), MealsTable.getSecondColumnName(),
-                            DinnerTable.getTableName(), MealsTable.getTableName(),
-                            DinnerTable.getSecondColumnName(), MealsTable.getFirstColumnName(),
-                            DinnerTable.getFirstColumnName(), dailyMenu.getDailyMenuId());
-                    Cursor dinnerCursor = menuDataBase.downloadData(dinnerQuery);
-                    if(dinnerCursor.getCount() > 0){
-                        dinnerCursor.moveToPosition(-1);
-                        while (dinnerCursor.moveToNext()){
-                            dailyMenu.addMeal(new Meal(dinnerCursor.getInt(0),dinnerCursor.getString(1)), DailyMenu.DINNER_KEY);
-                        }
-                    }
-
-                    //teatime
-                    String teatimeQuery = String.format("SELECT %s, %s FROM %s bf JOIN  %s me ON bf.%s = me.%s WHERE bf.%s = '%s';",
-                            MealsTable.getFirstColumnName(), MealsTable.getSecondColumnName(),
-                            TeatimeTable.getTableName(), MealsTable.getTableName(),
-                            TeatimeTable.getSecondColumnName(), MealsTable.getFirstColumnName(),
-                            TeatimeTable.getFirstColumnName(), dailyMenu.getDailyMenuId());
-                    Cursor teatimeCursor = menuDataBase.downloadData(teatimeQuery);
-                    if(teatimeCursor.getCount() > 0){
-                        teatimeCursor.moveToPosition(-1);
-                        while (teatimeCursor.moveToNext()){
-                            dailyMenu.addMeal(new Meal(teatimeCursor.getInt(0),teatimeCursor.getString(1)), DailyMenu.TEATIME_KEY);
-                        }
-                    }
-
-                    //supper
-                    String supperQuery = String.format("SELECT %s, %s FROM %s bf JOIN  %s me ON bf.%s = me.%s WHERE bf.%s = '%s';",
-                            MealsTable.getFirstColumnName(), MealsTable.getSecondColumnName(),
-                            SupperTable.getTableName(), MealsTable.getTableName(),
-                            SupperTable.getSecondColumnName(), MealsTable.getFirstColumnName(),
-                            SupperTable.getFirstColumnName(), dailyMenu.getDailyMenuId());
-                    Cursor supperCursor = menuDataBase.downloadData(supperQuery);
-                    if(supperCursor.getCount() > 0){
-                        supperCursor.moveToPosition(-1);
-                        while (supperCursor.moveToNext()){
-                            dailyMenu.addMeal(new Meal(supperCursor.getInt(0),supperCursor.getString(1)), DailyMenu.SUPPER_KEY);
-                        }
-                    }*/
                 }
                 menuDataBase.close();
                 return true;

@@ -25,11 +25,11 @@
         android:src="@drawable/ic_generate_shopping_list"
         android:layout_marginTop="7dp"
         android:layout_marginRight="@dimen/right_padding_for_buttons"
-        android:layout_toLeftOf="@+id/editMenuImageButton"
-        android:layout_toStartOf="@+id/editMenuImageButton"
+        android:layout_toLeftOf="@+id/editMenuNameImageButton"
+        android:layout_toStartOf="@+id/editMenuNameImageButton"
         style="@style/buttonStyle" />
     <ImageButton
-        android:id="@+id/editMenuImageButton"
+        android:id="@+id/editMenuNameImageButton"
         android:src="@drawable/ic_edit"
         android:layout_marginTop="7dp"
         android:layout_marginRight="@dimen/right_padding_for_buttons"
