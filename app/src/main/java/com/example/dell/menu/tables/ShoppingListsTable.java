@@ -19,7 +19,7 @@ public class ShoppingListsTable {
     public static ContentValues getContentValues(ShoppingList shoppingList){
         ContentValues contentValues = new ContentValues();
         contentValues.put(secondColumnName, shoppingList.getName());
-        contentValues.put(thirdColumnName, shoppingList.getCreationDate().getTime());
+        contentValues.put(thirdColumnName, shoppingList.getCreationDate());
         contentValues.put(fourthColumnName, shoppingList.getAuthorsId());
         return contentValues;
     }

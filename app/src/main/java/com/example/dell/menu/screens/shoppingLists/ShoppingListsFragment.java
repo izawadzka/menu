@@ -70,7 +70,7 @@ public class ShoppingListsFragment extends Fragment implements ShoppingListAdapt
         ButterKnife.bind(this, view);
 
         shoppingListRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        adapter = new ShoppingListAdapter();
+        adapter = new ShoppingListAdapter(shoppingListsManager.getBus());
         adapter.setShoppingListClickedListener(this);
         shoppingListRecyclerView.setAdapter(adapter);
 
@@ -82,11 +82,11 @@ public class ShoppingListsFragment extends Fragment implements ShoppingListAdapt
     }
 
     public void createShoppingListFailed() {
-        Toast.makeText(getActivity(), "Error while creating shopping list", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), "An error occurred while trying to create shopping list", Toast.LENGTH_SHORT).show();
     }
 
     public void generateShoppingListSuccess() {
-        Toast.makeText(getActivity(), "Shopping list creating success", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), "Shopping list created successfully", Toast.LENGTH_SHORT).show();
         shoppingListsManager.loadShoppingLists();
     }
 
@@ -105,5 +105,13 @@ public class ShoppingListsFragment extends Fragment implements ShoppingListAdapt
         Intent intent = new Intent(getActivity(), ShowProductsInListActivity.class);
         intent.putExtra(SHOPPING_LIST_ID_KEY, shoppingList.getShoppingListId());
         startActivity(intent);
+    }
+
+    public void shoppingListDeleteSuccess() {
+        Toast.makeText(getContext(), "Successfully deleted shopping list", Toast.LENGTH_SHORT).show();
+    }
+
+    public void shoppingListDeleteFailed() {
+        Toast.makeText(getContext(), "An error occurred while an attempt to delete shopping list", Toast.LENGTH_LONG).show();
     }
 }

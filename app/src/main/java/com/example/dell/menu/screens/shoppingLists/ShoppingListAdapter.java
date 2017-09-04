@@ -8,13 +8,16 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.example.dell.menu.R;
+import com.example.dell.menu.events.shoppingLists.DeleteShoppingListEvent;
 import com.example.dell.menu.objects.ShoppingList;
+import com.squareup.otto.Bus;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by Dell on 08.06.2017.
@@ -22,8 +25,13 @@ import butterknife.ButterKnife;
 
 public class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapter.ShoppingListViewHolder> {
 
+    private final Bus bus;
     List<ShoppingList> shoppingLists = new ArrayList<>();
     private ShoppingListClickedListener shoppingListClickedListener;
+
+    public ShoppingListAdapter(Bus bus){
+        this.bus = bus;
+    }
 
     @Override
     public ShoppingListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -79,6 +87,10 @@ public class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapte
             this.shoppingList = shoppingList;
             shoppingListNameTextView.setText(shoppingList.getName());
             authorsNameTextView.setText("Author: " + shoppingList.getAuthorsName());
+        }
+        @OnClick(R.id.deleteShoppingListImageButton)
+        public void onDeleteShoppingListImageButtonClicked(){
+            bus.post(new DeleteShoppingListEvent(shoppingList));
         }
 
         @Override

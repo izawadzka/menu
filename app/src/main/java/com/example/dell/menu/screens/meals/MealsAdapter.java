@@ -77,7 +77,7 @@ public class MealsAdapter extends RecyclerView.Adapter<MealsAdapter.MealsViewHol
         TextView mealNameTextView;
         @Bind(R.id.caloriesTextView)
         TextView caloriesTextView;
-        @Bind(R.id.editMealImageButton)
+        @Bind(R.id.updateQuantityImageButton)
         ImageButton editMealImageButton;
         @Bind(R.id.deleteMealImageButton)
         ImageButton deleteMealImageButton;
@@ -107,7 +107,7 @@ public class MealsAdapter extends RecyclerView.Adapter<MealsAdapter.MealsViewHol
             bus.post(new DeleteMealEvent(meal));
         }
 
-        @OnClick(R.id.editMealImageButton)
+        @OnClick(R.id.updateQuantityImageButton)
         public void onEditMealImageButtonclicked(){
             bus.post(new EditMealEvent(meal));
         }

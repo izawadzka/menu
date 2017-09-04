@@ -1,6 +1,7 @@
 package com.example.dell.menu.objects;
 
-import java.util.Date;
+
+import java.sql.Date;
 
 /**
  * Created by Dell on 07.06.2017.
@@ -43,8 +44,8 @@ public class ShoppingList {
         this.name = name;
     }
 
-    public Date getCreationDate() {
-        return creationDate;
+    public String getCreationDate() {
+        return creationDate.toString();
     }
 
     public void setCreationDate(Date creationDate) {

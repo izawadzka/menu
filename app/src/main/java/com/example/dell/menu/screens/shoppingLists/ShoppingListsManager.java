@@ -1,20 +1,31 @@
 package com.example.dell.menu.screens.shoppingLists;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.example.dell.menu.MenuDataBase;
+import com.example.dell.menu.events.shoppingLists.DeleteShoppingListEvent;
 import com.example.dell.menu.events.shoppingLists.GenerateShoppingListButtonClickedEvent;
 import com.example.dell.menu.objects.Menu;
+import com.example.dell.menu.objects.Product;
 import com.example.dell.menu.objects.ShoppingList;
+import com.example.dell.menu.tables.ProductsTable;
 import com.example.dell.menu.tables.ShoppingListsMenusTable;
+import com.example.dell.menu.tables.ShoppingListsProductsTable;
 import com.example.dell.menu.tables.ShoppingListsTable;
 import com.example.dell.menu.tables.UsersTable;
+import com.example.dell.menu.tables.mealTypes.BreakfastTable;
+import com.example.dell.menu.tables.mealTypes.DinnerTable;
+import com.example.dell.menu.tables.mealTypes.LunchTable;
+import com.example.dell.menu.tables.mealTypes.SupperTable;
+import com.example.dell.menu.tables.mealTypes.TeatimeTable;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
+import java.sql.Date;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -28,6 +39,7 @@ public class ShoppingListsManager {
     private String shoppingListName;
     private long shoppingListAuthorsId;
     private boolean generateNewShoppingListEvent;
+    private List<ShoppingList> shoppingLists;
 
     public ShoppingListsManager(Bus bus) {
         this.bus = bus;
@@ -35,6 +47,10 @@ public class ShoppingListsManager {
         generateNewShoppingListEvent = false;
     }
 
+
+    public Bus getBus() {
+        return bus;
+    }
 
     public boolean isGenerateNewShoppingListEvent() {
         return generateNewShoppingListEvent;
@@ -53,11 +69,71 @@ public class ShoppingListsManager {
     }
 
     @Subscribe
-    public void onGenerateNewShoppingList(GenerateShoppingListButtonClickedEvent event){
+    public void onGenerateNewShoppingListEvent(GenerateShoppingListButtonClickedEvent event){
         currentMenu = event.menu;
         shoppingListAuthorsId = currentMenu.getAuthorsId();
         shoppingListName = currentMenu.getName() + "list";
         generateNewShoppingListEvent = true;
+    }
+
+    @Subscribe
+    public void onDeleteShoppingListEvent(DeleteShoppingListEvent event){
+        if(shoppingListsFragment != null){
+            new DeleteShoppingList().execute(event.shoppingList);
+        }
+    }
+
+    class DeleteShoppingList extends AsyncTask<ShoppingList, Void, Boolean>{
+
+        @Override
+        protected Boolean doInBackground(ShoppingList... params) {
+            boolean result = true;
+            MenuDataBase menuDataBase = MenuDataBase.getInstance(shoppingListsFragment.getContext());
+
+            String[] shoppingListsId = {String.valueOf(params[0].getShoppingListId())};
+            try {
+                menuDataBase.delete(ShoppingListsTable.getTableName(), String.format("%s = ?",
+                        ShoppingListsTable.getFirstColumnName()), shoppingListsId);
+            }catch (Exception e){
+                menuDataBase.close();
+                return false;
+            }
+
+            try {
+                menuDataBase.delete(ShoppingListsProductsTable.getTableName(),
+                        String.format("%s = ?",ShoppingListsProductsTable.getFirstColumnName()), shoppingListsId);
+            }catch (Exception e){
+                result = false;
+            }
+
+            if(result) {
+                int indx = -1;
+                for (int i = 0; i < shoppingLists.size(); i++) {
+                    if (shoppingLists.get(i).getShoppingListId() == params[0].getShoppingListId()) {
+                        indx = i;
+                        break;
+                    }
+                }
+
+                if (indx != -1) {
+                    shoppingLists.remove(indx);
+                    result = true;
+                } else result = false;
+            }
+            menuDataBase.close();
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if(shoppingListsFragment != null){
+                if(result) {
+
+                    shoppingListsFragment.shoppingListDeleteSuccess();
+                    shoppingListsFragment.showShoppingLists(shoppingLists);}
+                else shoppingListsFragment.shoppingListDeleteFailed();
+            }
+        }
     }
 
     public void createShoppingList() {
@@ -82,16 +158,15 @@ public class ShoppingListsManager {
 
         @Override
         protected List<ShoppingList> doInBackground(Void... params) {
-            List<ShoppingList> shoppingLists = new ArrayList<>();
+            shoppingLists = new ArrayList<>();
             MenuDataBase menuDataBase = MenuDataBase.getInstance(shoppingListsFragment.getActivity());
             String query = String.format("SELECT * FROM %s", ShoppingListsTable.getTableName());
             Cursor cursor = menuDataBase.downloadData(query);
             if(cursor.getCount() > 0){
                 cursor.moveToPosition(-1);
                 while (cursor.moveToNext()){
-                    shoppingLists.add(new ShoppingList(cursor.getString(1),
-                            new Date(cursor.getInt(2)),
-                            cursor.getInt(3)));
+                    Date creationDate = Date.valueOf(cursor.getString(2));
+                    shoppingLists.add(new ShoppingList(cursor.getString(1), creationDate, cursor.getInt(3)));
                     shoppingLists.get(shoppingLists.size()-1).setShoppingListId(cursor.getInt(0));
                 }
             }
@@ -110,7 +185,7 @@ public class ShoppingListsManager {
             }
 
 
-            return  shoppingLists;
+            return shoppingLists;
         }
 
         @Override
@@ -148,19 +223,102 @@ public class ShoppingListsManager {
 
         @Override
         protected Long doInBackground(Void... params) {
+            try{
             MenuDataBase menuDataBase = MenuDataBase.getInstance(shoppingListsFragment.getContext());
+            java.sql.Date sqlDate = new java.sql.Date(System.currentTimeMillis());
             long result = menuDataBase.insert(ShoppingListsTable.getTableName(),
-                    ShoppingListsTable.getContentValues(new ShoppingList(shoppingListName, new Date(), shoppingListAuthorsId)));
+                    ShoppingListsTable.getContentValues(new ShoppingList(shoppingListName, sqlDate, shoppingListAuthorsId)));
             menuDataBase.close();
-            return result;
+            return result;}
+            catch (Exception e){
+                Log.d("create", e.getLocalizedMessage());
+                return (long)-1;
+            }
         }
 
         @Override
         protected void onPostExecute(Long result) {
             if(result != -1){
-                addConnectionBetweenShoppingListAndMenu(result);
+                //addConnectionBetweenShoppingListAndMenu(result);
+                addProductsToShoppingList(result);
             }else{
              shoppingListsFragment.createShoppingListFailed();
+            }
+        }
+    }
+
+    private void addProductsToShoppingList(Long result) {
+        if(shoppingListsFragment != null){
+            new AddProductsToShoppingList().execute(result);
+        }
+    }
+
+    class AddProductsToShoppingList extends AsyncTask<Long, Void, Boolean>{
+
+        @Override
+        protected Boolean doInBackground(Long... params) {
+            MenuDataBase menuDataBase = MenuDataBase.getInstance(shoppingListsFragment.getContext());
+            ArrayList<Product> productList = new ArrayList<>();
+
+            String[] mealTypesTableNames = {BreakfastTable.getTableName(), LunchTable.getTableName(),
+                    DinnerTable.getTableName(), TeatimeTable.getTableName(), SupperTable.getTableName()};
+
+            try {
+                for (String tableName : mealTypesTableNames) {
+                    String query = String.format("SELECT productId,quantity FROM Meals_Products WHERE " +
+                            "mealId IN (SELECT mealId FROM %s WHERE dailyMenuId IN " +
+                            "(SELECT dailyMenuId FROM MenusDailyMenus WHERE menuId = '%s'))", tableName, currentMenu.getMenuId());
+
+                    Cursor cursor = menuDataBase.downloadData(query);
+                    if (cursor.getCount() > 0) {
+                        cursor.moveToPosition(-1);
+                        while (cursor.moveToNext()) {
+                            //if(menuDataBase.insert(ShoppingListsProductsTable.getTableName(),
+                            //ShoppingListsProductsTable.getContentValues(params[0], cursor.getLong(0), cursor.getDouble(1)))== -1){
+                            //menuDataBase.close();
+                            //return false;
+                            int indx = wasAddedPreviously(cursor.getLong(0), productList);
+                            if (indx != -1) {
+                                productList.get(indx).addQuantity(cursor.getDouble(1));
+                            } else {
+                                productList.add(new Product(cursor.getInt(0), cursor.getDouble(1)));
+                            }
+                        }
+
+                    }
+                }
+                for (Product product : productList) {
+                    if(menuDataBase.insert(ShoppingListsProductsTable.getTableName(),
+                            ShoppingListsProductsTable.getContentValues(params[0], product.getProductId(), product.getQuantity())) == -1){
+                        menuDataBase.close();
+                        return false;
+                    }
+                }
+        }catch (Exception e){
+                Log.d(getClass().getName(), e.getLocalizedMessage());
+                menuDataBase.close();
+                return false;
+            }
+
+            menuDataBase.close();
+            return true;
+        }
+
+        private int wasAddedPreviously(long productId, ArrayList<Product> products) {
+            for (int i = 0; i < products.size(); i++) {
+                if(products.get(i).getProductId() == productId) return i;
+            }
+            return -1;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if(shoppingListsFragment != null){
+                if(result){
+                    resetGenerateNewShoppingListEvent();
+                    shoppingListsFragment.generateShoppingListSuccess();
+                }
+                else shoppingListsFragment.createShoppingListFailed();
             }
         }
     }

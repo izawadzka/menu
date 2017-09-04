@@ -1,29 +1,45 @@
 package com.example.dell.menu.screens.shoppingLists;
 
 import android.support.v7.widget.RecyclerView;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.ExtractedText;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.ViewSwitcher;
 
 import com.example.dell.menu.R;
 import com.example.dell.menu.StorageType;
+import com.example.dell.menu.events.shoppingLists.QuantityOfProductChangedEvent;
 import com.example.dell.menu.objects.Product;
+import com.squareup.otto.Bus;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by Dell on 08.06.2017.
  */
 
 public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ProductsInListViewHolder> {
+    private final Bus bus;
     List<Product> products = new ArrayList<>();
+
+    public ProductsAdapter(Bus bus) {
+        this.bus = bus;
+        this.bus.register(this);
+    }
+
+    public void quantityUpdatedSuccessfully(ProductsInListViewHolder holder){
+        holder.updateSuccess();
+    }
 
     @Override
     public ProductsInListViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -47,13 +63,22 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
         notifyDataSetChanged();
     }
 
-    class ProductsInListViewHolder extends RecyclerView.ViewHolder {
-        @Bind(R.id.productName)
-        TextView productName;
-        @Bind(R.id.productInMealQuantity)
-        TextView productInMealQuantity;
-        @Bind(R.id.deleteProductsButton)
-        ImageButton deleteProductsButton;
+    public class ProductsInListViewHolder extends RecyclerView.ViewHolder {
+        @Bind(R.id.productNameTextView)
+        TextView productNameTextView;
+        @Bind(R.id.clickableQuantityTextView)
+        TextView clickableQuantityTextView;
+        @Bind(R.id.quantityEditText)
+        EditText quantityEditText;
+        @Bind(R.id.textView_editText_switcher)
+        ViewSwitcher textViewEditTextSwitcher;
+        @Bind(R.id.unitTextView)
+        TextView unitTextView;
+        @Bind(R.id.updateQuantityImageButton)
+        ImageButton updateQuantityImageButton;
+        @Bind(R.id.deleteProductImageButton)
+        ImageButton deleteProductImageButton;
+        private Product product;
 
         public ProductsInListViewHolder(View itemView) {
             super(itemView);
@@ -61,8 +86,44 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
         }
 
         public void setProduct(Product product) {
-            productName.setText(product.getName());
-            productInMealQuantity.setText(product.getQuantity() + StorageType.getUnit(product.getStorageType()));
+            this.product = product;
+            productNameTextView.setText(product.getName());
+
+            clickableQuantityTextView.setText(String.valueOf(product.getQuantity()));
+            quantityEditText.setText(String.valueOf(product.getQuantity()));
+            //quantityEditText.setInputType(InputType.);
+
+            unitTextView.setText(StorageType.getUnit(product.getStorageType()));
+
+            updateQuantityImageButton.setVisibility(View.INVISIBLE);
+        }
+
+        @OnClick(R.id.clickableQuantityTextView)
+        public void onQuantityTextViewClicked() {
+            textViewEditTextSwitcher.showNext();
+            updateQuantityImageButton.setVisibility(View.VISIBLE);
+        }
+
+        @OnClick(R.id.updateQuantityImageButton)
+        public void onUpdateQuantityImageButtonClicked(){
+            try {
+                double newQuantity = Double.valueOf(quantityEditText.getText().toString());
+                clickableQuantityTextView.setText(String.valueOf(newQuantity));
+
+                bus.post(new QuantityOfProductChangedEvent(newQuantity, product.getProductId(), this));
+            }catch (Exception e){
+                quantityEditText.setError("Ivalid format");
+            }
+        }
+
+        @OnClick(R.id.deleteProductImageButton)
+        public void onDeleteProductImageButtonClicked() {
+
+        }
+
+        public void updateSuccess() {
+            textViewEditTextSwitcher.showPrevious();
+            updateQuantityImageButton.setVisibility(View.INVISIBLE);
         }
     }
 }

@@ -63,7 +63,7 @@ public class App extends Application {
         addOrEditProductManager = new AddOrEditProductManager();
         shoppingListsManager = new ShoppingListsManager(bus);
         chooseFromProductsManager = new ChooseFromProductsManager();
-        showProductsInListManager = new ShowProductsInListManager();
+        showProductsInListManager = new ShowProductsInListManager(bus);
         addOrEditMealManager = new AddOrEditMealManager(bus);
         dailyMenusManager = new DailyMenusManager(bus);
         reportsManager = new ReportsManager();

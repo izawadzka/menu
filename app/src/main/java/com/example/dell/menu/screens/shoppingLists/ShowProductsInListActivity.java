@@ -36,7 +36,7 @@ public class ShowProductsInListActivity extends AppCompatActivity {
 
         showProductsInListManager = ((App)getApplication()).getShowProductsInListManager();
         productsInShoppingListRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new ProductsAdapter();
+        adapter = new ProductsAdapter(((App)getApplication()).getBus());
         productsInShoppingListRecyclerView.setAdapter(adapter);
 
         Intent intent = getIntent();
@@ -63,5 +63,18 @@ public class ShowProductsInListActivity extends AppCompatActivity {
 
     public void setProducts(List<Product> result){
         adapter.setProducts(result);
+    }
+
+    public void makeAStatement(String statement, int duration){
+        Toast.makeText(this, statement, duration).show();
+    }
+
+    public void updateQuantitySuccess(ProductsAdapter.ProductsInListViewHolder holder) {
+        makeAStatement("Successfully updated Quantity", Toast.LENGTH_SHORT);
+        adapter.quantityUpdatedSuccessfully(holder);
+    }
+
+    public void updateQuantityFailed() {
+        makeAStatement("An error occured while an attempt to update quantity", Toast.LENGTH_LONG);
     }
 }

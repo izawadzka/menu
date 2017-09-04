@@ -1,11 +1,19 @@
 package com.example.dell.menu.screens.shoppingLists;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.example.dell.menu.MenuDataBase;
+import com.example.dell.menu.events.shoppingLists.QuantityOfProductChangedEvent;
 import com.example.dell.menu.objects.Product;
+import com.example.dell.menu.tables.ProductsTable;
 import com.example.dell.menu.tables.ShoppingListsMenusTable;
+import com.example.dell.menu.tables.ShoppingListsProductsTable;
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,14 +23,18 @@ import java.util.List;
  */
 
 public class ShowProductsInListManager {
+    private Bus bus;
     private ShowProductsInListActivity showProductsInListActivity;
     private int shoppingListId;
-    private int menuId;
+    private int productToChangeId;
+    private ProductsAdapter.ProductsInListViewHolder holder;
 
-    public ShowProductsInListManager(){
-        menuId = 0;
+    public ShowProductsInListManager(Bus bus){
+        this.bus = bus;
+        bus.register(this);
         shoppingListId = 0;
     }
+
 
     public void onAttach(ShowProductsInListActivity showProductsInListActivity){
         this.showProductsInListActivity = showProductsInListActivity;
@@ -34,7 +46,7 @@ public class ShowProductsInListManager {
 
     public void loadProducts() {
         if(showProductsInListActivity != null){
-            new LoadMenuId().execute();
+            new DownloadProductsFromDatabase().execute();
         }
     }
 
@@ -42,22 +54,47 @@ public class ShowProductsInListManager {
         return shoppingListId;
     }
 
+    @Subscribe
+    public void onQuantityOfProductChangedEvent(QuantityOfProductChangedEvent event){
+        if(showProductsInListActivity != null){
+            productToChangeId = event.productId;
+            holder = event.holder;
+            new UpdateQuantityOfProduct().execute(event.quantity);
+        }
+    }
+
+    class UpdateQuantityOfProduct extends AsyncTask<Double, Void, Boolean>{
+
+        @Override
+        protected Boolean doInBackground(Double... params) {
+            MenuDataBase menuDataBase = MenuDataBase.getInstance(showProductsInListActivity);
+            boolean result;
+            ContentValues editContentValues = new ContentValues();
+            editContentValues.put(ShoppingListsProductsTable.getThirdColumnName(), params[0]);
+
+            String[] whereClauseArgs = {String.valueOf(shoppingListId),String.valueOf(productToChangeId)};
+
+            String whereClause = String.format("%s = ? AND %s = ?",
+                    ShoppingListsProductsTable.getFirstColumnName(),ShoppingListsProductsTable.getSecondColumnName());
+            if(menuDataBase.update(ShoppingListsProductsTable.getTableName(), editContentValues, whereClause,
+                    whereClauseArgs) != -1) result = true;
+            else  result = false;
+            menuDataBase.close();
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if(showProductsInListActivity != null){
+                if(result){
+                    showProductsInListActivity.updateQuantitySuccess(holder);
+                }else showProductsInListActivity.updateQuantityFailed();
+            }
+        }
+    }
+
     public void setShoppingListId(int shoppingListId) {
         this.shoppingListId = shoppingListId;
-    }
-
-    public int getMenuId() {
-        return menuId;
-    }
-
-    public void setMenuId(int menuId) {
-        this.menuId = menuId;
-    }
-
-    private void downloadProductsFromDatabase() {
-        if(showProductsInListActivity != null){
-            new DownloadProductsFromDatabase().execute();
-        }
     }
 
 
@@ -70,113 +107,15 @@ public class ShowProductsInListManager {
             MenuDataBase menuDataBase = MenuDataBase.getInstance(showProductsInListActivity);
             productsInShoppingList = new ArrayList<>();
 
-            String breakfastQuery = String.format(String.format("SELECT name, storageType, quantity FROM Products p JOIN Meals_Products mp\n" +
-                    "ON p.productsId = mp.productId\n" +
-                    "where \n" +
-                    " mp.mealId IN\n" +
-                    "(SELECT mealId FROM Breakfast WHERE dailyMenuId IN\n" +
-                    "(SELECT dailyMenuId FROM MenusDailyMenus WHERE menuId = '%s'))", menuId));
-            Cursor breakfastCursor = menuDataBase.downloadData(breakfastQuery);
-            if(breakfastCursor.getCount() > 0){
-                breakfastCursor.moveToPosition(-1);
-                while (breakfastCursor.moveToNext()) {
-                    int result = findProduct(breakfastCursor.getString(0), breakfastCursor.getString(1));
-                    if(result == -1) {
-                        productsInShoppingList.add(new Product(breakfastCursor.getString(0),
-                                breakfastCursor.getInt(2),
-                                breakfastCursor.getString(1)));
-                    }else{
-                        productsInShoppingList.get(result).addQuantity(breakfastCursor.getInt(2));
-                    }
-                }
-            }
+            String query = String.format("SELECT productsId, name, storageType, totalQuantity FROM %s p JOIN %s slp" +
+                    " ON p.productsId = slp.productId WHERE %s = '%s'", ProductsTable.getTableName(),
+                    ShoppingListsProductsTable.getTableName(), ShoppingListsProductsTable.getFirstColumnName(),shoppingListId);
 
-            String lunchQuery = String.format(String.format("SELECT name, storageType, quantity FROM Products p JOIN Meals_Products mp\n" +
-                    "ON p.productsId = mp.productId\n" +
-                    "where \n" +
-                    " mp.mealId IN\n" +
-                    "(SELECT mealId FROM Lunch WHERE dailyMenuId IN\n" +
-                    "(SELECT dailyMenuId FROM MenusDailyMenus WHERE menuId = '%s'))", menuId));
-            Cursor lunchCursor = menuDataBase.downloadData(lunchQuery);
-            if(lunchCursor.getCount() > 0){
-               lunchCursor.moveToPosition(-1);
-                while (lunchCursor.moveToNext()) {
-                    int result = findProduct(lunchCursor.getString(0), lunchCursor.getString(1));
-                    if(result == -1) {
-                        productsInShoppingList.add(new Product(lunchCursor.getString(0),
-                                lunchCursor.getInt(2),
-                                lunchCursor.getString(1)));
-                    }else{
-                       productsInShoppingList.get(result).addQuantity(lunchCursor.getInt(2));
-                    }
-                }
-            }
-
-            String dinnerQuery = String.format(String.format("SELECT name, storageType, quantity FROM Products p JOIN Meals_Products mp\n" +
-                    "ON p.productsId = mp.productId\n" +
-                    "where \n" +
-                    " mp.mealId IN\n" +
-                    "(SELECT mealId FROM Dinner WHERE dailyMenuId IN\n" +
-                    "(SELECT dailyMenuId FROM MenusDailyMenus WHERE menuId = '%s'))", menuId));
-            Cursor dinnerCursor = menuDataBase.downloadData(dinnerQuery);
-            if(dinnerCursor.getCount() > 0){
-                dinnerCursor.moveToPosition(-1);
-                while (dinnerCursor.moveToNext()) {
-
-                    int result = findProduct(dinnerCursor.getString(0), dinnerCursor.getString(1));
-                    if(result == -1) {
-                        productsInShoppingList.add(new Product(dinnerCursor.getString(0),
-                                dinnerCursor.getInt(2),
-                                dinnerCursor.getString(1)));
-                    }else{
-                        productsInShoppingList.get(result).addQuantity(dinnerCursor.getInt(2));
-                    }
-                }
-            }
-
-
-            String teatimeQuery = String.format(String.format("SELECT name, storageType, quantity FROM Products p JOIN Meals_Products mp\n" +
-                    "ON p.productsId = mp.productId\n" +
-                    "where \n" +
-                    " mp.mealId IN\n" +
-                    "(SELECT mealId FROM Teatime WHERE dailyMenuId IN\n" +
-                    "(SELECT dailyMenuId FROM MenusDailyMenus WHERE menuId = '%s'))", menuId));
-            Cursor teatimCursor = menuDataBase.downloadData(teatimeQuery);
-            if(teatimCursor.getCount() > 0){
-                teatimCursor.moveToPosition(-1);
-                while (teatimCursor.moveToNext()) {
-
-                    int result = findProduct(teatimCursor.getString(0), teatimCursor.getString(1));
-                    if(result == -1) {
-                        productsInShoppingList.add(new Product(teatimCursor.getString(0),
-                                teatimCursor.getInt(2),
-                                teatimCursor.getString(1)));
-                    }else{
-                        productsInShoppingList.get(result).addQuantity(teatimCursor.getInt(2));
-                    }
-                }
-            }
-
-
-            String supperQuery = String.format(String.format("SELECT name, storageType, quantity FROM Products p JOIN Meals_Products mp\n" +
-                    "ON p.productsId = mp.productId\n" +
-                    "where \n" +
-                    " mp.mealId IN\n" +
-                    "(SELECT mealId FROM Supper WHERE dailyMenuId IN\n" +
-                    "(SELECT dailyMenuId FROM MenusDailyMenus WHERE menuId = '%s'))", menuId));
-            Cursor supperCursor = menuDataBase.downloadData(supperQuery);
-            if(supperCursor.getCount() > 0){
-                supperCursor.moveToPosition(-1);
-                while (supperCursor.moveToNext()) {
-
-                    int result = findProduct(supperCursor.getString(0), supperCursor.getString(1));
-                    if(result == -1) {
-                        productsInShoppingList.add(new Product(supperCursor.getString(0),
-                                supperCursor.getInt(2),
-                                supperCursor.getString(1)));
-                    }else{
-                        productsInShoppingList.get(result).addQuantity(supperCursor.getInt(2));
-                    }
+            Cursor cursor = menuDataBase.downloadData(query);
+            if (cursor.getCount() > 0){
+                cursor.moveToPosition(-1);
+                while (cursor.moveToNext()){
+                    productsInShoppingList.add(new Product(cursor.getInt(0), cursor.getString(1), cursor.getDouble(3), cursor.getString(2)));
                 }
             }
 
@@ -184,56 +123,13 @@ public class ShowProductsInListManager {
             return productsInShoppingList;
         }
 
-        private int findProduct(String name, String storageType) {
-            for (int i = 0; i < productsInShoppingList.size(); i++){
-                if(productsInShoppingList.get(i).getName().equals(name) &&
-                        productsInShoppingList.get(i).getStorageType().equals(storageType)){
-                    return i;
-                }
-            }
-            return -1;
-        }
-
         @Override
         protected void onPostExecute(List<Product> products) {
             if(products.size() > 0){
                 showProductsInListActivity.setProducts(products);
+                showProductsInListActivity.makeAStatement("You can change quantity by clicking on it", Toast.LENGTH_LONG);
             }else{
                 showProductsInListActivity.loadingProductsFailed();
-            }
-        }
-    }
-
-    class LoadMenuId extends AsyncTask<Void, Integer, Integer>{
-
-        @Override
-        protected Integer doInBackground(Void... params) {
-            int menuId = 0;
-            MenuDataBase menuDataBase = MenuDataBase.getInstance(showProductsInListActivity);
-            String query = String.format("SELECT %s FROM %s WHERE %s = '%s'",
-                    ShoppingListsMenusTable.getSecondColumnName(),
-                    ShoppingListsMenusTable.getTableName(),
-                    ShoppingListsMenusTable.getFirstColumnName(),
-                    shoppingListId);
-
-            Cursor cursor = menuDataBase.downloadData(query);
-            if(cursor.getCount() == 1){
-                cursor.moveToPosition(-1);
-                while (cursor.moveToNext()){
-                    menuId = cursor.getInt(0);
-                }
-            }
-            menuDataBase.close();
-            return menuId;
-        }
-
-        @Override
-        protected void onPostExecute(Integer result) {
-            if(result != 0){
-                menuId = result;
-                downloadProductsFromDatabase();
-            }else{
-                // TODO: 08.06.2017
             }
         }
     }

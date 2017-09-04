@@ -20,6 +20,18 @@ public class Product {
         this.storageType =storageType;
     }
 
+    public Product(int productId, String name, double quantity, String storageType){
+        this.productId = productId;
+        this.name = name;
+        this.quantity = quantity;
+        this.storageType = storageType;
+    }
+
+    public Product(int productId, double quantity){
+        this.productId = productId;
+        this.quantity = quantity;
+    }
+
     public void setQuantity(double quantity) {
         this.quantity = quantity;
     }
@@ -38,7 +50,7 @@ public class Product {
         this.storageType = storageType;
     }
 
-    public void addQuantity(int quantity){
+    public void addQuantity(double quantity){
         this.quantity += quantity;
     }
 
