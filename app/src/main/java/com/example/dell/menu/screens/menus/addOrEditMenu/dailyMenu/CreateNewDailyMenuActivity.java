@@ -150,7 +150,7 @@ public class CreateNewDailyMenuActivity extends AppCompatActivity {
     }
 
     private void setCreateMode() {
-        dateEditText.setInputType(InputType.TYPE_NULL);
+        manager.setEditMode(false);
     }
 
     private void setEditMode() {

@@ -128,9 +128,11 @@ public class MenusFragment extends Fragment implements MenusAdapter.MenuClickedL
 
     private AlertDialog createAlertDialogForMenuName() {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        View view = layoutInflater.inflate(R.layout.create_new_menu_dialog_layout, null);
-        menuNameEditText = (EditText) view.findViewById(R.id.addMenuNameEditText);
-        addMenuButton = (Button) view.findViewById(R.id.addMenuButton);
+        View view = layoutInflater.inflate(R.layout.name_dialog_layout, null);
+        menuNameEditText = (EditText) view.findViewById(R.id.addNameEditText);
+        menuNameEditText.setHint("new menu name");
+        addMenuButton = (Button) view.findViewById(R.id.addButton);
+        addMenuButton.setText("Add new menu");
         cancelButton = (Button) view.findViewById(R.id.cancelButton);
         builder.setView(view);
         return builder.create();
@@ -188,7 +190,7 @@ public class MenusFragment extends Fragment implements MenusAdapter.MenuClickedL
 
     public void editMenusNameSuccess() {
         makeAStatement("Successfully edited menu's name", Toast.LENGTH_SHORT);
-        menusManager.loadMenus();
+        adapter.setMenus(menusManager.getMenusArrayList());
     }
 
     public void editMenusNameFailed() {

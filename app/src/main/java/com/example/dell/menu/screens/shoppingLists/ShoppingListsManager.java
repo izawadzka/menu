@@ -7,11 +7,11 @@ import android.util.Log;
 
 import com.example.dell.menu.MenuDataBase;
 import com.example.dell.menu.events.shoppingLists.DeleteShoppingListEvent;
+import com.example.dell.menu.events.shoppingLists.EditShoppingListNameEvent;
 import com.example.dell.menu.events.shoppingLists.GenerateShoppingListButtonClickedEvent;
 import com.example.dell.menu.objects.Menu;
 import com.example.dell.menu.objects.Product;
 import com.example.dell.menu.objects.ShoppingList;
-import com.example.dell.menu.tables.ProductsTable;
 import com.example.dell.menu.tables.ShoppingListsMenusTable;
 import com.example.dell.menu.tables.ShoppingListsProductsTable;
 import com.example.dell.menu.tables.ShoppingListsTable;
@@ -40,6 +40,7 @@ public class ShoppingListsManager {
     private long shoppingListAuthorsId;
     private boolean generateNewShoppingListEvent;
     private List<ShoppingList> shoppingLists;
+    private int idOfShoppingListToEdit;
 
     public ShoppingListsManager(Bus bus) {
         this.bus = bus;
@@ -50,6 +51,10 @@ public class ShoppingListsManager {
 
     public Bus getBus() {
         return bus;
+    }
+
+    public List<ShoppingList> getShoppingLists() {
+        return shoppingLists;
     }
 
     public boolean isGenerateNewShoppingListEvent() {
@@ -69,6 +74,14 @@ public class ShoppingListsManager {
     }
 
     @Subscribe
+    public void onEditShoppingListNameImageButtonClicked(EditShoppingListNameEvent event){
+        if(shoppingListsFragment != null){
+            idOfShoppingListToEdit = event.shoppingListId;
+            shoppingListsFragment.showEditShoppingListNameDialog(event.shoppingListName);
+        }
+    }
+
+    @Subscribe
     public void onGenerateNewShoppingListEvent(GenerateShoppingListButtonClickedEvent event){
         currentMenu = event.menu;
         shoppingListAuthorsId = currentMenu.getAuthorsId();
@@ -81,6 +94,49 @@ public class ShoppingListsManager {
         if(shoppingListsFragment != null){
             new DeleteShoppingList().execute(event.shoppingList);
         }
+    }
+
+    public void updateShoppingListName(String shoppingListName) {
+        if(shoppingListsFragment != null){
+            new UpdateShoppingListName().execute(shoppingListName);
+        }
+    }
+
+    class UpdateShoppingListName extends AsyncTask<String, Void, String>{
+
+        @Override
+        protected String doInBackground(String... params) {
+            MenuDataBase menuDataBase = MenuDataBase.getInstance(shoppingListsFragment.getContext());
+            String newName;
+            ContentValues editContentValues = new ContentValues();
+            editContentValues.put(ShoppingListsTable.getSecondColumnName(), params[0]);
+            String[] listId = {String.valueOf(idOfShoppingListToEdit)};
+            String whereClause = String.format("%s = ?", ShoppingListsTable.getFirstColumnName());
+            if(menuDataBase.update(ShoppingListsTable.getTableName(), editContentValues, whereClause, listId) != -1) newName=params[0];
+            else  newName = null;
+            menuDataBase.close();
+            return newName;
+        }
+
+        @Override
+        protected void onPostExecute(String shoppingListName) {
+            if(shoppingListsFragment != null){
+                if(shoppingListName != null) {
+                    changeShoppingListNameInArrayList(shoppingListName);
+                    shoppingListsFragment.editShoppingListNameSuccess();
+                }else shoppingListsFragment.editShoppingListNameFailed();
+            }
+        }
+    }
+
+    private void changeShoppingListNameInArrayList(String shoppingListName) {
+        for (ShoppingList shoppingList : shoppingLists) {
+            if(shoppingList.getShoppingListId() == idOfShoppingListToEdit){
+                shoppingList.setName(shoppingListName);
+                break;
+            }
+        }
+
     }
 
     class DeleteShoppingList extends AsyncTask<ShoppingList, Void, Boolean>{

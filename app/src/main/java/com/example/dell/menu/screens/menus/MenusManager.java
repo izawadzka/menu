@@ -63,6 +63,9 @@ public class MenusManager {
         }
     }
 
+    public List<Menu> getMenusArrayList() {
+        return menusArrayList;
+    }
 
     @Subscribe
     public void onEditMenuNameImageButtonClicked(EditMenuNameEvent event){
@@ -152,18 +155,19 @@ public class MenusManager {
         }
     }
 
-    class UpdateMenuName extends AsyncTask<Menu, Void, Boolean>{
+    class UpdateMenuName extends AsyncTask<Menu, Void, Menu>{
 
         @Override
-        protected Boolean doInBackground(Menu... params) {
-            boolean result;
+        protected Menu doInBackground(Menu... params) {
+            Menu result;
             MenuDataBase menuDataBase = MenuDataBase.getInstance(menusFragment.getContext());
             ContentValues editContentValues = new ContentValues();
             editContentValues.put(MenusTable.getSecondColumnName(), params[0].getName());
             String[] menusId = {String.valueOf(params[0].getMenuId())};
             String whereClause = String.format("%s = ?", MenusTable.getFirstColumnName());
-            if(menuDataBase.update(MenusTable.getTableName(), editContentValues, whereClause, menusId) != -1) result = true;
-            else  result = false;
+            if(menuDataBase.update(MenusTable.getTableName(), editContentValues, whereClause, menusId) != -1)
+                result = params[0];
+            else  result = null;
 
             menuDataBase.close();
 
@@ -171,15 +175,26 @@ public class MenusManager {
         }
 
         @Override
-        protected void onPostExecute(Boolean result) {
+        protected void onPostExecute(Menu result) {
             if(menusFragment != null) {
-                if (result) {
+                if (result != null) {
+                    changeMenusNameInArrayList(result.getMenuId(), result.getName());
                     menusFragment.editMenusNameSuccess();
                 }else{
                     menusFragment.editMenusNameFailed();
                 }
             }
         }
+    }
+
+    private void changeMenusNameInArrayList(int menuId, String name) {
+        for (Menu menu : menusArrayList) {
+            if(menu.getMenuId() == menuId){
+                menu.setName(name);
+                break;
+            }
+        }
+
     }
 
     class AddNewMenu extends AsyncTask<String, Void, Long>{

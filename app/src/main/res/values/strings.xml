@@ -35,6 +35,6 @@
     <string name="supper">Supper:</string>
     <string name="menu_name_hint">Menu name</string>
     <string name="reports">Reports</string>
-    <string name="new_menu_name_hint">new menu name</string>
+    <string name="new_name_hint">new name</string>
     <string name="delete_daily_menu_button">delete daily menu</string>
 </resources>

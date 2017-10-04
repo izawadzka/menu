@@ -3,10 +3,13 @@ package com.example.dell.menu.screens.shoppingLists;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.text.BoringLayout;
+import android.text.LoginFilter;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.example.dell.menu.MenuDataBase;
+import com.example.dell.menu.events.shoppingLists.DeleteProductFromShoppingListEvent;
 import com.example.dell.menu.events.shoppingLists.QuantityOfProductChangedEvent;
 import com.example.dell.menu.objects.Product;
 import com.example.dell.menu.tables.ProductsTable;
@@ -28,6 +31,8 @@ public class ShowProductsInListManager {
     private int shoppingListId;
     private int productToChangeId;
     private ProductsAdapter.ProductsInListViewHolder holder;
+    private int idOfProductToDelete;
+    private List<Product> productsInShoppingList;
 
     public ShowProductsInListManager(Bus bus){
         this.bus = bus;
@@ -52,6 +57,68 @@ public class ShowProductsInListManager {
 
     public int getShoppingListId() {
         return shoppingListId;
+    }
+
+    public List<Product> getProductsInShoppingList() {
+        return productsInShoppingList;
+    }
+
+    @Subscribe
+    public void onDeleteProductFromShoppingList(DeleteProductFromShoppingListEvent event){
+        if(showProductsInListActivity != null){
+            idOfProductToDelete = event.productId;
+            new DeleteProductFromShoppingList().execute(event.productId);
+        }
+    }
+
+    class DeleteProductFromShoppingList extends AsyncTask<Integer, Void, Boolean>{
+
+        @Override
+        protected Boolean doInBackground(Integer... params) {
+            MenuDataBase menuDataBase = MenuDataBase.getInstance(showProductsInListActivity);
+            String[] ids = {String.valueOf(params[0]), String.valueOf(shoppingListId)};
+            boolean result;
+            String whereClause = String.format("%s = ? AND %s = ?", ShoppingListsProductsTable.getSecondColumnName(),
+                    ShoppingListsProductsTable.getFirstColumnName());
+            try {
+                menuDataBase.delete(ShoppingListsProductsTable.getTableName(), whereClause,
+                        ids);
+                result = true;
+            }catch (Exception e){
+                Log.e(getClass().getName(), e.getLocalizedMessage());
+                result = false;
+            }
+
+            menuDataBase.close();
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if(showProductsInListActivity != null){
+                if(result) {
+                    if(deleteProductFromArrayList(idOfProductToDelete)){
+                    showProductsInListActivity.productFromShoppingListDeletedSuccessfully();
+                }else loadProducts();
+
+                }
+                else showProductsInListActivity.makeAStatement("An error occurred while an attempt to delete product from shopping list",
+                        Toast.LENGTH_LONG);
+            }
+        }
+    }
+
+    private boolean deleteProductFromArrayList(int idOfProductToDelete) {
+        int indx = -1;
+        for (int i = 0; i < productsInShoppingList.size(); i++) {
+            if(productsInShoppingList.get(i).getProductId() == idOfProductToDelete){
+                indx = i;
+                break;
+            }
+        }
+        if(indx != -1) productsInShoppingList.remove(indx);
+
+        return indx != -1;
     }
 
     @Subscribe
@@ -99,8 +166,6 @@ public class ShowProductsInListManager {
 
 
     class DownloadProductsFromDatabase extends AsyncTask<Void, Integer, List<Product>>{
-
-        private List<Product> productsInShoppingList;
 
         @Override
         protected List<Product> doInBackground(Void... params) {

@@ -9,14 +9,13 @@
     android:layout_height="match_parent">
 
     <EditText
-        android:id="@+id/addMenuNameEditText"
-        android:hint="@string/new_menu_name_hint"
+        android:id="@+id/addNameEditText"
+        android:hint="@string/new_name_hint"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
     <Button
-        android:text="add new menu"
-        android:id="@+id/addMenuButton"
+        android:id="@+id/addButton"
         android:layout_gravity="center_horizontal"
         style="@style/wideButtonStyle" />
     <Button

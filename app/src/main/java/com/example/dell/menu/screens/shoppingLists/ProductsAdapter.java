@@ -2,6 +2,7 @@ package com.example.dell.menu.screens.shoppingLists;
 
 import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +14,7 @@ import android.widget.ViewSwitcher;
 
 import com.example.dell.menu.R;
 import com.example.dell.menu.StorageType;
+import com.example.dell.menu.events.shoppingLists.DeleteProductFromShoppingListEvent;
 import com.example.dell.menu.events.shoppingLists.QuantityOfProductChangedEvent;
 import com.example.dell.menu.objects.Product;
 import com.squareup.otto.Bus;
@@ -91,7 +93,6 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
 
             clickableQuantityTextView.setText(String.valueOf(product.getQuantity()));
             quantityEditText.setText(String.valueOf(product.getQuantity()));
-            //quantityEditText.setInputType(InputType.);
 
             unitTextView.setText(StorageType.getUnit(product.getStorageType()));
 
@@ -108,17 +109,20 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
         public void onUpdateQuantityImageButtonClicked(){
             try {
                 double newQuantity = Double.valueOf(quantityEditText.getText().toString());
-                clickableQuantityTextView.setText(String.valueOf(newQuantity));
+                if(newQuantity >= 0) {
 
-                bus.post(new QuantityOfProductChangedEvent(newQuantity, product.getProductId(), this));
+                    clickableQuantityTextView.setText(String.valueOf(newQuantity));
+
+                    bus.post(new QuantityOfProductChangedEvent(newQuantity, product.getProductId(), this));
+                }else quantityEditText.setError("Quantity can't be lower than 0");
             }catch (Exception e){
-                quantityEditText.setError("Ivalid format");
+                quantityEditText.setError("Invalid format");
             }
         }
 
         @OnClick(R.id.deleteProductImageButton)
         public void onDeleteProductImageButtonClicked() {
-
+            bus.post(new DeleteProductFromShoppingListEvent(product.getProductId()));
         }
 
         public void updateSuccess() {

@@ -24,7 +24,9 @@
             android:label="Log in" />
         <activity
             android:name=".screens.register.RegisterActivity"
-            android:label="Register" />
+            android:label="Register" android:parentActivityName=".screens.login.LoginActivity">
+            <meta-data android:name="android.support.PARENT_ACTIVITY" android:value="com.example.dell.menu.screens.login.LoginActivity"/>
+            </activity>
         <activity
             android:name=".screens.meals.extendedMealInformation.FullMealInformationActivity"
             android:label="Meal information" />

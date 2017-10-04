@@ -5,15 +5,18 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.dell.menu.App;
+import com.example.dell.menu.MainActivity;
 import com.example.dell.menu.R;
 import com.example.dell.menu.objects.ShoppingList;
 
@@ -33,6 +36,7 @@ public class ShoppingListsFragment extends Fragment implements ShoppingListAdapt
     RecyclerView shoppingListRecyclerView;
     private ShoppingListsManager shoppingListsManager;
     private ShoppingListAdapter adapter;
+    private LayoutInflater inflater;
 
 
     @Override
@@ -66,6 +70,9 @@ public class ShoppingListsFragment extends Fragment implements ShoppingListAdapt
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+
+        this.inflater = inflater;
+
         View view = inflater.inflate(R.layout.fragment_shopping_lists, container, false);
         ButterKnife.bind(this, view);
 
@@ -86,8 +93,8 @@ public class ShoppingListsFragment extends Fragment implements ShoppingListAdapt
     }
 
     public void generateShoppingListSuccess() {
-        Toast.makeText(getActivity(), "Shopping list created successfully", Toast.LENGTH_SHORT).show();
-        shoppingListsManager.loadShoppingLists();
+        //Toast.makeText(getActivity(), "Shopping list created successfully", Toast.LENGTH_SHORT).show();
+        //shoppingListsManager.loadShoppingLists();
     }
 
     @Override
@@ -113,5 +120,45 @@ public class ShoppingListsFragment extends Fragment implements ShoppingListAdapt
 
     public void shoppingListDeleteFailed() {
         Toast.makeText(getContext(), "An error occurred while an attempt to delete shopping list", Toast.LENGTH_LONG).show();
+    }
+
+    public void showEditShoppingListNameDialog(String shoppingListName) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        View view = inflater.inflate(R.layout.name_dialog_layout, null);
+        final EditText nameEditText = (EditText) view.findViewById(R.id.addNameEditText);
+        nameEditText.setHint("New shopping list name");
+        Button addButton = (Button) view.findViewById(R.id.addButton);
+        addButton.setText(R.string.save_button_text);
+        Button cancelButton = (Button) view.findViewById(R.id.cancelButton);
+        builder.setView(view);
+        final AlertDialog dialog = builder.create();
+
+        dialog.show();
+        addButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String shoppingListName = nameEditText.getText().toString();
+                if (shoppingListName.length() > 0) {
+                    dialog.dismiss();
+                    shoppingListsManager.updateShoppingListName(shoppingListName);
+                } else nameEditText.setError("You must type new name!");
+            }
+        });
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+    }
+
+    public void editShoppingListNameSuccess() {
+        Toast.makeText(getContext(), "Shopping list name changed successfully", Toast.LENGTH_SHORT).show();
+        adapter.setShoppingLists(shoppingListsManager.getShoppingLists());
+    }
+
+    public void editShoppingListNameFailed() {
+        Toast.makeText(getContext(), "An error occurred while an attempt to change shopping list's name", Toast.LENGTH_LONG).show();
     }
 }

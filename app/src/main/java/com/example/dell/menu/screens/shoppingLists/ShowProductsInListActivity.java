@@ -77,4 +77,10 @@ public class ShowProductsInListActivity extends AppCompatActivity {
     public void updateQuantityFailed() {
         makeAStatement("An error occured while an attempt to update quantity", Toast.LENGTH_LONG);
     }
+
+    public void productFromShoppingListDeletedSuccessfully() {
+        makeAStatement("Successfully deleted product from shopping list", Toast.LENGTH_SHORT);
+        //adapter.notifyDataSetChanged();
+        adapter.setProducts(showProductsInListManager.getProductsInShoppingList());
+    }
 }

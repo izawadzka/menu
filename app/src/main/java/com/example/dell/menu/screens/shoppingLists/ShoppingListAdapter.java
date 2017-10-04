@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.example.dell.menu.R;
 import com.example.dell.menu.events.shoppingLists.DeleteShoppingListEvent;
+import com.example.dell.menu.events.shoppingLists.EditShoppingListNameEvent;
 import com.example.dell.menu.objects.ShoppingList;
 import com.squareup.otto.Bus;
 
@@ -71,6 +72,8 @@ public class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapte
         TextView shoppingListNameTextView;
         @Bind(R.id.authorsNameTextView)
         TextView authorsNameTextView;
+        @Bind(R.id.editShoppingListNameImageButton)
+        ImageButton editShoppingListNameImageButton;
         @Bind(R.id.deleteShoppingListImageButton)
         ImageButton deleteShoppingListImageButton;
 
@@ -91,6 +94,11 @@ public class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapte
         @OnClick(R.id.deleteShoppingListImageButton)
         public void onDeleteShoppingListImageButtonClicked(){
             bus.post(new DeleteShoppingListEvent(shoppingList));
+        }
+
+        @OnClick(R.id.editShoppingListNameImageButton)
+        public void onEditShoppingListNameImageButtonClicked(){
+            bus.post(new EditShoppingListNameEvent(shoppingList.getShoppingListId(), shoppingList.getName()));
         }
 
         @Override
