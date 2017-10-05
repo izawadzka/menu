@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.example.dell.menu.R;
 import com.example.dell.menu.events.products.DeleteProductEvent;
+import com.example.dell.menu.events.products.UpdateProductEvent;
 import com.example.dell.menu.objects.Product;
 import com.squareup.otto.Bus;
 
@@ -23,8 +24,9 @@ import butterknife.OnClick;
  * Created by Dell on 26.05.2017.
  */
 
-public class ProductsAdapter extends RecyclerView.Adapter<ProductViewHolder> {
+public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ProductViewHolder> {
     private final Bus bus;
+    private ProductClickedListener productClickedListener;
     private List<Product> products = new ArrayList<>();
 
     public ProductsAdapter(Bus bus) {
@@ -54,36 +56,65 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductViewHolder> {
         return products.size();
     }
 
+    public void setProductClickedListener(ProductClickedListener productClickedListener) {
+        this.productClickedListener = productClickedListener;
+    }
+
+    void itemClicked(Product product){
+        if(productClickedListener != null){
+            productClickedListener.productClicked(product);
+        }
+    }
+
+
+
+
+    class ProductViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+        @Bind(R.id.productNameTextView)
+        TextView productNameTextView;
+        @Bind(R.id.caloriesTextView)
+        TextView caloriesTextView;
+        @Bind(R.id.updateProductImageButton)
+        ImageButton editProductImageButton;
+        @Bind(R.id.deleteProductImageButton)
+        ImageButton deleteProductImageButton;
+
+        private final Bus bus;
+        private Product product;
+
+
+        public ProductViewHolder(View itemView, Bus bus) {
+            super(itemView);
+            this.bus = bus;
+            ButterKnife.bind(this, itemView);
+            itemView.setOnClickListener(this);
+        }
+
+        public void setProduct(Product product) {
+            this.product = product;
+            productNameTextView.setText(product.getName());
+            caloriesTextView.setText(String.format("%s kcal/100g", product.getNumberOfKcalPer100g()));
+        }
+
+        @OnClick(R.id.deleteProductImageButton)
+        public void onDeleteProductButtonClicked() {
+            bus.post(new DeleteProductEvent(product.getProductId()));
+        }
+
+        @OnClick(R.id.updateProductImageButton)
+        public void onUpdateProductImageButtonClicked(){
+            bus.post(new UpdateProductEvent(product.getProductId()));
+        }
+
+        @Override
+        public void onClick(View v) {
+            itemClicked(product);
+        }
+    }
+
+    public interface ProductClickedListener{
+        void productClicked(Product product);
+    }
 }
 
-class ProductViewHolder extends RecyclerView.ViewHolder {
-    @Bind(R.id.productNameTextView)
-    TextView productNameTextView;
-    @Bind(R.id.caloriesTextView)
-    TextView caloriesTextView;
-    @Bind(R.id.updateQuantityImageButton)
-    ImageButton editProductImageButton;
-    @Bind(R.id.deleteProductImageButton)
-    ImageButton deleteProductImageButton;
 
-    private final Bus bus;
-    private Product product;
-
-
-    public ProductViewHolder(View itemView, Bus bus) {
-        super(itemView);
-        this.bus = bus;
-        ButterKnife.bind(this, itemView);
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
-        productNameTextView.setText(product.getName());
-        caloriesTextView.setText(String.format("%s kcal/100g", product.getNumberOfKcalPer100g()));
-    }
-
-    @OnClick(R.id.deleteProductImageButton)
-    public void onDeleteProductButtonClicked() {
-        bus.post(new DeleteProductEvent(product.getProductId()));
-    }
-}

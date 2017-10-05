@@ -3,12 +3,16 @@ package com.example.dell.menu.screens.menus;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.example.dell.menu.MenuDataBase;
 import com.example.dell.menu.UserStorage;
 import com.example.dell.menu.events.menus.DeleteMenuEvent;
 import com.example.dell.menu.events.menus.EditMenuNameEvent;
+import com.example.dell.menu.events.menus.GenerateShoppingListButtonClickedEvent;
+import com.example.dell.menu.events.shoppingLists.GenerateShoppingListEvent;
+import com.example.dell.menu.events.shoppingLists.ShowShoppingListEvent;
 import com.example.dell.menu.objects.Menu;
 import com.example.dell.menu.tables.DailyMenusTable;
 import com.example.dell.menu.tables.MenusDailyMenusTable;
@@ -80,6 +84,46 @@ public class MenusManager {
         if(menusFragment != null){
             menuToDelete = event.menu;
             new DeleteDailyMenus().execute();
+        }
+    }
+
+    @Subscribe
+    public void onGenerateNewShoppingListButtonClicked(GenerateShoppingListButtonClickedEvent event){
+        if(menusFragment != null){
+            new CheckIfMenuIsEmpty().execute(event.menu);
+        }
+    }
+
+    class CheckIfMenuIsEmpty extends AsyncTask<Menu, Void, Menu>{
+
+        @Override
+        protected Menu doInBackground(Menu... params) {
+            Menu result;
+            MenuDataBase menuDataBase = MenuDataBase.getInstance(menusFragment.getContext());
+            String checkIfMenuIsEmptyQuery = String.format("SELECT COUNT(%s) FROM %s WHERE %s = '%s'",
+                    MenusDailyMenusTable.getFirstColumnName(),
+                    MenusDailyMenusTable.getTableName(), MenusDailyMenusTable.getFirstColumnName(),
+                    params[0].getMenuId());
+
+            Cursor cursor = menuDataBase.downloadData(checkIfMenuIsEmptyQuery);
+            cursor.moveToPosition(-1);
+            cursor.moveToNext();
+
+            if(cursor.getInt(0) == 0) result = null;
+            else result = params[0];
+
+            menuDataBase.close();
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(Menu menu) {
+            if(menu == null){
+                menusFragment.makeAStatement("It's impossible to create a shopping list. Menu is empty", Toast.LENGTH_LONG);
+            }else{
+                bus.post(new ShowShoppingListEvent(menu));
+                bus.post(new GenerateShoppingListEvent(menu));
+            }
         }
     }
 

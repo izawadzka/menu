@@ -1,7 +1,9 @@
 package com.example.dell.menu.screens.products.addOrEdit;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -40,6 +42,10 @@ public class AddOrEditProductActivity extends AppCompatActivity {
     private String addedProductType;
     private String storageType;
     private AddOrEditProductManager addOrEditProductManager;
+    private boolean edit_mode;
+    private boolean show_mode;
+    private int productToEditId;
+    private int productToShowId;
 
 
     @Override
@@ -79,12 +85,41 @@ public class AddOrEditProductActivity extends AppCompatActivity {
 
             }
         });
+
+
+        Intent intent = getIntent();
+        if(intent.getBooleanExtra(ProductsFragment.EDIT_MODE_KEY, false)){
+            productToEditId = intent.getIntExtra(ProductsFragment.PRODUCT_ID_KEY, -1);
+            if(productToEditId != -1) edit_mode = true;
+            else{
+                setResult(ProductsFragment.RESULT_ERROR);
+                finish();
+            }
+        }else if(intent.getBooleanExtra(ProductsFragment.SHOW_MODE_KEY, false)){
+            productToShowId = intent.getIntExtra(ProductsFragment.PRODUCT_ID_KEY, -1);
+            if(productToShowId != -1) show_mode = true;
+            else{
+                setResult(ProductsFragment.RESULT_ERROR);
+                finish();
+            }
+        }
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         addOrEditProductManager.onAttach(this);
+        addOrEditProductManager.setEditMode(edit_mode, productToEditId);
+        if(show_mode) prepareShowMode();
+        addOrEditProductManager.setShowMode(show_mode, productToShowId);
+    }
+
+    private void prepareShowMode() {
+        saveProductButton.setVisibility(View.INVISIBLE);
+        addedProductName.setInputType(InputType.TYPE_NULL);
+        addedProductNumbOfKcal.setInputType(InputType.TYPE_NULL);
+        addedProductTypes.setEnabled(false);
+        addedProductStorageTypes.setEnabled(false);
     }
 
     @Override
@@ -119,12 +154,20 @@ public class AddOrEditProductActivity extends AppCompatActivity {
             int numberOfKcal;
             if(addedProductNumbOfKcal.length() == 0){
                  numberOfKcal = 0;
-            }else numberOfKcal = Integer.parseInt(addedProductNumbOfKcal.getText().toString());
-                addOrEditProductManager.addNewProduct(productName, numberOfKcal, addedProductType, storageType);
+            }else{
+                try {
+                    numberOfKcal = Integer.parseInt(addedProductNumbOfKcal.getText().toString());
+                }catch (NumberFormatException e){
+                    addedProductNumbOfKcal.setError("It must be a number!");
+                    return;
+                }
+            }
+            if(edit_mode) addOrEditProductManager.editProduct(productName, numberOfKcal, addedProductType, storageType);
+            else addOrEditProductManager.addNewProduct(productName, numberOfKcal, addedProductType, storageType);
         }
     }
 
-    public void addSuccesfull() {
+    public void addSuccessfull() {
         setResult(ProductsFragment.RESULT_OK);
         finish();
     }
@@ -133,4 +176,29 @@ public class AddOrEditProductActivity extends AppCompatActivity {
         setResult(ProductsFragment.RESULT_ERROR);
         finish();
     }
+
+    public void loadingProductFailed() {
+        Toast.makeText(this,"An error occurred while an attempt to load product to edit", Toast.LENGTH_LONG).show();
+        setResult(ProductsFragment.RESULT_ERROR);
+        finish();
+    }
+
+    public void loadingProductSuccess(Product product) {
+        addedProductName.setText(product.getName());
+        addedProductNumbOfKcal.setText(String.valueOf(product.getNumberOfKcalPer100g()));
+        addedProductTypes.setSelection(productTypesaAdapter.getPosition(product.getType()));
+        addedProductStorageTypes.setSelection(storageTypesAdapter.getPosition(product.getStorageType()));
+    }
+
+    public void editingSuccess() {
+        setResult(ProductsFragment.RESULT_OK);
+        finish();
+    }
+
+    public void editingFailed() {
+        setResult(ProductsFragment.RESULT_ERROR);
+        finish();
+    }
+
+
 }

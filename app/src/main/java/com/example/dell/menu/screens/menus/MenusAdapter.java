@@ -1,7 +1,6 @@
 package com.example.dell.menu.screens.menus;
 
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,14 +10,10 @@ import android.widget.TextView;
 import com.example.dell.menu.R;
 import com.example.dell.menu.events.menus.DeleteMenuEvent;
 import com.example.dell.menu.events.menus.EditMenuNameEvent;
-import com.example.dell.menu.events.shoppingLists.GenerateShoppingListButtonClickedEvent;
-import com.example.dell.menu.events.shoppingLists.ShowShoppingListEvent;
+import com.example.dell.menu.events.menus.GenerateShoppingListButtonClickedEvent;
 import com.example.dell.menu.objects.Menu;
 import com.squareup.otto.Bus;
-import com.squareup.otto.Subscribe;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -108,7 +103,7 @@ public class MenusAdapter extends RecyclerView.Adapter<MenusAdapter.MenuViewHold
 
         @OnClick(R.id.generateShoppingList)
         public void onGenerateShoppingListButtonClicked(){
-            bus.post(new ShowShoppingListEvent(menu));
+            //bus.post(new ShowShoppingListEvent(menu));
             bus.post(new GenerateShoppingListButtonClickedEvent(menu));
         }
 

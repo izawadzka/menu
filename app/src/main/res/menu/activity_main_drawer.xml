@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <group android:checkableBehavior="single">
+    <item android:title="Menu">
+    <menu >
+        <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_products"
             android:icon="@drawable/ic_product"
@@ -18,14 +20,35 @@
             android:id="@+id/nav_shoppingList"
             android:icon="@drawable/ic_generate_shopping_list"
             android:title="@string/shopping_lists" />
-    </group>
+        </group>
+    </menu>
+    </item>
 
-    <group android:id="@+id/settings_group">
+    <item android:title="Settings">
+    <menu android:checkableBehavior="single" android:id="@+id/settings_group">
+        <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_reports"
             android:icon="@drawable/ic_reports"
             android:title="@string/reports" />
-    </group>
+        </group>
+    </menu>
+    </item>
+
+    <item android:title="Virtual fridge">
+        <menu >
+            <group android:checkableBehavior="single">
+            <item
+                android:id="@+id/nav_check_content"
+                android:title="Check content" />
+            <item
+                android:id="@+id/nav_add_products"
+                android:icon="@drawable/ic_add"
+                android:title="Add products"
+                />
+            </group>
+        </menu>
+    </item>
 
 
 </menu>

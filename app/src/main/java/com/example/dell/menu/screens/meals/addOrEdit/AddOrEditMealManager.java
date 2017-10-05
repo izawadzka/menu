@@ -158,7 +158,7 @@ public class AddOrEditMealManager {
         new DeleteProducts().execute(mealId);
     }
 
-    class DeleteProducts extends AsyncTask<Long, Integer, Integer>{
+    private class DeleteProducts extends AsyncTask<Long, Integer, Integer>{
 
         @Override
         protected Integer doInBackground(Long... params) {
@@ -174,7 +174,7 @@ public class AddOrEditMealManager {
         }
     }
 
-    class EditMeal extends AsyncTask<String, Integer, Integer>{
+    private class EditMeal extends AsyncTask<String, Integer, Integer>{
 
         @Override
         protected Integer doInBackground(String... params) {
@@ -194,7 +194,6 @@ public class AddOrEditMealManager {
         protected void onPostExecute(Integer integer) {
             if(integer == 1){
                 editProductsInMeal();
-                //addOrEditMealActivity.updateSuccess();
             }else if(integer == 0){
                 addOrEditMealActivity.updateFailed();
             }
@@ -202,7 +201,7 @@ public class AddOrEditMealManager {
     }
 
 
-    class DownloadProductsInMeal extends AsyncTask<Integer, Integer, List<Product>>{
+    private class DownloadProductsInMeal extends AsyncTask<Integer, Integer, List<Product>>{
 
         @Override
         protected List<Product> doInBackground(Integer... params) {
@@ -241,7 +240,7 @@ public class AddOrEditMealManager {
         }
     }
 
-    class DownloadMealToEdit extends AsyncTask<Long, Integer, Meal>{
+    private class DownloadMealToEdit extends AsyncTask<Long, Integer, Meal>{
 
         @Override
         protected Meal doInBackground(Long... params) {
@@ -253,10 +252,11 @@ public class AddOrEditMealManager {
                 cursor.moveToPosition(0);
                 Meal meal = new Meal(cursor.getInt(0), cursor.getString(1), cursor.getInt(2),
                         cursor.getInt(3),cursor.getString(4));
-                //menuDataBase.close();
+                menuDataBase.close();
+                //odkomentowalam zamkniecie bazy
                 return meal;
             }else{
-                //menuDataBase.close();
+                menuDataBase.close();
                 return null;
             }
         }
@@ -271,7 +271,7 @@ public class AddOrEditMealManager {
         }
     }
 
-    class AddProducts extends AsyncTask<List<Product>, Integer, Long>{
+    private class AddProducts extends AsyncTask<List<Product>, Integer, Long>{
 
         @Override
         protected Long doInBackground(List<Product>... params) {
@@ -280,15 +280,15 @@ public class AddOrEditMealManager {
                 for (Product product : params[0]) {
                     if(menuDataBase.insert(MealsProductsTable.getTableName(), MealsProductsTable.getContentValues(product.getProductId(), mealId, product.getQuantity())) == -1){
                         menuDataBase.close();
-                        return Long.valueOf(-1);
+                        return (long)-1;
                     }
                 }
             }catch (Exception e){
                 menuDataBase.close();
-                return Long.valueOf(-1);
+                return (long)-1;
             }
             menuDataBase.close();
-            return Long.valueOf(0);
+            return (long)0;
         }
 
         @Override
@@ -309,7 +309,7 @@ public class AddOrEditMealManager {
         }
     }
 
-    class AddMeal extends AsyncTask<String, Integer, Long>{
+    private class AddMeal extends AsyncTask<String, Integer, Long>{
 
         @Override
         protected Long doInBackground(String... params) {
@@ -325,7 +325,7 @@ public class AddOrEditMealManager {
                 menuDataBase.close();
                 return indeks;
             }catch (Exception e){
-                return Long.valueOf(-1);
+                return (long)-1;
             }
 
         }

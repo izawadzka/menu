@@ -66,6 +66,7 @@ public class ChooseFromMealsManager {
                     result.add(new Meal(cursor.getInt(0), cursor.getString(1), cursor.getInt(2), cursor.getInt(3), cursor.getString(4)));
                 }
             }
+            menuDataBase.close();
             return result;
         }
 
@@ -91,6 +92,7 @@ public class ChooseFromMealsManager {
                     result.add(new Meal(cursor.getInt(0), cursor.getString(1), cursor.getInt(2), cursor.getInt(3), cursor.getString(4)));
                 }
             }
+            menuDataBase.close();
             return result;
         }
 

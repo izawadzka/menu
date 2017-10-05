@@ -8,7 +8,7 @@ import android.util.Log;
 import com.example.dell.menu.MenuDataBase;
 import com.example.dell.menu.events.shoppingLists.DeleteShoppingListEvent;
 import com.example.dell.menu.events.shoppingLists.EditShoppingListNameEvent;
-import com.example.dell.menu.events.shoppingLists.GenerateShoppingListButtonClickedEvent;
+import com.example.dell.menu.events.shoppingLists.GenerateShoppingListEvent;
 import com.example.dell.menu.objects.Menu;
 import com.example.dell.menu.objects.Product;
 import com.example.dell.menu.objects.ShoppingList;
@@ -82,7 +82,7 @@ public class ShoppingListsManager {
     }
 
     @Subscribe
-    public void onGenerateNewShoppingListEvent(GenerateShoppingListButtonClickedEvent event){
+    public void onGenerateNewShoppingListEvent(GenerateShoppingListEvent event){
         currentMenu = event.menu;
         shoppingListAuthorsId = currentMenu.getAuthorsId();
         shoppingListName = currentMenu.getName() + "list";

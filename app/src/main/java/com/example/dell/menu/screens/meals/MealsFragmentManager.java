@@ -2,6 +2,7 @@ package com.example.dell.menu.screens.meals;
 
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.widget.Toast;
 
 import com.example.dell.menu.MenuDataBase;
 import com.example.dell.menu.events.meals.DeleteMealEvent;
@@ -74,6 +75,38 @@ public class MealsFragmentManager {
             menuDataBase.close();
         }
         return "";
+    }
+
+    public void findMeals(String textToFind) {
+        if(mealsFragment != null){
+            new FindMeals().execute(textToFind);
+        }
+    }
+
+    class FindMeals extends AsyncTask<String, Void, List<Meal>>{
+
+        @Override
+        protected List<Meal> doInBackground(String... params) {
+            List<Meal> result = new ArrayList<>();
+            MenuDataBase menuDataBase = MenuDataBase.getInstance(mealsFragment.getContext());
+            String query = String.format("SELECT * FROM %s WHERE %s LIKE '%%%s%%'", MealsTable.getTableName(), MealsTable.getSecondColumnName(), params[0]);
+            Cursor cursor = menuDataBase.downloadData(query);
+            if(cursor.getCount() > 0){
+                cursor.moveToPosition(-1);
+                while (cursor.moveToNext()){
+                    result.add(new Meal(cursor.getInt(0), cursor.getString(1), cursor.getInt(2), cursor.getInt(3), cursor.getString(4)));
+                }
+            }
+            menuDataBase.close();
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(List<Meal> meals) {
+            if(meals.size() > 0){
+                mealsFragment.showMeals(meals);
+            }
+        }
     }
 
     class DeleteMeal extends AsyncTask<Integer, Integer, Integer>{

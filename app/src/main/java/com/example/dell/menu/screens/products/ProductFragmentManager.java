@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import com.example.dell.menu.MenuDataBase;
 import com.example.dell.menu.events.products.DeleteProductAnywayEvent;
 import com.example.dell.menu.events.products.DeleteProductEvent;
+import com.example.dell.menu.events.products.UpdateProductEvent;
 import com.example.dell.menu.objects.Product;
 import com.example.dell.menu.screens.products.dialog.Dialog;
 import com.example.dell.menu.tables.MealsProductsTable;
@@ -56,10 +57,51 @@ public class ProductFragmentManager {
         }
     }
 
+
+
     @Subscribe
-    public void deleteProduct(DeleteProductAnywayEvent deleteProductAnywayEvent){
+    public void onUpdateProductEvent(UpdateProductEvent event){
+        if(productsFragment != null){
+            productsFragment.editProduct(event.productId);
+        }
+    }
+
+    @Subscribe
+    public void deleteProductAnyway(DeleteProductAnywayEvent deleteProductAnywayEvent){
         if(productsFragment != null){
             new DeleteProduct().execute();
+        }
+    }
+
+    public void findProducts(String textToFind) {
+        if(productsFragment != null){
+            new FindProducts().execute(textToFind);
+        }
+    }
+
+    class FindProducts extends AsyncTask<String, Void, List<Product>>{
+
+        @Override
+        protected List<Product> doInBackground(String... params) {
+            List<Product> result = new ArrayList<>();
+            MenuDataBase menuDataBase = MenuDataBase.getInstance(productsFragment.getContext());
+            String query = String.format("SELECT * FROM %s WHERE %s LIKE '%%%s%%'", ProductsTable.getTableName(), ProductsTable.getSecondColumnName(), params[0]);
+            Cursor cursor = menuDataBase.downloadData(query);
+            if(cursor.getCount() > 0){
+                cursor.moveToPosition(-1);
+                while (cursor.moveToNext()){
+                    result.add(new Product(cursor.getInt(0), cursor.getString(1), cursor.getInt(2), cursor.getString(3), cursor.getString(4)));
+                }
+            }
+            menuDataBase.close();
+            return result;
+        }
+
+        @Override
+        protected void onPostExecute(List<Product> products) {
+            if(products.size() > 0){
+                productsFragment.showProducts(products);
+            }
         }
     }
 

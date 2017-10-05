@@ -1,12 +1,9 @@
 package com.example.dell.menu.screens.shoppingLists;
 
 import android.support.v7.widget.RecyclerView;
-import android.text.InputType;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.ExtractedText;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -76,7 +73,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
         ViewSwitcher textViewEditTextSwitcher;
         @Bind(R.id.unitTextView)
         TextView unitTextView;
-        @Bind(R.id.updateQuantityImageButton)
+        @Bind(R.id.updateProductImageButton)
         ImageButton updateQuantityImageButton;
         @Bind(R.id.deleteProductImageButton)
         ImageButton deleteProductImageButton;
@@ -105,7 +102,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
             updateQuantityImageButton.setVisibility(View.VISIBLE);
         }
 
-        @OnClick(R.id.updateQuantityImageButton)
+        @OnClick(R.id.updateProductImageButton)
         public void onUpdateQuantityImageButtonClicked(){
             try {
                 double newQuantity = Double.valueOf(quantityEditText.getText().toString());

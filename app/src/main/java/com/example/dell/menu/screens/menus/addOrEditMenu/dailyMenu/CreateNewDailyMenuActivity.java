@@ -154,7 +154,6 @@ public class CreateNewDailyMenuActivity extends AppCompatActivity {
     }
 
     private void setEditMode() {
-        dateEditText.setInputType(InputType.TYPE_CLASS_DATETIME);
         dateEditText.setText(currentDailyMenu.getDate());
         saveDailyMenuButton.setText("save changes");
         if (!manager.isEditMode()) {

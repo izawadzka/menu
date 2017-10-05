@@ -2,6 +2,7 @@ package com.example.dell.menu.screens.menus.addOrEditMenu.dailyMenu.chooseMeals;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.test.espresso.matcher.ViewMatchers;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -72,6 +73,7 @@ public class ChooseFromMealsActivity extends AppCompatActivity implements MealsT
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_search, menu);
+        menu.findItem(R.id.action_add).setVisible(false);
         MenuItem item = menu.findItem(R.id.search_menu);
         SearchView searchView = (SearchView) item.getActionView();
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {

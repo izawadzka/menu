@@ -1,4 +1,4 @@
-package com.example.dell.menu.events.shoppingLists;
+package com.example.dell.menu.events.menus;
 
 import com.example.dell.menu.objects.Menu;
 

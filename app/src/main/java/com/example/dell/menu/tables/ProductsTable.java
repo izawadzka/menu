@@ -55,4 +55,8 @@ public class ProductsTable {
     public static String getFifthColumnName() {
         return fifthColumnName;
     }
+
+    public static String getFourthColumnName() {
+        return fourthColumnName;
+    }
 }
