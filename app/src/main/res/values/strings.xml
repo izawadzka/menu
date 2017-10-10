@@ -37,4 +37,9 @@
     <string name="reports">Reports</string>
     <string name="new_name_hint">new name</string>
     <string name="delete_daily_menu_button">delete daily menu</string>
+    <string name="breakfastCheckbox">breakfast</string>
+    <string name="lunchCheckbox">lunch</string>
+    <string name="dinnerCheckbox">dinner</string>
+    <string name="teatimeCheckbox">teatime</string>
+    <string name="supperCheckbox">supper</string>
 </resources>
