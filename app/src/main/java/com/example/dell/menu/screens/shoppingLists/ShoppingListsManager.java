@@ -106,7 +106,7 @@ public class ShoppingListsManager {
 
         @Override
         protected String doInBackground(String... params) {
-            MenuDataBase menuDataBase = MenuDataBase.getInstance(shoppingListsFragment.getContext());
+            MenuDataBase menuDataBase = MenuDataBase.getInstance(shoppingListsFragment.getActivity());
             String newName;
             ContentValues editContentValues = new ContentValues();
             editContentValues.put(ShoppingListsTable.getSecondColumnName(), params[0]);
@@ -144,7 +144,7 @@ public class ShoppingListsManager {
         @Override
         protected Boolean doInBackground(ShoppingList... params) {
             boolean result = true;
-            MenuDataBase menuDataBase = MenuDataBase.getInstance(shoppingListsFragment.getContext());
+            MenuDataBase menuDataBase = MenuDataBase.getInstance(shoppingListsFragment.getActivity());
 
             String[] shoppingListsId = {String.valueOf(params[0].getShoppingListId())};
             try {
@@ -280,7 +280,7 @@ public class ShoppingListsManager {
         @Override
         protected Long doInBackground(Void... params) {
             try{
-            MenuDataBase menuDataBase = MenuDataBase.getInstance(shoppingListsFragment.getContext());
+            MenuDataBase menuDataBase = MenuDataBase.getInstance(shoppingListsFragment.getActivity());
             java.sql.Date sqlDate = new java.sql.Date(System.currentTimeMillis());
             long result = menuDataBase.insert(ShoppingListsTable.getTableName(),
                     ShoppingListsTable.getContentValues(new ShoppingList(shoppingListName, sqlDate, shoppingListAuthorsId)));
@@ -313,7 +313,7 @@ public class ShoppingListsManager {
 
         @Override
         protected Boolean doInBackground(Long... params) {
-            MenuDataBase menuDataBase = MenuDataBase.getInstance(shoppingListsFragment.getContext());
+            MenuDataBase menuDataBase = MenuDataBase.getInstance(shoppingListsFragment.getActivity());
             ArrayList<Product> productList = new ArrayList<>();
 
             String[] mealTypesTableNames = {BreakfastTable.getTableName(), LunchTable.getTableName(),

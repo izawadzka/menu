@@ -19,7 +19,7 @@
 
     <EditText
         android:id="@+id/quantityEditText"
-        android:inputType="number"
+        android:inputType="numberDecimal"
         android:layout_toLeftOf="@+id/quantityUnitTextView"
         android:layout_toStartOf="@+id/quantityUnitTextView"
         android:layout_width="50dp"

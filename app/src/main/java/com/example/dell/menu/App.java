@@ -2,7 +2,10 @@ package com.example.dell.menu;
 
 import android.app.Application;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
+import com.example.dell.menu.backup.Backup;
+import com.example.dell.menu.backup.BackupFlagStorage;
 import com.example.dell.menu.screens.login.LoginManager;
 import com.example.dell.menu.screens.meals.addOrEdit.AddOrEditMealManager;
 import com.example.dell.menu.screens.meals.addOrEdit.ChooseFromProductsManager;
@@ -31,6 +34,7 @@ public class App extends Application {
     private MealsFragmentManager mealsFragmentManager;
     private FullMealInformationActivityManager fullMealInformationActivityManager;
     private UserStorage userStorage;
+    private BackupFlagStorage backupFlagStorage;
     private Bus bus;
     private AddOrEditProductManager addOrEditProductManager;
     private ChooseFromProductsManager chooseFromProductsManager;
@@ -42,6 +46,15 @@ public class App extends Application {
     private ShowProductsInListManager showProductsInListManager;
     private ReportsManager reportsManager;
     private DailyMenusManager dailyMenusManager;
+    private boolean backupFlag = false;
+
+    public boolean isBackupFlag() {
+        return backupFlag;
+    }
+
+    public void setBackupFlag(boolean backupFlag) {
+        this.backupFlag = backupFlag;
+    }
 
     public DailyMenusManager getDailyMenusManager() {
         return dailyMenusManager;
@@ -53,7 +66,9 @@ public class App extends Application {
         bus = new Bus();
         loginManager = new LoginManager();
         registerManager = new RegisterManager();
-        userStorage =  new UserStorage(PreferenceManager.getDefaultSharedPreferences(this));
+        userStorage =  new UserStorage(getSharedPreferences("userStorage", MODE_PRIVATE));
+        backupFlagStorage = new BackupFlagStorage(getSharedPreferences("backupFlagStorage", MODE_PRIVATE));
+        backupFlag = backupFlagStorage.checkFlag();
         productFragmentManager = new ProductFragmentManager(bus);
         mealsFragmentManager = new MealsFragmentManager(bus);
         menusManager = new MenusManager(bus, userStorage);
@@ -118,13 +133,11 @@ public class App extends Application {
         return bus;
     }
 
-    //public MenuDataBase getMenuDataBase() {
-     //   return menuDataBase;
-    //}
-
     public UserStorage getUserStorage() {
         return userStorage;
     }
+
+    public BackupFlagStorage getBackupFlagStorage() {return backupFlagStorage;}
 
     public LoginManager getLoginManager() {
         return loginManager;

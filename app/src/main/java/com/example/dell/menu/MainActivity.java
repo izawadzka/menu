@@ -13,10 +13,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.example.dell.menu.backup.Backup;
+import com.example.dell.menu.backup.BackupService;
 import com.example.dell.menu.events.shoppingLists.ShowShoppingListEvent;
+import com.example.dell.menu.internetconnection.ConnectivityReceiver;
 import com.example.dell.menu.screens.login.LoginActivity;
 import com.example.dell.menu.screens.meals.MealsFragment;
 import com.example.dell.menu.screens.menus.MenusFragment;
@@ -33,11 +35,17 @@ public class MainActivity extends AppCompatActivity
     private DrawerLayout drawer;
     private Bus bus;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
         userStorage = ((App)getApplication()).getUserStorage();
+
+        startService(new Intent(this, BackupService.class));
+
         if(userStorage.hasToLogin()){
             startActivity(new Intent(this, LoginActivity.class));
             finish();
@@ -71,7 +79,6 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -83,6 +90,20 @@ public class MainActivity extends AppCompatActivity
         super.onStop();
         bus.unregister(this);
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.i("MainActivity", "destroy");
+
+        //Backup backup = new Backup(this, (App)getApplication());
+        //backup.doBackup();
+    }
+
+
+
+
+
 
     @Subscribe
     public void onShowShoppingList(ShowShoppingListEvent event){
@@ -155,6 +176,5 @@ public class MainActivity extends AppCompatActivity
         getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment)
                 .commit();
     }
-
 
 }

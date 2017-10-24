@@ -22,6 +22,7 @@ import com.example.dell.menu.events.meals.EditMealEvent;
 import com.example.dell.menu.objects.Meal;
 import com.example.dell.menu.screens.meals.addOrEdit.AddOrEditMealActivity;
 import com.example.dell.menu.screens.meals.extendedMealInformation.FullMealInformationActivity;
+import com.example.dell.menu.screens.products.addOrEdit.AddOrEditProductActivity;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -39,16 +40,20 @@ public class MealsFragment extends Fragment implements MealsAdapter.MealClickedL
 
     public static final int REQUEST_CODE_SHOW = 1;
     public static final int REQUEST_CODE_ADD = 10;
+    public static final int REQUEST_CODE_EDIT = 15;
+
     public static final int RESULT_ERROR = -1;
     public static final int RESULT_OK = 0;
     public static final int RESULT_CANCEL = 11;
+
     public static final String MEAL_NAME_KEY = "mealName";
     public static final String MEAL_NUMBER_OF_KCAL_KEY = "mealNumberOfKcal";
     public static final String MEALS_AUTHOR_NAME_KEY = "mealsAuthorName";
     public static final String MEALS_RECIPE_KEY = "mealsRecipe";
     public static final String MEALS_ID_KEY = "mealsId";
-    public static final int REQUEST_CODE_EDIT = 15;
-    public static final String EDIT_MODE_KEY = "edit mode";
+
+    public static final String EDIT_MODE_KEY = "edit_mode";
+    public static final String SHOW_MODE_KEY = "show_mode";
 
     @Bind(R.id.mealsRecyclerView)
     RecyclerView mealsRecyclerView;
@@ -146,7 +151,7 @@ public class MealsFragment extends Fragment implements MealsAdapter.MealClickedL
 
     @Override
     public void mealClicked(Meal meal) {
-        String authorsName;
+        /*String authorsName;
         if(meal.getAuthorsId() == 0){
             authorsName = "authomaticly_generated";
         }else{
@@ -159,7 +164,14 @@ public class MealsFragment extends Fragment implements MealsAdapter.MealClickedL
         intent.putExtra(MEALS_AUTHOR_NAME_KEY, authorsName);
         intent.putExtra(MEALS_RECIPE_KEY, meal.getRecipe());
         intent.putExtra(MEALS_ID_KEY, String.format("%s",meal.getMealsId()));
+        startActivityForResult(intent, REQUEST_CODE_SHOW);*/
+
+
+        Intent intent = new Intent(getActivity(), AddOrEditMealActivity.class);
+        intent.putExtra(SHOW_MODE_KEY, "true");
+        intent.putExtra(MEALS_ID_KEY, meal.getMealsId());
         startActivityForResult(intent, REQUEST_CODE_SHOW);
+
     }
 
     @Override

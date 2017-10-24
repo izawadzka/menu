@@ -84,7 +84,7 @@ public class ProductFragmentManager {
         @Override
         protected List<Product> doInBackground(String... params) {
             List<Product> result = new ArrayList<>();
-            MenuDataBase menuDataBase = MenuDataBase.getInstance(productsFragment.getContext());
+            MenuDataBase menuDataBase = MenuDataBase.getInstance(productsFragment.getActivity());
             String query = String.format("SELECT * FROM %s WHERE %s LIKE '%%%s%%'", ProductsTable.getTableName(), ProductsTable.getSecondColumnName(), params[0]);
             Cursor cursor = menuDataBase.downloadData(query);
             if(cursor.getCount() > 0){

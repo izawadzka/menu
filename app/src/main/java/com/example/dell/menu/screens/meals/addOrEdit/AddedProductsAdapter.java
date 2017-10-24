@@ -28,10 +28,12 @@ public class AddedProductsAdapter extends RecyclerView.Adapter<AddedProductsAdap
     private final Bus bus;
     List<Product> products = new ArrayList<>();
     private AddedProductsViewHolder holder;
+    private boolean show_mode;
 
 
-    public AddedProductsAdapter(Bus bus){
+    public AddedProductsAdapter(Bus bus, boolean show_mode){
         this.bus = bus;
+        this.show_mode = show_mode;
     }
 
     @Override
@@ -43,6 +45,7 @@ public class AddedProductsAdapter extends RecyclerView.Adapter<AddedProductsAdap
     @Override
     public void onBindViewHolder(AddedProductsViewHolder holder, int position) {
         this.holder = holder;
+        holder.setShow_mode(show_mode);
         holder.setProduct(products.get(position));
     }
 
@@ -54,11 +57,6 @@ public class AddedProductsAdapter extends RecyclerView.Adapter<AddedProductsAdap
         this.products.clear();
         this.products.addAll(products);
         notifyDataSetChanged();
-    }
-
-
-    public void addProduct(Product product){
-        this.products.add(product);
     }
 
 
@@ -77,6 +75,7 @@ public class AddedProductsAdapter extends RecyclerView.Adapter<AddedProductsAdap
         ImageButton deleteFromMealButton;
 
         private Product product;
+        private boolean show_mode;
 
         public AddedProductsViewHolder(View itemView, Bus bus) {
             super(itemView);
@@ -88,6 +87,7 @@ public class AddedProductsAdapter extends RecyclerView.Adapter<AddedProductsAdap
             this.product = product;
             productInMealName.setText(product.getName());
             productInMealQuantity.setText(String.valueOf(product.getQuantity())+ StorageType.getUnit(product.getStorageType()));
+            if(show_mode) deleteFromMealButton.setVisibility(View.GONE);
         }
 
 
@@ -100,6 +100,10 @@ public class AddedProductsAdapter extends RecyclerView.Adapter<AddedProductsAdap
 
         public void deleteProduct(Product product) {
 
+        }
+
+        public void setShow_mode(boolean show_mode) {
+            this.show_mode = show_mode;
         }
     }
 

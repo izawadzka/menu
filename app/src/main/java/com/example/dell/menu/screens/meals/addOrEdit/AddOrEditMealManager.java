@@ -10,7 +10,6 @@ import com.example.dell.menu.MenuDataBase;
 import com.example.dell.menu.events.meals.AddProductToIngredientsEvent;
 import com.example.dell.menu.events.meals.DeleteProductFromMealEvent;
 import com.example.dell.menu.objects.Meal;
-import com.example.dell.menu.objects.Menu;
 import com.example.dell.menu.objects.Product;
 import com.example.dell.menu.tables.MealsProductsTable;
 import com.example.dell.menu.tables.MealsTable;
@@ -35,8 +34,11 @@ public class AddOrEditMealManager {
     private String stateName;
     private String stateKcal;
     private String stateRecipe;
+
     private boolean editMode;
-    private boolean[] mealsTypesStates;
+    private boolean showMode;
+
+    private boolean[] mealsTypesStates = new boolean[MealsType.AMOUNT_OF_TYPES];
     private Meal loadedMeal;
 
     public AddOrEditMealManager(Bus bus){
@@ -126,10 +128,17 @@ public class AddOrEditMealManager {
         }
     }
 
-    public void downloadMealForEdit(long mealId) {
+    public void loadMealForEdit(long mealId) {
         if(addOrEditMealActivity != null){
             this.mealId = mealId;
-            new DownloadMealToEdit().execute(mealId);
+            new LoadMeal().execute(mealId);
+        }
+    }
+
+    public void loadMealToShow(long mealId){
+        if(addOrEditMealActivity != null){
+            this.mealId = mealId;
+            new LoadMeal().execute(mealId);
         }
     }
 
@@ -192,6 +201,14 @@ public class AddOrEditMealManager {
 
     public void setStateName(String stateName) {
         this.stateName = stateName;
+    }
+
+    public void setShowMode() {
+        showMode = true;
+    }
+
+    public void resetShowMode() {
+        showMode = false;
     }
 
     private class DeleteProducts extends AsyncTask<Long, Integer, Integer>{
@@ -280,7 +297,7 @@ public class AddOrEditMealManager {
         }
     }
 
-    private class DownloadMealToEdit extends AsyncTask<Long, Integer, Meal>{
+    private class LoadMeal extends AsyncTask<Long, Integer, Meal>{
 
         @Override
         protected Meal doInBackground(Long... params) {
@@ -308,7 +325,7 @@ public class AddOrEditMealManager {
                 checkMealTypes(meal.getMealsId());
             }else{
                 loadedMeal = null;
-                addOrEditMealActivity.downloadingMealFailed();
+                addOrEditMealActivity.loadingMealFailed();
             }
         }
     }
@@ -356,8 +373,8 @@ public class AddOrEditMealManager {
                     for (int i = 0; i < convertedResult.length; i++){
                         convertedResult[i] = result[i];
                     }
-                    addOrEditMealActivity.downloadingMealSuccess(loadedMeal, convertedResult);
-                } else addOrEditMealActivity.downloadingMealFailed();
+                    addOrEditMealActivity.loadingMealSuccess(loadedMeal, convertedResult);
+                } else addOrEditMealActivity.loadingMealFailed();
             }
         }
     }

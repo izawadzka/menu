@@ -40,6 +40,7 @@ public class LoginManager {
                 String query = String.format("SELECT * FROM %s WHERE %s = '%s' AND %s = '%s';", UsersTable.getTableName(), UsersTable.getSecondColumnName(), params[0], UsersTable.getThirdColumnName(), params[1]);
                 Cursor cursor = menuDataBase.downloadData(query);
                 int count = cursor.getCount();
+                cursor.close();
                 menuDataBase.close();
                 return count;
             } return 0;

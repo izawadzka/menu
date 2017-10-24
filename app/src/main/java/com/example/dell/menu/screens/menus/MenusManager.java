@@ -99,7 +99,7 @@ public class MenusManager {
         @Override
         protected Menu doInBackground(Menu... params) {
             Menu result;
-            MenuDataBase menuDataBase = MenuDataBase.getInstance(menusFragment.getContext());
+            MenuDataBase menuDataBase = MenuDataBase.getInstance(menusFragment.getActivity());
             String checkIfMenuIsEmptyQuery = String.format("SELECT COUNT(%s) FROM %s WHERE %s = '%s'",
                     MenusDailyMenusTable.getFirstColumnName(),
                     MenusDailyMenusTable.getTableName(), MenusDailyMenusTable.getFirstColumnName(),
@@ -131,7 +131,7 @@ public class MenusManager {
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            MenuDataBase menuDataBase = MenuDataBase.getInstance(menusFragment.getContext());
+            MenuDataBase menuDataBase = MenuDataBase.getInstance(menusFragment.getActivity());
             String[] menusId = {String.valueOf(menuToDelete.getMenuId())};
 
 
@@ -204,7 +204,7 @@ public class MenusManager {
         @Override
         protected Menu doInBackground(Menu... params) {
             Menu result;
-            MenuDataBase menuDataBase = MenuDataBase.getInstance(menusFragment.getContext());
+            MenuDataBase menuDataBase = MenuDataBase.getInstance(menusFragment.getActivity());
             ContentValues editContentValues = new ContentValues();
             editContentValues.put(MenusTable.getSecondColumnName(), params[0].getName());
             String[] menusId = {String.valueOf(params[0].getMenuId())};
@@ -246,7 +246,7 @@ public class MenusManager {
         @Override
         protected Long doInBackground(String... params) {
             long menuId;
-            MenuDataBase menuDataBase = MenuDataBase.getInstance(menusFragment.getContext());
+            MenuDataBase menuDataBase = MenuDataBase.getInstance(menusFragment.getActivity());
             java.sql.Date sqlDate = new java.sql.Date(System.currentTimeMillis());
             menuId = menuDataBase.insert(MenusTable.getTableName(), MenusTable.getContentValues(new Menu(params[0], sqlDate,0, userStorage.getUserId())));
             menuDataBase.close();

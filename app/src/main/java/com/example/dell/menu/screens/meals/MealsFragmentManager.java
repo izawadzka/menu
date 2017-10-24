@@ -88,7 +88,7 @@ public class MealsFragmentManager {
         @Override
         protected List<Meal> doInBackground(String... params) {
             List<Meal> result = new ArrayList<>();
-            MenuDataBase menuDataBase = MenuDataBase.getInstance(mealsFragment.getContext());
+            MenuDataBase menuDataBase = MenuDataBase.getInstance(mealsFragment.getActivity());
             String query = String.format("SELECT * FROM %s WHERE %s LIKE '%%%s%%'", MealsTable.getTableName(), MealsTable.getSecondColumnName(), params[0]);
             Cursor cursor = menuDataBase.downloadData(query);
             if(cursor.getCount() > 0){

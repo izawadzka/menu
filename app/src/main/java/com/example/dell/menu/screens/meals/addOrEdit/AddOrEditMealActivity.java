@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -59,7 +58,8 @@ public class AddOrEditMealActivity extends AppCompatActivity {
 
     private AddedProductsAdapter adapter;
     private AddOrEditMealManager addOrEditMealManager;
-    private boolean edit_mode;
+    private boolean edit_mode = false;
+    private boolean show_mode = false;
     private boolean[] mealsTypesStates = new boolean[MealsType.AMOUNT_OF_TYPES];
 
     @Override
@@ -68,14 +68,13 @@ public class AddOrEditMealActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_or_edit_meal);
         ButterKnife.bind(this);
 
-        addedProductsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new AddedProductsAdapter(((App) getApplication()).getBus());
-        addedProductsRecyclerView.setAdapter(adapter);
-
         addOrEditMealManager = ((App) getApplication()).getAddOrEditMealManager();
-        if (getIntent().getStringExtra(MealsFragment.EDIT_MODE_KEY) != null) {
-            edit_mode = true;
-        }
+        if (getIntent().getStringExtra(MealsFragment.EDIT_MODE_KEY) != null) edit_mode = true;
+        else if(getIntent().getStringExtra(MealsFragment.SHOW_MODE_KEY) != null) show_mode = true;
+
+        addedProductsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new AddedProductsAdapter(((App) getApplication()).getBus(), show_mode);
+        addedProductsRecyclerView.setAdapter(adapter);
 
         for (int i = 0; i < mealsTypesStates.length; i++) {
             mealsTypesStates[i] = false;
@@ -90,16 +89,37 @@ public class AddOrEditMealActivity extends AppCompatActivity {
         addOrEditMealManager.onAttach(this);
 
         if (edit_mode) setEditMode();
+        else if(show_mode) setShowMode();
         else {
             getState();
             setProducts();
         }
     }
 
+    private void setShowMode() {
+        setTitle("Show meal");
+
+        saveMealButton.setVisibility(View.GONE);
+        addProductsButton.setVisibility(View.GONE);
+
+        addedMealNameEditText.setFocusable(false);
+        cumulativeNumberOfKcalEditText.setFocusable(false);
+        addedMealRecipeEditText.setFocusable(false);
+
+        breakfastCheckBox.setClickable(false);
+        lunchCheckBox.setClickable(false);
+        dinnerCheckBox.setClickable(false);
+        teatimeCheckBox.setClickable(false);
+        supperCheckBox.setClickable(false);
+
+        addOrEditMealManager.setShowMode();
+        addOrEditMealManager.loadMealToShow(getIntent().getIntExtra(MealsFragment.MEALS_ID_KEY, 0));
+    }
+
     private void setEditMode() {
         setTitle("Edit meal");
         addOrEditMealManager.setEditMode();
-        addOrEditMealManager.downloadMealForEdit(getIntent().getIntExtra(MealsFragment.MEALS_ID_KEY, 0));
+        addOrEditMealManager.loadMealForEdit(getIntent().getIntExtra(MealsFragment.MEALS_ID_KEY, 0));
     }
 
     private void getState() {
@@ -220,7 +240,7 @@ public class AddOrEditMealActivity extends AppCompatActivity {
         Toast.makeText(this, String.format("Error while trying to delete %s", name), Toast.LENGTH_SHORT);
     }
 
-    public void downloadingMealSuccess(Meal meal, boolean[] result) {
+    public void loadingMealSuccess(Meal meal, boolean[] result) {
         addedMealNameEditText.setText(meal.getName());
         cumulativeNumberOfKcalEditText.setText(String.valueOf(meal.getCumulativeNumberOfKcal()));
         addedMealRecipeEditText.setText(meal.getRecipe());
@@ -241,7 +261,7 @@ public class AddOrEditMealActivity extends AppCompatActivity {
         supperCheckBox.setChecked(mealsTypesStates[MealsType.SUPPER_INDX-1]);
     }
 
-    public void downloadingMealFailed() {
+    public void loadingMealFailed() {
         Toast.makeText(this, "Error while downloading meal to edit", Toast.LENGTH_SHORT).show();
         clearValues();
         setResult(MealsFragment.RESULT_ERROR);
@@ -256,6 +276,7 @@ public class AddOrEditMealActivity extends AppCompatActivity {
         addOrEditMealManager.clearListOfProducts();
         addOrEditMealManager.resetMealsTypesStates();
         addOrEditMealManager.resetEditMode();
+        addOrEditMealManager.resetShowMode();
     }
 
     public void updateSuccess() {
