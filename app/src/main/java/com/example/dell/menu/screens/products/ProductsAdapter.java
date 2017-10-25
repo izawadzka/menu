@@ -15,6 +15,7 @@ import com.squareup.otto.Bus;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -60,16 +61,14 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
         this.productClickedListener = productClickedListener;
     }
 
-    void itemClicked(Product product){
-        if(productClickedListener != null){
+    void itemClicked(Product product) {
+        if (productClickedListener != null) {
             productClickedListener.productClicked(product);
         }
     }
 
 
-
-
-    class ProductViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    class ProductViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         @Bind(R.id.productNameTextView)
         TextView productNameTextView;
         @Bind(R.id.caloriesTextView)
@@ -78,6 +77,12 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
         ImageButton editProductImageButton;
         @Bind(R.id.deleteProductImageButton)
         ImageButton deleteProductImageButton;
+        @Bind(R.id.proteinsTextView)
+        TextView proteinsTextView;
+        @Bind(R.id.carbonsTextView)
+        TextView carbonsTextView;
+        @Bind(R.id.fatTextView)
+        TextView fatTextView;
 
         private final Bus bus;
         private Product product;
@@ -93,7 +98,10 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
         public void setProduct(Product product) {
             this.product = product;
             productNameTextView.setText(product.getName());
-            caloriesTextView.setText(String.format("%s kcal/100g", product.getNumberOfKcalPer100g()));
+            caloriesTextView.setText(String.format("%s kcal", product.getNumberOfKcalPer100g()));
+            proteinsTextView.setText(String.format("P: %s g", product.getAmountOfProteinsPer100g()));
+            carbonsTextView.setText(String.format("C: %s g", product.getAmountOfCarbosPer100g()));
+            fatTextView.setText(String.format("F: %s g", product.getAmountOfFatPer100g()));
         }
 
         @OnClick(R.id.deleteProductImageButton)
@@ -102,7 +110,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
         }
 
         @OnClick(R.id.updateProductImageButton)
-        public void onUpdateProductImageButtonClicked(){
+        public void onUpdateProductImageButtonClicked() {
             bus.post(new UpdateProductEvent(product.getProductId()));
         }
 
@@ -112,7 +120,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
         }
     }
 
-    public interface ProductClickedListener{
+    public interface ProductClickedListener {
         void productClicked(Product product);
     }
 }

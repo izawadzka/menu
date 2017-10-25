@@ -83,6 +83,8 @@ public class MealsFragment extends Fragment implements MealsAdapter.MealClickedL
         adapter = new MealsAdapter(bus);
         adapter.setMealClickedListener(this);
         mealsRecyclerView.setAdapter(adapter);
+
+        getActivity().setTitle("Meals");
     }
 
     @Override

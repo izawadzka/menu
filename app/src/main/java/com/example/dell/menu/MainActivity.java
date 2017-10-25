@@ -1,5 +1,6 @@
 package com.example.dell.menu;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -7,6 +8,7 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -23,6 +25,7 @@ import com.example.dell.menu.screens.login.LoginActivity;
 import com.example.dell.menu.screens.meals.MealsFragment;
 import com.example.dell.menu.screens.menus.MenusFragment;
 import com.example.dell.menu.screens.products.ProductsFragment;
+import com.example.dell.menu.screens.products.dialog.Dialog;
 import com.example.dell.menu.screens.reports.ReportsFragment;
 import com.example.dell.menu.screens.shoppingLists.ShoppingListsFragment;
 import com.squareup.otto.Bus;
@@ -134,12 +137,43 @@ public class MainActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
+
         if (id == R.id.action_logout) {
             logout();
+        }else if(id == R.id.actione_restore_backup){
+            restoreBackup();
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void restoreBackup() {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+
+        alertDialogBuilder.setTitle("Restore backup");
+
+        alertDialogBuilder.setMessage("The last backup version will be restored.\n" +
+                "The last backup was done either when the app was closed the last time or, " +
+                "if there was no Internet connection, just right when the connection was available " +
+                "after app was opened again.\n\n" +
+                "Are you sure you want to restore backup?\n\n" +
+                "*Internet connection is needed")
+                .setCancelable(true)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener(){
+                    public void onClick(DialogInterface dialog, int d){
+                        Backup backup = new Backup(MainActivity.this, (App)getApplication());
+                        backup.restoreBackup();
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener(){
+                    public void onClick(DialogInterface dialog, int d){
+                        dialog.cancel();
+                    }
+                });
+
+        AlertDialog alertDialog = alertDialogBuilder.create();
+
+        alertDialog.show();
     }
 
     private void logout() {

@@ -81,6 +81,8 @@ public class ShoppingListsFragment extends Fragment implements ShoppingListAdapt
         adapter.setShoppingListClickedListener(this);
         shoppingListRecyclerView.setAdapter(adapter);
 
+        getActivity().setTitle("Shopping list");
+
         return view;
     }
 

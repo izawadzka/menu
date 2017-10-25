@@ -45,15 +45,14 @@ public class ProductFragmentManager {
         if(productsFragment != null) {
             new LoadProducts().execute();
         }
-        //// TODO: 27.05.2017  else
     }
 
     @Subscribe
     public void onDeleteProduct(DeleteProductEvent deleteProductEvent){
         idOfProductToDelete = deleteProductEvent.getProductId();
         if(productsFragment != null) {
-            Dialog allerDialog = new Dialog();
-            allerDialog.show(productsFragment.getActivity().getSupportFragmentManager(), "alert_dialog_tag");
+            Dialog allertDialog = new Dialog();
+            allertDialog.show(productsFragment.getActivity().getSupportFragmentManager(), "alert_dialog_tag");
         }
     }
 
@@ -85,12 +84,16 @@ public class ProductFragmentManager {
         protected List<Product> doInBackground(String... params) {
             List<Product> result = new ArrayList<>();
             MenuDataBase menuDataBase = MenuDataBase.getInstance(productsFragment.getActivity());
-            String query = String.format("SELECT * FROM %s WHERE %s LIKE '%%%s%%'", ProductsTable.getTableName(), ProductsTable.getSecondColumnName(), params[0]);
+            String query = String.format("SELECT * FROM %s WHERE %s LIKE '%%%s%%' ORDER BY %s",
+                    ProductsTable.getTableName(), ProductsTable.getSecondColumnName(), params[0],
+                    ProductsTable.getSecondColumnName());
             Cursor cursor = menuDataBase.downloadData(query);
             if(cursor.getCount() > 0){
                 cursor.moveToPosition(-1);
                 while (cursor.moveToNext()){
-                    result.add(new Product(cursor.getInt(0), cursor.getString(1), cursor.getInt(2), cursor.getString(3), cursor.getString(4)));
+                    result.add(new Product(cursor.getInt(0), cursor.getString(1), cursor.getInt(2),
+                            cursor.getString(3), cursor.getString(4), cursor.getInt(5),
+                            cursor.getInt(6), cursor.getInt(7)));
                 }
             }
             menuDataBase.close();
@@ -112,21 +115,28 @@ public class ProductFragmentManager {
         protected List<Product> doInBackground(Void... params) {
             MenuDataBase menuDataBase = MenuDataBase.getInstance(productsFragment.getActivity());
 
-            String query = String.format("SELECT * FROM %s ", ProductsTable.getTableName());
+            String query = String.format("SELECT %s, %s, %s, %s, %s, %s FROM %s ORDER BY %s",
+                    ProductsTable.getFirstColumnName(),
+                    ProductsTable.getSecondColumnName(), ProductsTable.getThirdColumnName(),
+                    ProductsTable.getSixthColumnName(), ProductsTable.getSeventhColumnName(),
+                    ProductsTable.getEighthColumnName(), ProductsTable.getTableName(),
+                    ProductsTable.getSecondColumnName());
             Cursor cursor = menuDataBase.downloadData(query);
             List<Product> results =  new ArrayList<>();
 
             if (cursor.getCount() > 0) {
-                int productsId, numberOfKcalPer100g;
-                String name, type, storageType;
+                int productsId, numberOfKcalPer100g, amountOfProteins, amountOfCarbos, amountOfFat;
+                String name;
                 cursor.moveToPosition(-1);
                 while (cursor.moveToNext()) {
                     productsId = cursor.getInt(0);
                     name = cursor.getString(1);
                     numberOfKcalPer100g = cursor.getInt(2);
-                    type = cursor.getString(3);
-                    storageType = cursor.getString(4);
-                    results.add(new Product(productsId, name, numberOfKcalPer100g, type, storageType));
+                    amountOfProteins = cursor.getInt(3);
+                    amountOfCarbos = cursor.getInt(4);
+                    amountOfFat = cursor.getInt(5);
+                    results.add(new Product(productsId, name, numberOfKcalPer100g,
+                            amountOfProteins, amountOfCarbos, amountOfFat));
                 }
             }
             menuDataBase.close();

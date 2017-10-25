@@ -280,7 +280,7 @@ public class AddOrEditMealManager {
             if(cursor.getCount() > 0){
                 cursor.moveToPosition(-1);
                 while (cursor.moveToNext()){
-                    result.add(new Product(cursor.getString(1), cursor.getInt(3), cursor.getString(2)));
+                    result.add(new Product(cursor.getString(1), cursor.getDouble(3), cursor.getString(2)));
                     result.get(result.size()-1).setProductId(cursor.getInt(0));
                 }
             }

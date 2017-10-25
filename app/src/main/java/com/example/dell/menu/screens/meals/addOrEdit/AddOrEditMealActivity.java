@@ -262,7 +262,7 @@ public class AddOrEditMealActivity extends AppCompatActivity {
     }
 
     public void loadingMealFailed() {
-        Toast.makeText(this, "Error while downloading meal to edit", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Error while loading meal", Toast.LENGTH_SHORT).show();
         clearValues();
         setResult(MealsFragment.RESULT_ERROR);
         finish();

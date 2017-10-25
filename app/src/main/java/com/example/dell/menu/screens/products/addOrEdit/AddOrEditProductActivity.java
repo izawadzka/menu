@@ -9,6 +9,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -35,6 +36,14 @@ public class AddOrEditProductActivity extends AppCompatActivity {
     Button saveProductButton;
     @Bind(R.id.cancelButton)
     Button cancelButton;
+    @Bind(R.id.addedProductNumberOfProtein)
+    EditText addedProductNumberOfProtein;
+    @Bind(R.id.addedProductAmountOfCarbos)
+    EditText addedProductAmountOfCarbos;
+    @Bind(R.id.addedProductAmountOfFat)
+    EditText addedProductAmountOfFat;
+    @Bind(R.id.activity_add_or_edit_product)
+    LinearLayout activityAddOrEditProduct;
 
 
     private ArrayAdapter<CharSequence> productTypesaAdapter;
@@ -54,7 +63,9 @@ public class AddOrEditProductActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_or_edit_product);
         ButterKnife.bind(this);
 
-        addOrEditProductManager = ((App)getApplication()).getAddOrEditProductManager();
+        setTitle("Product");
+
+        addOrEditProductManager = ((App) getApplication()).getAddOrEditProductManager();
 
         productTypesaAdapter = ArrayAdapter.createFromResource(this, R.array.productTypes, android.R.layout.simple_spinner_item);
         productTypesaAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -88,17 +99,17 @@ public class AddOrEditProductActivity extends AppCompatActivity {
 
 
         Intent intent = getIntent();
-        if(intent.getBooleanExtra(ProductsFragment.EDIT_MODE_KEY, false)){
+        if (intent.getBooleanExtra(ProductsFragment.EDIT_MODE_KEY, false)) {
             productToEditId = intent.getIntExtra(ProductsFragment.PRODUCT_ID_KEY, -1);
-            if(productToEditId != -1) edit_mode = true;
-            else{
+            if (productToEditId != -1) edit_mode = true;
+            else {
                 setResult(ProductsFragment.RESULT_ERROR);
                 finish();
             }
-        }else if(intent.getBooleanExtra(ProductsFragment.SHOW_MODE_KEY, false)){
+        } else if (intent.getBooleanExtra(ProductsFragment.SHOW_MODE_KEY, false)) {
             productToShowId = intent.getIntExtra(ProductsFragment.PRODUCT_ID_KEY, -1);
-            if(productToShowId != -1) show_mode = true;
-            else{
+            if (productToShowId != -1) show_mode = true;
+            else {
                 setResult(ProductsFragment.RESULT_ERROR);
                 finish();
             }
@@ -110,7 +121,7 @@ public class AddOrEditProductActivity extends AppCompatActivity {
         super.onStart();
         addOrEditProductManager.onAttach(this);
         addOrEditProductManager.setEditMode(edit_mode, productToEditId);
-        if(show_mode) prepareShowMode();
+        if (show_mode) prepareShowMode();
         addOrEditProductManager.setShowMode(show_mode, productToShowId);
     }
 
@@ -118,6 +129,9 @@ public class AddOrEditProductActivity extends AppCompatActivity {
         saveProductButton.setVisibility(View.INVISIBLE);
         addedProductName.setInputType(InputType.TYPE_NULL);
         addedProductNumbOfKcal.setInputType(InputType.TYPE_NULL);
+        addedProductNumberOfProtein.setInputType(InputType.TYPE_NULL);
+        addedProductAmountOfCarbos.setInputType(InputType.TYPE_NULL);
+        addedProductAmountOfFat.setInputType(InputType.TYPE_NULL);
         addedProductTypes.setEnabled(false);
         addedProductStorageTypes.setEnabled(false);
     }
@@ -146,28 +160,35 @@ public class AddOrEditProductActivity extends AppCompatActivity {
     }
 
     private void saveProduct() {
-        if(addedProductName.length() < 5){
+        if (addedProductName.length() < 5) {
             Toast.makeText(this, "Name hast to have at least 5 characters", Toast.LENGTH_SHORT).show();
             return;
-        }else{
+        } else {
             String productName = addedProductName.getText().toString();
-            int numberOfKcal;
-            if(addedProductNumbOfKcal.length() == 0){
-                 numberOfKcal = 0;
-            }else{
-                try {
-                    numberOfKcal = Integer.parseInt(addedProductNumbOfKcal.getText().toString());
-                }catch (NumberFormatException e){
-                    addedProductNumbOfKcal.setError("It must be a number!");
-                    return;
-                }
-            }
-            if(edit_mode) addOrEditProductManager.editProduct(productName, numberOfKcal, addedProductType, storageType);
-            else addOrEditProductManager.addNewProduct(productName, numberOfKcal, addedProductType, storageType);
+
+            int amountOfKcal, amountOfProteins, amountOfCarbos, amountOfFat;
+            if (addedProductNumbOfKcal.length() == 0) amountOfKcal = 0;
+            else amountOfKcal = Integer.parseInt(addedProductNumbOfKcal.getText().toString());
+
+            if(addedProductNumberOfProtein.length() == 0) amountOfProteins = 0;
+            else amountOfProteins = Integer.parseInt(addedProductNumberOfProtein.getText().toString());
+
+            if(addedProductAmountOfCarbos.length() == 0) amountOfCarbos = 0;
+            else amountOfCarbos = Integer.parseInt(addedProductAmountOfCarbos.getText().toString());
+
+            if(addedProductAmountOfFat.length() == 0) amountOfFat = 0;
+            else amountOfFat = Integer.parseInt(addedProductAmountOfFat.getText().toString());
+
+            if (edit_mode)
+                addOrEditProductManager.editProduct(productName, amountOfKcal, addedProductType,
+                        storageType, amountOfProteins, amountOfCarbos, amountOfFat);
+
+            else
+                addOrEditProductManager.addNewProduct(productName, amountOfKcal, addedProductType, storageType, amountOfProteins, amountOfCarbos, amountOfFat);
         }
     }
 
-    public void addSuccessfull() {
+    public void addSuccessful() {
         setResult(ProductsFragment.RESULT_OK);
         finish();
     }
@@ -178,7 +199,7 @@ public class AddOrEditProductActivity extends AppCompatActivity {
     }
 
     public void loadingProductFailed() {
-        Toast.makeText(this,"An error occurred while an attempt to load product to edit", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, "An error occurred while an attempt to load product to edit", Toast.LENGTH_LONG).show();
         setResult(ProductsFragment.RESULT_ERROR);
         finish();
     }
@@ -186,8 +207,12 @@ public class AddOrEditProductActivity extends AppCompatActivity {
     public void loadingProductSuccess(Product product) {
         addedProductName.setText(product.getName());
         addedProductNumbOfKcal.setText(String.valueOf(product.getNumberOfKcalPer100g()));
+        addedProductNumberOfProtein.setText(String.valueOf(product.getAmountOfProteinsPer100g()));
+        addedProductAmountOfCarbos.setText(String.valueOf(product.getAmountOfCarbosPer100g()));
+        addedProductAmountOfFat.setText(String.valueOf(product.getAmountOfFatPer100g()));
         addedProductTypes.setSelection(productTypesaAdapter.getPosition(product.getType()));
         addedProductStorageTypes.setSelection(storageTypesAdapter.getPosition(product.getStorageType()));
+        if(show_mode) setTitle(product.getName());
     }
 
     public void editingSuccess() {

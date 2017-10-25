@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.dell.menu.R;
 import com.example.dell.menu.StorageType;
@@ -31,6 +30,7 @@ public class ProductToChooseAdapter extends RecyclerView.Adapter<ProductsToChoos
 
     private final Bus bus;
     List<Product> products = new ArrayList<>();
+
 
 
     public ProductToChooseAdapter(Bus bus) {
@@ -69,6 +69,14 @@ class ProductsToChooseViewHolder extends RecyclerView.ViewHolder {
     EditText quantityEditText;
     @Bind(R.id.quantityUnitTextView)
     TextView quantityUnitTextView;
+    @Bind(R.id.caloriesTextView)
+    TextView caloriesTextView;
+    @Bind(R.id.proteinsTextView)
+    TextView proteinsTextView;
+    @Bind(R.id.carbonsTextView)
+    TextView carbonsTextView;
+    @Bind(R.id.fatTextView)
+    TextView fatTextView;
 
     private final Bus bus;
     private Product product;
@@ -82,16 +90,20 @@ class ProductsToChooseViewHolder extends RecyclerView.ViewHolder {
     public void setProduct(Product product) {
         productName.setText(product.getName());
         quantityUnitTextView.setText(StorageType.getUnit(product.getStorageType()));
+        caloriesTextView.setText(String.format("%s kcal", product.getNumberOfKcalPer100g()));
+        proteinsTextView.setText(String.format("P: %s g", product.getAmountOfProteinsPer100g()));
+        carbonsTextView.setText(String.format("C: %s g", product.getAmountOfCarbosPer100g()));
+        fatTextView.setText(String.format("F: %s g", product.getAmountOfFatPer100g()));
         this.product = product;
     }
 
     @OnClick(R.id.addProductToIngredientsButton)
     public void onAddProductButtonClicked() {
-        if(quantityEditText.length() > 0) {
+        if (quantityEditText.length() > 0) {
             product.setQuantity(Double.parseDouble(quantityEditText.getText().toString()));
             quantityEditText.getText().clear();
             bus.post(new AddProductToIngredientsEvent(product));
-        }else{
+        } else {
             bus.post(new QuantityWasntTypedEvent());
         }
     }

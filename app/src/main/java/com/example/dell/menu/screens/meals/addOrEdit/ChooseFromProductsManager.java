@@ -43,12 +43,15 @@ public class ChooseFromProductsManager {
         protected List<Product> doInBackground(Void... params) {
             List<Product> result = new ArrayList<>();
             MenuDataBase menuDataBase = MenuDataBase.getInstance(chooseFromProductsActivity);
-            String query = String.format("SELECT * FROM %s", ProductsTable.getTableName());
+            String query = String.format("SELECT * FROM %s ORDER BY %s", ProductsTable.getTableName(),
+                    ProductsTable.getSecondColumnName());
             Cursor cursor = menuDataBase.downloadData(query);
             if(cursor.getCount() > 0){
                 cursor.moveToPosition(-1);
                 while (cursor.moveToNext()){
-                    result.add(new Product(cursor.getInt(0), cursor.getString(1), cursor.getInt(2), cursor.getString(3), cursor.getString(4)));
+                    result.add(new Product(cursor.getInt(0), cursor.getString(1), cursor.getInt(2),
+                            cursor.getString(3), cursor.getString(4), cursor.getInt(5),
+                            cursor.getInt(6), cursor.getInt(7)));
                 }
             }
             return result;
@@ -68,12 +71,17 @@ public class ChooseFromProductsManager {
         protected List<Product> doInBackground(String... params) {
             List<Product> result = new ArrayList<>();
             MenuDataBase menuDataBase = MenuDataBase.getInstance(chooseFromProductsActivity);
-            String query = String.format("SELECT * FROM %s WHERE %s LIKE '%%%s%%'", ProductsTable.getTableName(), ProductsTable.getSecondColumnName(), params[0]);
+            String query = String.format("SELECT %s, %s, %s, %s FROM %s WHERE %s LIKE '%%%s%%'" +
+                    "ORDER BY %s",
+                    ProductsTable.getFirstColumnName(), ProductsTable.getSecondColumnName(),
+                    ProductsTable.getFourthColumnName(), ProductsTable.getFifthColumnName(),
+                    ProductsTable.getTableName(), ProductsTable.getSecondColumnName(), params[0],
+                    ProductsTable.getSecondColumnName());
             Cursor cursor = menuDataBase.downloadData(query);
             if(cursor.getCount() > 0){
                 cursor.moveToPosition(-1);
                 while (cursor.moveToNext()){
-                   result.add(new Product(cursor.getInt(0), cursor.getString(1), cursor.getInt(2), cursor.getString(3), cursor.getString(4)));
+                   result.add(new Product(cursor.getInt(0), cursor.getString(1), cursor.getString(2), cursor.getString(3)));
                 }
             }
             return result;

@@ -47,11 +47,15 @@ public class Backup {
         this.activity = activity;
         this.app = (App)activity.getApplication();
     }*/
-/*
+
     public Backup(Context context, App app){
         this.context = context;
         this.app = app;
-    }*/
+        backupService = null;
+        storagePath = "data/data/" + context.getPackageName()+"/databases/";
+        fileToTransfer = storagePath + MenuDataBase.DATABASE_NAME;
+    }
+    
     public Backup(BackupService backupService, App app){
         this.context = backupService;
         this.app = app;
@@ -129,15 +133,19 @@ public class Backup {
 
                         if(result) Log.i(TAG, "Success");
                         else Log.e(TAG, "Error");
-                        backupService.stopSelf();
+                        if(backupService != null) backupService.stopSelf();
                     }
                 }.execute();
             } else {
                 app.getBackupFlagStorage().setFlag(true);
                 app.setBackupFlag(true);
-                backupService.stopSelf();
+                if(backupService != null) backupService.stopSelf();
             }
 
         }
+    }
+
+    public void restoreBackup() {
+        // TODO: 24.10.2017  
     }
 }

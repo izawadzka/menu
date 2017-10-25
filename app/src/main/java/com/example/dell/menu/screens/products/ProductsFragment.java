@@ -68,6 +68,8 @@ public class ProductsFragment extends Fragment implements ProductsAdapter.Produc
         adapter = new ProductsAdapter(((App)getActivity().getApplication()).getBus());
         adapter.setProductClickedListener(this);
         productRecyclerView.setAdapter(adapter);
+
+        getActivity().setTitle("Products");
     }
 
     @Override

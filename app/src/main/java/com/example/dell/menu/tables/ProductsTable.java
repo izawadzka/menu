@@ -15,17 +15,9 @@ public class ProductsTable {
     private final static String thirdColumnName = "numberOfKcalPer100g";
     private final static String fourthColumnName = "type";
     private final static String fifthColumnName = "storageType";
-
-    public static String create(){
-        String createCommand = String.format("create table %s(", tableName)
-                + String.format("%s INTEGER PRIMARY KEY, ", firstColumnName)
-                + String.format("%s TEXT, ", secondColumnName)
-                + String.format("%s INTEGER, ", thirdColumnName)
-                + String.format("%s TEXT, ", fourthColumnName)
-                + String.format("%s TEXT);", fifthColumnName);
-
-        return createCommand;
-    }
+    private final static String sixthColumnName = "amountOfProtein";
+    private final static String seventhColumnName = "amountOfCarbohydrates";
+    private final static String eighthColumnName = "amountOfFat";
 
     public static ContentValues getContentValues(Product product){
         ContentValues contentValues = new ContentValues();
@@ -33,6 +25,9 @@ public class ProductsTable {
         contentValues.put(thirdColumnName, product.getNumberOfKcalPer100g());
         contentValues.put(fourthColumnName, product.getType());
         contentValues.put(fifthColumnName, product.getStorageType());
+        contentValues.put(sixthColumnName, product.getAmountOfProteinsPer100g());
+        contentValues.put(seventhColumnName, product.getAmountOfCarbosPer100g());
+        contentValues.put(eighthColumnName, product.getAmountOfFatPer100g());
         return contentValues;
     }
 
@@ -58,5 +53,17 @@ public class ProductsTable {
 
     public static String getFourthColumnName() {
         return fourthColumnName;
+    }
+
+    public static String getSixthColumnName() {
+        return sixthColumnName;
+    }
+
+    public static String getSeventhColumnName() {
+        return seventhColumnName;
+    }
+
+    public static String getEighthColumnName() {
+        return eighthColumnName;
     }
 }

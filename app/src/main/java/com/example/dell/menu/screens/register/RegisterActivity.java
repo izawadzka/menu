@@ -60,6 +60,19 @@ public class RegisterActivity extends AppCompatActivity {
 
     @OnClick(R.id.registerButton)
     public void onRegisterClicked() {
+        boolean hasErrors  = false;
+
+        if(registerUsernameEditText.length() < 3){
+            hasErrors = true;
+            registerUsernameEditText.setError("Username must have at least 3 characters");
+        }
+
+        if(registerPasswordEditText.length() < 6){
+            hasErrors = true;
+            registerPasswordEditText.setError("Password must have at least 6 characters");
+        }
+
+        if(!hasErrors)
         registerManager.register(registerUsernameEditText.getText().toString(), registerPasswordEditText.getText().toString());
     }
 

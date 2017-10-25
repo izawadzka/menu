@@ -86,6 +86,8 @@ public class MenusFragment extends Fragment implements MenusAdapter.MenuClickedL
         adapter = new MenusAdapter(((App) getActivity().getApplication()).getBus());
         adapter.setMenuClickedListener(this);
         menusRecyclerView.setAdapter(adapter);
+
+        getActivity().setTitle("Menus");
     }
 
     @Override
