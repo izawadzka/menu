@@ -56,9 +56,6 @@ public class MealsAdapter extends RecyclerView.Adapter<MealsAdapter.MealsViewHol
         this.mealClickedListener = mealClickedListener;
     }
 
-    public void deleteMeal(Meal meal) {
-        holder.deleteMeal(meal);
-    }
 
     @Override
     public int getItemCount() {
@@ -95,11 +92,6 @@ public class MealsAdapter extends RecyclerView.Adapter<MealsAdapter.MealsViewHol
             this.bus = bus;
             ButterKnife.bind(this, itemView);
             itemView.setOnClickListener(this);
-        }
-
-        public void deleteMeal(Meal meal) {
-            meals.remove(meal);
-            notifyDataSetChanged();
         }
 
         public void setMeal(Meal meal) {

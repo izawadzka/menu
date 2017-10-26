@@ -1,7 +1,9 @@
 package com.example.dell.menu.screens.meals;
 
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 
 import com.example.dell.menu.MenuDataBase;
@@ -131,21 +133,23 @@ public class MealsFragmentManager {
 
                 @Override
                 protected void onPostExecute(Integer result) {
-                    if(result <= 0){
-                        if(mealsFragment != null) mealsFragment.deleteFailed();
+                    if(mealsFragment != null){
+                        if(result > 0) mealsFragment.deleteSuccess();
+                        else mealsFragment.deleteFailed();
                     }
                 }
             }.execute();
         }
     }
 
-    @Subscribe
-    public void onDeleteMeal(DeleteMealEvent event){
-        currentMealId = event.meal.getMealsId();
-        currentMeal = event.meal;
+    public void deleteMeal(Meal meal){
+        currentMealId = meal.getMealsId();
+        currentMeal = meal;
+
+
         if(mealsFragment != null) {
 
-            new AsyncTask<Void, Void, Integer>(){
+            new AsyncTask<Void, Void, Integer>() {
                 @Override
                 protected Integer doInBackground(Void... params) {
                     String[] mealId = {String.valueOf(currentMealId)};
@@ -159,14 +163,40 @@ public class MealsFragmentManager {
 
                 @Override
                 protected void onPostExecute(Integer result) {
-                    if(result > 0){
-                        mealsFragment.deleteSuccess(currentMeal);
+                    if (result > 0) {
                         deleteConnectionWithProducts();
-                    }else{
+                    } else {
                         mealsFragment.deleteFailed();
                     }
                 }
             }.execute();
+        }
+    }
+
+    @Subscribe
+    public void onDeleteMeal(final DeleteMealEvent event){
+        if(mealsFragment != null){
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mealsFragment.getContext());
+
+            alertDialogBuilder.setTitle("Delete meal");
+
+            alertDialogBuilder.setMessage(String.format("Are you sure you want to delete %s?",
+                    event.meal.getName()))
+                    .setCancelable(true)
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener(){
+                        public void onClick(DialogInterface dialog, int d){
+                            deleteMeal(event.meal);
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener(){
+                        public void onClick(DialogInterface dialog, int d){
+                            dialog.cancel();
+                        }
+                    });
+
+            AlertDialog alertDialog = alertDialogBuilder.create();
+
+            alertDialog.show();
         }
     }
 

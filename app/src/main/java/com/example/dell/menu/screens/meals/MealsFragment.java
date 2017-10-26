@@ -191,8 +191,8 @@ public class MealsFragment extends Fragment implements MealsAdapter.MealClickedL
         }
     }
 
-    public void deleteSuccess(Meal currentMeal) {
-        adapter.deleteMeal(currentMeal);
+    public void deleteSuccess() {
+        getFragmentManager().beginTransaction().detach(this).attach(this).commit();
     }
 
     public void deleteFailed() {
