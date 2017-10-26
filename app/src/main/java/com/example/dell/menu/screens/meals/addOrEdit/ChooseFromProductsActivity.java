@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -50,7 +51,6 @@ public class ChooseFromProductsActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         chooseFromProductsManager.onAttach(this);
-        ((App) getApplication()).getBus().register(this);
         chooseFromProductsManager.loadProducts();
     }
 
@@ -58,7 +58,6 @@ public class ChooseFromProductsActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         chooseFromProductsManager.onStop();
-        ((App)getApplication()).getBus().unregister(this);
     }
 
     @Override
@@ -83,21 +82,23 @@ public class ChooseFromProductsActivity extends AppCompatActivity {
     }
 
     public void showProducts(List<Product> products) {
-        productToChooseAdapter.setProducts(products);
+        List<Product> listOfAlreadyAddedProducts = ((App)getApplication())
+                .getAddOrEditMealManager().getListOfProducts();
+        productToChooseAdapter.setProducts(products, listOfAlreadyAddedProducts);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId() == android.R.id.home){
             setResult(AddOrEditMealActivity.RESULT_OK);
-            NavUtils.navigateUpFromSameTask(this);
+            finish();
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    @Subscribe
-    public void onQuantityWasntTyped(QuantityWasntTypedEvent quantityWasntTypedEvent){
-        Toast.makeText(this, "You have to type quantity of product", Toast.LENGTH_LONG).show();
+
+    public void makeAStatement(String statement, int duration) {
+        Toast.makeText(this, statement, duration).show();
     }
 }

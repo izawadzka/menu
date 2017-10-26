@@ -39,7 +39,7 @@
         <item name="android:layout_height">30dp</item>
     </style>
 
-    <style name="addProductLayoutTextViewStyle">
+    <style name="addingLayoutTextViewStyle">
         <item name="android:layout_alignParentEnd">true</item>
         <item name="android:layout_alignParentRight">true</item>
         <item name="android:layout_centerVertical">true</item>

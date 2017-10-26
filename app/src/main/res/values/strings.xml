@@ -47,4 +47,6 @@
     <string name="carbos_label">Carbos [c]:</string>
     <string name="fat_label">Fat [f]:</string>
     <string name="amount_hint">Amount</string>
+    <string name="show_meal_title">Show meal</string>
+    <string name="kcalLabel">Kcal:</string>
 </resources>

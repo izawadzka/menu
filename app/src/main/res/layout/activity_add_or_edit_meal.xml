@@ -23,12 +23,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
-            <EditText
-                android:id="@+id/cumulativeNumberOfKcalEditText"
-                android:hint="@string/cumulative_number_of_kcal_hint"
-                android:inputType="number"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
 
             <EditText
                 android:id="@+id/addedMealRecipeEditText"
@@ -36,7 +30,91 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
+
+            <RelativeLayout
+                android:layout_marginTop="20dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/caloriesLabel"
+                    android:text="@string/kcalLabel"
+                    android:layout_centerVertical="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/addedMealNumbOfKcal"
+                    android:layout_toRightOf="@+id/caloriesLabel"
+                    android:layout_toEndOf="@+id/caloriesLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+                <TextView
+                    android:text="@string/kcal_100g"
+                    style="@style/addingLayoutTextViewStyle" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/proteinLabel"
+                    android:text="@string/protein_label_text"
+                    android:layout_centerVertical="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/addedMealNumberOfProtein"
+                    android:layout_toRightOf="@+id/proteinLabel"
+                    android:layout_toEndOf="@+id/proteinLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:text="@string/g_100g"
+                    style="@style/addingLayoutTextViewStyle" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/carbosLabel"
+                    android:text="@string/carbos_label"
+                    android:layout_centerVertical="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/addedMealAmountOfCarbos"
+                    android:layout_toRightOf="@+id/carbosLabel"
+                    android:layout_toEndOf="@+id/carbosLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:text="@string/g_100g"
+                    style="@style/addingLayoutTextViewStyle" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/fatLabel"
+                    android:text="@string/fat_label"
+                    android:layout_centerVertical="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/addedMealAmountOfFat"
+                    android:layout_toRightOf="@+id/fatLabel"
+                    android:layout_toEndOf="@+id/fatLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:text="@string/g_100g"
+                    style="@style/addingLayoutTextViewStyle" />
+            </RelativeLayout>
+
             <TableLayout
+                android:paddingTop="20dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <TableRow>
@@ -72,6 +150,12 @@
                         android:layout_height="wrap_content" />
                 </TableRow>
             </TableLayout>
+
+
+
+
+
+
 
             <RelativeLayout
                 android:layout_width="match_parent"

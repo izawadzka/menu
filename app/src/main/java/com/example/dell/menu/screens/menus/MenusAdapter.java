@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.dell.menu.R;
@@ -42,7 +43,7 @@ public class MenusAdapter extends RecyclerView.Adapter<MenusAdapter.MenuViewHold
 
     @Override
     public void onBindViewHolder(MenuViewHolder holder, int position) {
-        holder.setMenu(menus.get(position));
+        holder.setMenu(menus.get(position), position);
     }
 
     @Override
@@ -77,6 +78,8 @@ public class MenusAdapter extends RecyclerView.Adapter<MenusAdapter.MenuViewHold
         ImageButton deleteMenuImageButton;
         @Bind(R.id.generateShoppingList)
         ImageButton generateShoppingList;
+        @Bind(R.id.itemMenuRelativeLayout)
+        RelativeLayout itemMenuRelativeLayout;
 
         private final Bus bus;
         private Menu menu;
@@ -93,7 +96,8 @@ public class MenusAdapter extends RecyclerView.Adapter<MenusAdapter.MenuViewHold
             itemClicked(menu);
         }
 
-        public void setMenu(Menu menu) {
+        public void setMenu(Menu menu, int position) {
+            if(position % 2 == 0) itemMenuRelativeLayout.setBackgroundResource(R.color.contrastAdapterColor);
             this.menu = menu;
             menuNameTextView.setText(menu.getName());
 
@@ -102,18 +106,17 @@ public class MenusAdapter extends RecyclerView.Adapter<MenusAdapter.MenuViewHold
         }
 
         @OnClick(R.id.generateShoppingList)
-        public void onGenerateShoppingListButtonClicked(){
-            //bus.post(new ShowShoppingListEvent(menu));
+        public void onGenerateShoppingListButtonClicked() {
             bus.post(new GenerateShoppingListButtonClickedEvent(menu));
         }
 
         @OnClick(R.id.editMenuNameImageButton)
-        public void onEditMenuImageButtonClicked(){
+        public void onEditMenuImageButtonClicked() {
             bus.post(new EditMenuNameEvent(menu));
         }
 
         @OnClick(R.id.deleteMenuImageButton)
-        public void onDeleteMenuImageButtonClicked(){
+        public void onDeleteMenuImageButtonClicked() {
             bus.post(new DeleteMenuEvent(menu));
         }
     }

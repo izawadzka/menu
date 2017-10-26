@@ -7,4 +7,7 @@
     <dimen name="nav_header_vertical_spacing">16dp</dimen>
     <dimen name="nav_header_height">160dp</dimen>
     <dimen name="right_padding_for_buttons">5dp</dimen>
+    <dimen name="top_bottom_padding_in_recyclerView">4dp</dimen>
+    <dimen name="left_right_padding_in_recyclerView">10dp</dimen>
+    <dimen name="text_padding_in_recyclerView">5dp</dimen>
 </resources>

@@ -111,13 +111,13 @@ public class ChooseFromMealsActivity extends AppCompatActivity implements MealsT
         if(meal.getAuthorsId() == 0){
             authorsName = "authomaticly_generated";
         }else{
-            authorsName = ((App)getApplication()).getMealsFragmentManager().getAuthorsName(meal);
+            //authorsName = ((App)getApplication()).getMealsFragmentManager().getAuthorsName(meal);
         }
 
         Intent intent = new Intent(this, FullMealInformationActivity.class);
         intent.putExtra(MealsFragment.MEAL_NAME_KEY, meal.getName());
         intent.putExtra(MealsFragment.MEAL_NUMBER_OF_KCAL_KEY, String.format("%s",meal.getCumulativeNumberOfKcal()));
-        intent.putExtra(MealsFragment.MEALS_AUTHOR_NAME_KEY, authorsName);
+        //intent.putExtra(MealsFragment.MEALS_AUTHOR_NAME_KEY, authorsName);
         intent.putExtra(MealsFragment.MEALS_RECIPE_KEY, meal.getRecipe());
         intent.putExtra(MealsFragment.MEALS_ID_KEY, String.format("%s",meal.getMealsId()));
         startActivityForResult(intent, MealsFragment.REQUEST_CODE_SHOW);

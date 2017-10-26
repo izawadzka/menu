@@ -77,7 +77,7 @@ public class App extends Application {
         fullMealInformationActivityManager = new FullMealInformationActivityManager();
         addOrEditProductManager = new AddOrEditProductManager();
         shoppingListsManager = new ShoppingListsManager(bus);
-        chooseFromProductsManager = new ChooseFromProductsManager();
+        chooseFromProductsManager = new ChooseFromProductsManager(bus);
         showProductsInListManager = new ShowProductsInListManager(bus);
         addOrEditMealManager = new AddOrEditMealManager(bus);
         dailyMenusManager = new DailyMenusManager(bus);

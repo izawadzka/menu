@@ -28,8 +28,7 @@ import static android.content.Context.CONNECTIVITY_SERVICE;
  */
 
 public class Backup {
-    String TAG = "Backup";
-    //private final Activity activity;
+    private String TAG = "Backup";
     private final App app;
     private final Context context;
     private final BackupService backupService;
@@ -56,7 +55,7 @@ public class Backup {
         fileToTransfer = storagePath + MenuDataBase.DATABASE_NAME;
     }
     
-    public Backup(BackupService backupService, App app){
+    Backup(BackupService backupService, App app){
         this.context = backupService;
         this.app = app;
         this.backupService = backupService;

@@ -1,7 +1,6 @@
 package com.example.dell.menu.events.shoppingLists;
 
 import com.example.dell.menu.screens.shoppingLists.ProductsAdapter;
-import com.example.dell.menu.screens.shoppingLists.ProductsAdapter$ProductsInListViewHolder$$ViewBinder;
 
 /**
  * Created by Dell on 02.09.2017.

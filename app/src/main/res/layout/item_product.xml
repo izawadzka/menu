@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:background="@color/appBackgroundColor"
-    android:paddingTop="5dp"
-    android:paddingLeft="10dp"
-    android:paddingRight="@dimen/right_padding_for_buttons"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
-
+    <RelativeLayout
+        android:id="@+id/contentRelativeLayout"
+        android:paddingLeft="@dimen/left_right_padding_in_recyclerView"
+        android:paddingRight="@dimen/left_right_padding_in_recyclerView"
+        android:paddingTop="@dimen/top_bottom_padding_in_recyclerView"
+        android:layout_marginBottom="@dimen/top_bottom_padding_in_recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
     <TextView
         android:id="@+id/productNameTextView"
         tools:text="Cucumber"
-        android:textSize="20dp"
+        android:textSize="20sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
     <LinearLayout
@@ -24,24 +27,37 @@
         <TextView
             android:id="@+id/caloriesTextView"
             tools:text="120 kcal"
+            android:paddingRight="5dp"
+            android:paddingEnd="5dp"
+            android:paddingLeft="0dp"
+            android:paddingStart="0dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
         <TextView
             android:id="@+id/proteinsTextView"
             tools:text="P: 10g"
-            android:paddingLeft="10dp"
+            android:paddingLeft="@dimen/text_padding_in_recyclerView"
+            android:paddingStart="@dimen/text_padding_in_recyclerView"
+            android:paddingRight="@dimen/text_padding_in_recyclerView"
+            android:paddingEnd="@dimen/text_padding_in_recyclerView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
         <TextView
             android:id="@+id/carbonsTextView"
             tools:text="C: 10g"
-            android:paddingLeft="10dp"
+            android:paddingLeft="@dimen/text_padding_in_recyclerView"
+            android:paddingStart="@dimen/text_padding_in_recyclerView"
+            android:paddingRight="@dimen/text_padding_in_recyclerView"
+            android:paddingEnd="@dimen/text_padding_in_recyclerView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
         <TextView
             android:id="@+id/fatTextView"
             tools:text="F: 10g"
-            android:paddingLeft="10dp"
+            android:paddingLeft="@dimen/text_padding_in_recyclerView"
+            android:paddingStart="@dimen/text_padding_in_recyclerView"
+            android:paddingRight="@dimen/text_padding_in_recyclerView"
+            android:paddingEnd="@dimen/text_padding_in_recyclerView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </LinearLayout>
@@ -49,19 +65,28 @@
 
     <ImageButton
         android:id="@+id/updateProductImageButton"
-        android:layout_marginTop="7dp"
+        android:layout_centerVertical="true"
         android:layout_toLeftOf="@+id/deleteProductImageButton"
         android:layout_toStartOf="@+id/deleteProductImageButton"
         android:src="@drawable/ic_edit"
         style="@style/buttonStyle"
-        android:layout_marginRight="@dimen/right_padding_for_buttons" />
+        android:layout_marginRight="@dimen/right_padding_for_buttons"
+        android:layout_marginEnd="@dimen/right_padding_for_buttons"/>
 
     <ImageButton
         android:id="@+id/deleteProductImageButton"
-        android:layout_marginTop="7dp"
+        android:layout_centerVertical="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:src="@drawable/ic_delete_button_without_bckgrnd"
         style="@style/buttonStyle" />
+    </RelativeLayout>
+
+    <View
+        android:id="@+id/border"
+        android:layout_below="@+id/contentRelativeLayout"
+        android:background="@color/contrastAdapterColor"
+        android:layout_width="match_parent"
+        android:layout_height="1px"/>
 
 </RelativeLayout>

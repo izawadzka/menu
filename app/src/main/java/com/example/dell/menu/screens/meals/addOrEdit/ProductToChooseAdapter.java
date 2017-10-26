@@ -1,6 +1,7 @@
 package com.example.dell.menu.screens.meals.addOrEdit;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,7 +31,7 @@ public class ProductToChooseAdapter extends RecyclerView.Adapter<ProductsToChoos
 
     private final Bus bus;
     List<Product> products = new ArrayList<>();
-
+    List<Product> alreadyAddedProducts = new ArrayList<>();
 
 
     public ProductToChooseAdapter(Bus bus) {
@@ -45,7 +46,7 @@ public class ProductToChooseAdapter extends RecyclerView.Adapter<ProductsToChoos
 
     @Override
     public void onBindViewHolder(ProductsToChooseViewHolder holder, int position) {
-        holder.setProduct(products.get(position));
+        holder.setProduct(products.get(position), alreadyAddedProducts);
     }
 
     @Override
@@ -53,9 +54,11 @@ public class ProductToChooseAdapter extends RecyclerView.Adapter<ProductsToChoos
         return products.size();
     }
 
-    public void setProducts(List<Product> result) {
+    public void setProducts(List<Product> result, List<Product> listOfAlreadyAddedProducts) {
         products.clear();
         products.addAll(result);
+        alreadyAddedProducts.clear();
+        alreadyAddedProducts.addAll(listOfAlreadyAddedProducts);
         notifyDataSetChanged();
     }
 }
@@ -77,6 +80,8 @@ class ProductsToChooseViewHolder extends RecyclerView.ViewHolder {
     TextView carbonsTextView;
     @Bind(R.id.fatTextView)
     TextView fatTextView;
+    @Bind(R.id.alreadyAddedAmount)
+    TextView alreadyAddedAmount;
 
     private final Bus bus;
     private Product product;
@@ -87,14 +92,24 @@ class ProductsToChooseViewHolder extends RecyclerView.ViewHolder {
         ButterKnife.bind(this, itemView);
     }
 
-    public void setProduct(Product product) {
+    public void setProduct(Product product, List<Product> alreadyAddedProducts) {
+        this.product = product;
         productName.setText(product.getName());
         quantityUnitTextView.setText(StorageType.getUnit(product.getStorageType()));
         caloriesTextView.setText(String.format("%s kcal", product.getNumberOfKcalPer100g()));
         proteinsTextView.setText(String.format("P: %s g", product.getAmountOfProteinsPer100g()));
         carbonsTextView.setText(String.format("C: %s g", product.getAmountOfCarbosPer100g()));
         fatTextView.setText(String.format("F: %s g", product.getAmountOfFatPer100g()));
-        this.product = product;
+
+        alreadyAddedAmount.setText("("+String.valueOf(alreadyAdded(alreadyAddedProducts))+
+                StorageType.getUnit(product.getStorageType())+ ")");
+    }
+
+    private double alreadyAdded(List<Product> addedProducts) {
+        for (Product addedProduct : addedProducts) {
+            if(addedProduct.getProductId() == product.getProductId()) return addedProduct.getQuantity();
+        }
+        return 0;
     }
 
     @OnClick(R.id.addProductToIngredientsButton)

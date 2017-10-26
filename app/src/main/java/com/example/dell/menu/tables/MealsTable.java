@@ -15,6 +15,10 @@ public class MealsTable {
     private final static String thirdColumnName = "cumulativeNumberOfKcal";
     private final static String fourthColumnName = "authorsId";
     private final static String fifthColumnName = "recipe";
+    private final static String sixthColumnName = "cumulativeAmountOfProtein";
+    private final static String seventhColumnName = "cumulativeAmountOfCarbohydrates";
+    private final static String eighthColumnName = "cumulativeAmountOfFat";
+
 
     public static ContentValues getContentValues(Meal meal){
         ContentValues contentValues = new ContentValues();
@@ -22,6 +26,9 @@ public class MealsTable {
         contentValues.put(thirdColumnName, meal.getCumulativeNumberOfKcal());
         contentValues.put(fourthColumnName, meal.getAuthorsId());
         contentValues.put(fifthColumnName, meal.getRecipe());
+        contentValues.put(sixthColumnName, meal.getAmountOfProteinsPer100g());
+        contentValues.put(seventhColumnName, meal.getAmountOfCarbosPer100g());
+        contentValues.put(eighthColumnName, meal.getAmountOfFatPer100g());
         return contentValues;
     }
 
@@ -45,15 +52,19 @@ public class MealsTable {
         return firstColumnName;
     }
 
+    public static String getFourthColumnName() {
+        return fourthColumnName;
+    }
 
-    public static String create(){
-        String createCommand = String.format("create table %s(", tableName)
-                + String.format("%s INTEGER PRIMARY KEY, ", firstColumnName)
-                + String.format("%s TEXT, ", secondColumnName)
-                + String.format("%s INTEGER, ", thirdColumnName)
-                + String.format("%s INTEGER, ", fourthColumnName)
-                + String.format("%s TEXT);", fifthColumnName);
+    public static String getSixthColumnName() {
+        return sixthColumnName;
+    }
 
-        return createCommand;
+    public static String getSeventhColumnName() {
+        return seventhColumnName;
+    }
+
+    public static String getEighthColumnName() {
+        return eighthColumnName;
     }
 }

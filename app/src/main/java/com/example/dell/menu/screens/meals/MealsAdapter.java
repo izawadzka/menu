@@ -30,7 +30,7 @@ public class MealsAdapter extends RecyclerView.Adapter<MealsAdapter.MealsViewHol
     public MealClickedListener mealClickedListener;
     private MealsViewHolder holder;
 
-    public MealsAdapter(Bus bus){
+    public MealsAdapter(Bus bus) {
         this.bus = bus;
     }
 
@@ -56,7 +56,7 @@ public class MealsAdapter extends RecyclerView.Adapter<MealsAdapter.MealsViewHol
         this.mealClickedListener = mealClickedListener;
     }
 
-    public void deleteMeal(Meal meal){
+    public void deleteMeal(Meal meal) {
         holder.deleteMeal(meal);
     }
 
@@ -66,7 +66,7 @@ public class MealsAdapter extends RecyclerView.Adapter<MealsAdapter.MealsViewHol
     }
 
     private void itemClicked(Meal meal) {
-        if(mealClickedListener != null){
+        if (mealClickedListener != null) {
             mealClickedListener.mealClicked(meal);
         }
     }
@@ -81,6 +81,12 @@ public class MealsAdapter extends RecyclerView.Adapter<MealsAdapter.MealsViewHol
         ImageButton editMealImageButton;
         @Bind(R.id.deleteMealImageButton)
         ImageButton deleteMealImageButton;
+        @Bind(R.id.proteinsTextView)
+        TextView proteinsTextView;
+        @Bind(R.id.carbonsTextView)
+        TextView carbonsTextView;
+        @Bind(R.id.fatTextView)
+        TextView fatTextView;
         private Meal meal;
 
 
@@ -91,7 +97,7 @@ public class MealsAdapter extends RecyclerView.Adapter<MealsAdapter.MealsViewHol
             itemView.setOnClickListener(this);
         }
 
-        public void deleteMeal(Meal meal){
+        public void deleteMeal(Meal meal) {
             meals.remove(meal);
             notifyDataSetChanged();
         }
@@ -100,15 +106,18 @@ public class MealsAdapter extends RecyclerView.Adapter<MealsAdapter.MealsViewHol
             this.meal = meal;
             mealNameTextView.setText(meal.getName());
             caloriesTextView.setText(String.format("%s kcal", meal.getCumulativeNumberOfKcal()));
+            proteinsTextView.setText(String.format("P: %s g", meal.getAmountOfProteinsPer100g()));
+            carbonsTextView.setText(String.format("C: %s g", meal.getAmountOfCarbosPer100g()));
+            fatTextView.setText(String.format("F: %s g", meal.getAmountOfFatPer100g()));
         }
 
         @OnClick(R.id.deleteMealImageButton)
-        public void onDeleteMealImageButtonClicked(){
+        public void onDeleteMealImageButtonClicked() {
             bus.post(new DeleteMealEvent(meal));
         }
 
         @OnClick(R.id.updateProductImageButton)
-        public void onEditMealImageButtonclicked(){
+        public void onEditMealImageButtonclicked() {
             bus.post(new EditMealEvent(meal));
         }
 
@@ -118,7 +127,7 @@ public class MealsAdapter extends RecyclerView.Adapter<MealsAdapter.MealsViewHol
         }
     }
 
-    public interface MealClickedListener{
+    public interface MealClickedListener {
         void mealClicked(Meal meal);
     }
 }

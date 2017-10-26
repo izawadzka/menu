@@ -1,10 +1,12 @@
 package com.example.dell.menu.screens.products;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.dell.menu.R;
@@ -15,7 +17,6 @@ import com.squareup.otto.Bus;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -31,7 +32,6 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
     private List<Product> products = new ArrayList<>();
 
     public ProductsAdapter(Bus bus) {
-
         this.bus = bus;
     }
 

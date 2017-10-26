@@ -49,10 +49,6 @@ public class AddedProductsAdapter extends RecyclerView.Adapter<AddedProductsAdap
         holder.setProduct(products.get(position));
     }
 
-    public void deleteFromAddedProducts(Product product){
-        holder.deleteProduct(product);
-    }
-
     public void setProducts(List<Product> products) {
         this.products.clear();
         this.products.addAll(products);
@@ -96,10 +92,6 @@ public class AddedProductsAdapter extends RecyclerView.Adapter<AddedProductsAdap
             products.remove(product);
             notifyDataSetChanged();
             bus.post(new DeleteProductFromMealEvent(product));
-        }
-
-        public void deleteProduct(Product product) {
-
         }
 
         public void setShow_mode(boolean show_mode) {

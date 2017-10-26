@@ -141,13 +141,13 @@ public class DailyMenuFragment extends Fragment {
                     if(clickedMeal.getAuthorsId() == 0){
                         authorsName = "authomaticly_generated";
                     }else{
-                        authorsName = ((App)getActivity().getApplication()).getMealsFragmentManager().getAuthorsName(clickedMeal);
+                        //authorsName = ((App)getActivity().getApplication()).getMealsFragmentManager().getAuthorsName(clickedMeal);
                     }
 
                     Intent intent = new Intent(getContext(), FullMealInformationActivity.class);
                     intent.putExtra(MealsFragment.MEAL_NAME_KEY, clickedMeal.getName());
                     intent.putExtra(MealsFragment.MEAL_NUMBER_OF_KCAL_KEY, String.format("%s",clickedMeal.getCumulativeNumberOfKcal()));
-                    intent.putExtra(MealsFragment.MEALS_AUTHOR_NAME_KEY, authorsName);
+                    //intent.putExtra(MealsFragment.MEALS_AUTHOR_NAME_KEY, authorsName);
                     intent.putExtra(MealsFragment.MEALS_RECIPE_KEY, clickedMeal.getRecipe());
                     intent.putExtra(MealsFragment.MEALS_ID_KEY, String.format("%s",clickedMeal.getMealsId()));
                     startActivityForResult(intent, MealsFragment.REQUEST_CODE_SHOW);

@@ -17,7 +17,6 @@ import com.example.dell.menu.App;
 import com.example.dell.menu.MealsType;
 import com.example.dell.menu.R;
 import com.example.dell.menu.objects.Meal;
-import com.example.dell.menu.objects.Product;
 import com.example.dell.menu.screens.meals.MealsFragment;
 
 import butterknife.Bind;
@@ -27,7 +26,6 @@ import butterknife.OnClick;
 public class AddOrEditMealActivity extends AppCompatActivity {
 
     public static final int REQUEST_CODE_ADD_PRODUCTS = 1;
-    private static final int RESULT_ADDED = 0;
 
     @Bind(R.id.addedProductsRecyclerView)
     RecyclerView addedProductsRecyclerView;
@@ -43,8 +41,6 @@ public class AddOrEditMealActivity extends AppCompatActivity {
     CheckBox supperCheckBox;
     @Bind(R.id.addedMealNameEditText)
     EditText addedMealNameEditText;
-    @Bind(R.id.cumulativeNumberOfKcalEditText)
-    EditText cumulativeNumberOfKcalEditText;
     @Bind(R.id.addedMealRecipeEditText)
     EditText addedMealRecipeEditText;
     @Bind(R.id.addProductsTextView)
@@ -55,6 +51,14 @@ public class AddOrEditMealActivity extends AppCompatActivity {
     Button saveMealButton;
     @Bind(R.id.cancel_action)
     Button cancelAction;
+    @Bind(R.id.addedMealNumbOfKcal)
+    TextView addedMealNumbOfKcal;
+    @Bind(R.id.addedMealNumberOfProtein)
+    TextView addedMealNumberOfProtein;
+    @Bind(R.id.addedMealAmountOfCarbos)
+    TextView addedMealAmountOfCarbos;
+    @Bind(R.id.addedMealAmountOfFat)
+    TextView addedMealAmountOfFat;
 
     private AddedProductsAdapter adapter;
     private AddOrEditMealManager addOrEditMealManager;
@@ -70,7 +74,7 @@ public class AddOrEditMealActivity extends AppCompatActivity {
 
         addOrEditMealManager = ((App) getApplication()).getAddOrEditMealManager();
         if (getIntent().getStringExtra(MealsFragment.EDIT_MODE_KEY) != null) edit_mode = true;
-        else if(getIntent().getStringExtra(MealsFragment.SHOW_MODE_KEY) != null) show_mode = true;
+        else if (getIntent().getStringExtra(MealsFragment.SHOW_MODE_KEY) != null) show_mode = true;
 
         addedProductsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new AddedProductsAdapter(((App) getApplication()).getBus(), show_mode);
@@ -80,16 +84,14 @@ public class AddOrEditMealActivity extends AppCompatActivity {
             mealsTypesStates[i] = false;
         }
 
-
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         addOrEditMealManager.onAttach(this);
-
         if (edit_mode) setEditMode();
-        else if(show_mode) setShowMode();
+        else if (show_mode) setShowMode();
         else {
             getState();
             setProducts();
@@ -97,13 +99,14 @@ public class AddOrEditMealActivity extends AppCompatActivity {
     }
 
     private void setShowMode() {
-        setTitle("Show meal");
+        setTitle(getString(R.string.show_meal_title));
 
         saveMealButton.setVisibility(View.GONE);
         addProductsButton.setVisibility(View.GONE);
 
+        addProductsTextView.setText("Products:");
+
         addedMealNameEditText.setFocusable(false);
-        cumulativeNumberOfKcalEditText.setFocusable(false);
         addedMealRecipeEditText.setFocusable(false);
 
         breakfastCheckBox.setClickable(false);
@@ -113,20 +116,25 @@ public class AddOrEditMealActivity extends AppCompatActivity {
         supperCheckBox.setClickable(false);
 
         addOrEditMealManager.setShowMode();
+        show_mode = false;
         addOrEditMealManager.loadMealToShow(getIntent().getIntExtra(MealsFragment.MEALS_ID_KEY, 0));
     }
 
     private void setEditMode() {
         setTitle("Edit meal");
         addOrEditMealManager.setEditMode();
+        edit_mode = false;
         addOrEditMealManager.loadMealForEdit(getIntent().getIntExtra(MealsFragment.MEALS_ID_KEY, 0));
     }
 
     private void getState() {
         addedMealNameEditText.setText(addOrEditMealManager.getStateName());
-        cumulativeNumberOfKcalEditText.setText(addOrEditMealManager.getStateKcal());
         addedMealRecipeEditText.setText(addOrEditMealManager.getStateRecipe());
         mealsTypesStates = addOrEditMealManager.getMealsTypesStates();
+        addedMealNumbOfKcal.setText(String.valueOf(addOrEditMealManager.getAmountOfKcal()));
+        addedMealNumberOfProtein.setText(String.valueOf(addOrEditMealManager.getAmountOfProteins()));
+        addedMealAmountOfCarbos.setText(String.valueOf(addOrEditMealManager.getAmountOfCarbons()));
+        addedMealAmountOfFat.setText(String.valueOf(addOrEditMealManager.getAmountOfFat()));
         setCheckBoxes();
     }
 
@@ -143,7 +151,6 @@ public class AddOrEditMealActivity extends AppCompatActivity {
 
     private void setState() {
         addOrEditMealManager.setStateName(addedMealNameEditText.getText().toString());
-        addOrEditMealManager.setStateKcal(cumulativeNumberOfKcalEditText.getText().toString());
         addOrEditMealManager.setStateRecipe(addedMealRecipeEditText.getText().toString());
         addOrEditMealManager.setMealsTypesStates(mealsTypesStates);
     }
@@ -177,39 +184,30 @@ public class AddOrEditMealActivity extends AppCompatActivity {
             hasErrors = true;
         }
 
-        try {
-            Integer.parseInt(cumulativeNumberOfKcalEditText.getText().toString());
-        } catch (NumberFormatException e) {
-            cumulativeNumberOfKcalEditText.setError("kcal must be a number!");
-            hasErrors = true;
-        }
 
         for (boolean mealsTypesState : mealsTypesStates) {
-            if(mealsTypesState) typeNotChosen = false;
+            if (mealsTypesState) typeNotChosen = false;
         }
-        if(typeNotChosen){
+        if (typeNotChosen) {
             Toast.makeText(this, "You have to choose at least one type of meal!", Toast.LENGTH_LONG).show();
             hasErrors = true;
         }
 
 
         if (!hasErrors) {
-            addOrEditMealManager.resetState();
+            //addOrEditMealManager.resetState();
             if (addOrEditMealManager.isEditMode()) {
                 addOrEditMealManager.edit(addedMealNameEditText.getText().toString(),
-                        cumulativeNumberOfKcalEditText.getText().toString(),
                         addedMealRecipeEditText.getText().toString(), mealsTypesStates);
             } else {
                 addOrEditMealManager.addMeal(addedMealNameEditText.getText().toString(),
-                        cumulativeNumberOfKcalEditText.getText().toString(),
                         ((App) getApplication()).getUserStorage().getUserId(), addedMealRecipeEditText.getText().toString(), mealsTypesStates);
             }
         }
     }
 
     private void addProducts() {
-        addOrEditMealManager.saveState(addedMealNameEditText.getText().toString(),
-                cumulativeNumberOfKcalEditText.getText().toString(), addedMealRecipeEditText.getText().toString());
+        addOrEditMealManager.saveState(addedMealNameEditText.getText().toString(), addedMealRecipeEditText.getText().toString());
         startActivityForResult(new Intent(this, ChooseFromProductsActivity.class), REQUEST_CODE_ADD_PRODUCTS);
     }
 
@@ -232,17 +230,23 @@ public class AddOrEditMealActivity extends AppCompatActivity {
         finish();
     }
 
-    public void productDeleteSuccess(Product productToDelete) {
-        adapter.deleteFromAddedProducts(productToDelete);
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        clearValues();
+        addOrEditMealManager.resetValues();
     }
 
     public void productDeleteFailed(String name) {
-        Toast.makeText(this, String.format("Error while trying to delete %s", name), Toast.LENGTH_SHORT);
+        Toast.makeText(this, String.format("Error while trying to delete %s", name), Toast.LENGTH_SHORT).show();
     }
 
     public void loadingMealSuccess(Meal meal, boolean[] result) {
         addedMealNameEditText.setText(meal.getName());
-        cumulativeNumberOfKcalEditText.setText(String.valueOf(meal.getCumulativeNumberOfKcal()));
+        addedMealNumbOfKcal.setText(String.valueOf(meal.getCumulativeNumberOfKcal()));
+        addedMealNumberOfProtein.setText(String.valueOf(meal.getAmountOfProteinsPer100g()));
+        addedMealAmountOfCarbos.setText(String.valueOf(meal.getAmountOfCarbosPer100g()));
+        addedMealAmountOfFat.setText(String.valueOf(meal.getAmountOfFatPer100g()));
         addedMealRecipeEditText.setText(meal.getRecipe());
 
 
@@ -254,11 +258,11 @@ public class AddOrEditMealActivity extends AppCompatActivity {
     }
 
     private void setCheckBoxes() {
-        breakfastCheckBox.setChecked(mealsTypesStates[MealsType.BREAKFAST_INDX-1]);
-        lunchCheckBox.setChecked(mealsTypesStates[MealsType.LUNCH_INDX-1]);
-        dinnerCheckBox.setChecked(mealsTypesStates[MealsType.DINNER_INDX-1]);
-        teatimeCheckBox.setChecked(mealsTypesStates[MealsType.TEATIME_INDX-1]);
-        supperCheckBox.setChecked(mealsTypesStates[MealsType.SUPPER_INDX-1]);
+        breakfastCheckBox.setChecked(mealsTypesStates[MealsType.BREAKFAST_INDX - 1]);
+        lunchCheckBox.setChecked(mealsTypesStates[MealsType.LUNCH_INDX - 1]);
+        dinnerCheckBox.setChecked(mealsTypesStates[MealsType.DINNER_INDX - 1]);
+        teatimeCheckBox.setChecked(mealsTypesStates[MealsType.TEATIME_INDX - 1]);
+        supperCheckBox.setChecked(mealsTypesStates[MealsType.SUPPER_INDX - 1]);
     }
 
     public void loadingMealFailed() {
@@ -268,9 +272,8 @@ public class AddOrEditMealActivity extends AppCompatActivity {
         finish();
     }
 
-    public void clearValues(){
+    public void clearValues() {
         addedMealNameEditText.setText("");
-        cumulativeNumberOfKcalEditText.setText("");
         addedMealRecipeEditText.setText("");
 
         addOrEditMealManager.clearListOfProducts();
@@ -297,24 +300,19 @@ public class AddOrEditMealActivity extends AppCompatActivity {
 
         switch (view.getId()) {
             case R.id.breakfastCheckBox:
-                if (checked) mealsTypesStates[MealsType.BREAKFAST_INDX-1] = true;
-                else mealsTypesStates[MealsType.BREAKFAST_INDX-1] = false;
+                mealsTypesStates[MealsType.BREAKFAST_INDX - 1] = checked;
                 break;
             case R.id.lunchCheckBox:
-                if (checked) mealsTypesStates[MealsType.LUNCH_INDX-1] = true;
-                else mealsTypesStates[MealsType.LUNCH_INDX-1] = false;
+                mealsTypesStates[MealsType.LUNCH_INDX - 1] = checked;
                 break;
             case R.id.dinnerCheckBox:
-                if (checked) mealsTypesStates[MealsType.DINNER_INDX-1] = true;
-                else mealsTypesStates[MealsType.DINNER_INDX-1] = false;
+                mealsTypesStates[MealsType.DINNER_INDX - 1] = checked;
                 break;
             case R.id.teatimeCheckBox:
-                if (checked) mealsTypesStates[MealsType.TEATIME_INDX-1] = true;
-                else mealsTypesStates[MealsType.TEATIME_INDX-1] = false;
+                mealsTypesStates[MealsType.TEATIME_INDX - 1] = checked;
                 break;
             case R.id.supperCheckBox:
-                if (checked) mealsTypesStates[MealsType.SUPPER_INDX-1] = true;
-                else mealsTypesStates[MealsType.SUPPER_INDX-1] = false;
+                mealsTypesStates[MealsType.SUPPER_INDX - 1] = checked;
                 break;
         }
     }

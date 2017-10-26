@@ -3,12 +3,13 @@ package com.example.dell.menu.screens.meals.addOrEdit;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.AsyncTask;
-import android.util.Log;
+
 
 import com.example.dell.menu.MealsType;
 import com.example.dell.menu.MenuDataBase;
 import com.example.dell.menu.events.meals.AddProductToIngredientsEvent;
 import com.example.dell.menu.events.meals.DeleteProductFromMealEvent;
+import com.example.dell.menu.events.meals.ProductAddedSuccessfullyToIngredientsEvent;
 import com.example.dell.menu.objects.Meal;
 import com.example.dell.menu.objects.Product;
 import com.example.dell.menu.tables.MealsProductsTable;
@@ -26,14 +27,18 @@ import java.util.List;
  */
 
 public class AddOrEditMealManager {
-    protected AddOrEditMealActivity addOrEditMealActivity;
+    private static final int HUNDRED_GRAMS = 100;
+    private AddOrEditMealActivity addOrEditMealActivity;
     private List<Product> listOfProducts;
     private Bus bus;
     protected Long mealId;
-    protected Product productToDelete;
+    private Product productToDelete;
     private String stateName;
-    private String stateKcal;
     private String stateRecipe;
+    private int amountOfKcal;
+    private int amountOfProteins;
+    private int amountOfCarbons;
+    private int amountOfFat;
 
     private boolean editMode;
     private boolean showMode;
@@ -51,44 +56,69 @@ public class AddOrEditMealManager {
         this.addOrEditMealActivity = addOrEditMealActivity;
     }
 
-    public void onStop(){
+    void onStop(){
         this.addOrEditMealActivity = null;
     }
 
-    public void setStateRecipe(String stateRecipe) {
+    void setStateRecipe(String stateRecipe) {
         this.stateRecipe = stateRecipe;
     }
 
-    public void setStateKcal(String stateKcal) {
-        this.stateKcal = stateKcal;
-    }
 
-    public List<Product> getListOfProducts() {
+    List<Product> getListOfProducts() {
         return listOfProducts;
     }
 
-    public void clearListOfProducts(){
+    void clearListOfProducts(){
         listOfProducts.clear();
     }
 
-    public boolean[] getMealsTypesStates() {
+    boolean[] getMealsTypesStates() {
         return mealsTypesStates;
     }
 
-    public void setMealsTypesStates(boolean[] mealsTypesStates) {
+    void setMealsTypesStates(boolean[] mealsTypesStates) {
         this.mealsTypesStates = mealsTypesStates;
+    }
+
+    int getAmountOfKcal() {
+        return amountOfKcal;
+    }
+
+    int getAmountOfProteins() {
+        return amountOfProteins;
+    }
+
+
+    int getAmountOfCarbons() {
+        return amountOfCarbons;
+    }
+
+
+    int getAmountOfFat() {
+        return amountOfFat;
     }
 
     @Subscribe
     public void onAddToListOfProducts(AddProductToIngredientsEvent event){
+        boolean found = false;
+        double quantity = event.product.getQuantity();
         for (Product product : listOfProducts) {
             if(product.getProductId() == event.product.getProductId()){
-                product.setQuantity(product.getQuantity()+event.product.getQuantity());
-                return;
+                found = true;
+                product.setQuantity(product.getQuantity()+ quantity);
+                break;
             }
         }
 
-        listOfProducts.add(event.product);
+        if(!found) listOfProducts.add(event.product);
+
+        amountOfKcal += (event.product.getNumberOfKcalPer100g() * quantity)/ HUNDRED_GRAMS;
+        amountOfProteins += (event.product.getAmountOfProteinsPer100g() * quantity)/ HUNDRED_GRAMS;
+        amountOfCarbons += (event.product.getAmountOfCarbosPer100g() * quantity)/ HUNDRED_GRAMS;
+        amountOfFat += (event.product.getAmountOfFatPer100g()*quantity)/ HUNDRED_GRAMS;
+
+        bus.post(new ProductAddedSuccessfullyToIngredientsEvent(event.product.getName()));
     }
 
     @Subscribe
@@ -100,7 +130,7 @@ public class AddOrEditMealManager {
                 indx = i;
             }
         }
-
+        /*
         if(indx != -1){
             listOfProducts.remove(indx);
             if(addOrEditMealActivity != null){
@@ -110,82 +140,183 @@ public class AddOrEditMealManager {
             if(addOrEditMealActivity != null){
                 addOrEditMealActivity.productDeleteFailed(productToDelete.getName());
             }
+        }*/
+
+        if(indx != -1){
+            listOfProducts.remove(indx);
+            amountOfKcal -= productToDelete.getNumberOfKcalPer100g();
+            amountOfProteins -= productToDelete.getAmountOfProteinsPer100g();
+            amountOfCarbons -= productToDelete.getAmountOfCarbosPer100g();
+            amountOfFat -= productToDelete.getAmountOfFatPer100g();
+        }
+        else{
+            if(addOrEditMealActivity != null) addOrEditMealActivity.productDeleteFailed(productToDelete.getName());
         }
 
     }
 
-    public void addProducts(Long mealId){
-        this.mealId = mealId;
+    private void addProducts(Long mealsId){
+        this.mealId = mealsId;
+
         if(addOrEditMealActivity != null){
-            new AddProducts().execute(listOfProducts);
+            new AsyncTask<List<Product>, Void, Long>(){
+                @Override
+                protected Long doInBackground(List<Product>... params) {
+                    MenuDataBase menuDataBase = MenuDataBase.getInstance(addOrEditMealActivity);
+                    try {
+                        for (Product product : params[0]) {
+                            if(menuDataBase.insert(MealsProductsTable.getTableName(),
+                                    MealsProductsTable.getContentValues(product.getProductId(),
+                                            mealId, product.getQuantity())) == -1){
+                                menuDataBase.close();
+                                return (long)-1;
+                            }
+                        }
+                    }catch (Exception e){
+                        menuDataBase.close();
+                        return (long)-1;
+                    }
+                    menuDataBase.close();
+                    return (long)0;
+                }
+
+                @Override
+                protected void onPostExecute(Long aLong) {
+                    if(aLong == 0){
+                        if(editMode){
+                            resetMealTypes();
+                        }else{
+                            setMealTypes();
+                        }
+                    }else if(aLong == -1){
+                        if(editMode){
+                            addOrEditMealActivity.updateFailed();
+                        }else{
+                            addOrEditMealActivity.saveFailed();
+                        }
+                    }
+                }
+            }.execute(listOfProducts);
         }
     }
 
-    public void addMeal(String mealsName, String kcal, Long userId, String recipe, boolean[] mealsTypesStates) {
+    void addMeal(final String mealsName, final long mealAuthorId, final String mealsRecipe, boolean[] mealsTypesStates) {
         if(addOrEditMealActivity != null){
             this.mealsTypesStates = mealsTypesStates;
-            new AddMeal().execute(mealsName, kcal, String.valueOf(userId), recipe);
+
+            new AsyncTask<Void, Void, Long>(){
+                @Override
+                protected Long doInBackground(Void... params) {
+                    try {
+                        MenuDataBase menuDataBase = MenuDataBase.getInstance(addOrEditMealActivity);
+                        ContentValues contentValues = MealsTable.getContentValues(new Meal(mealsName,
+                                amountOfKcal, Integer.parseInt(String.valueOf(mealAuthorId)), mealsRecipe, amountOfProteins,
+                                amountOfCarbons, amountOfFat));
+                        long index = menuDataBase.insert(MealsTable.getTableName(), contentValues);
+                        menuDataBase.close();
+                        return index;
+                    }catch (Exception e){
+                        return (long)-1;
+                    }
+
+                }
+
+                @Override
+                protected void onPostExecute(Long aLong) {
+                    if(aLong != -1){
+                        addProducts(aLong);
+                    }
+                }
+            }.execute();
         }
     }
 
-    public void loadMealForEdit(long mealId) {
+    void loadMealForEdit(long mealId) {
         if(addOrEditMealActivity != null){
             this.mealId = mealId;
             new LoadMeal().execute(mealId);
         }
     }
 
-    public void loadMealToShow(long mealId){
+    void loadMealToShow(long mealId){
         if(addOrEditMealActivity != null){
             this.mealId = mealId;
             new LoadMeal().execute(mealId);
         }
     }
 
-    public void downloadProductsInMeal(int mealsId) {
+    void downloadProductsInMeal(int mealsId) {
         if(addOrEditMealActivity != null){
             new DownloadProductsInMeal().execute(mealsId);
         }
     }
 
-    public void saveState(String name, String kcal, String recipe) {
+    void saveState(String name, String recipe) {
         this.stateName = name;
-        this.stateKcal = kcal;
         this.stateRecipe = recipe;
     }
 
-    public void resetState(){
-        saveState("", "", "");
+    void resetState(){
+        stateName = "";
+        stateRecipe = "";
+        amountOfKcal = 0;
+        amountOfProteins = 0;
+        amountOfCarbons = 0;
+        amountOfFat = 0;
+        listOfProducts.clear();
     }
 
-    public String getStateName() {
+    String getStateName() {
         return stateName;
     }
 
-    public String getStateKcal() {
-        return stateKcal;
-    }
 
-    public String getStateRecipe() {
+    String getStateRecipe() {
         return stateRecipe;
     }
 
-    public void setEditMode() {
+    void setEditMode() {
         editMode = true;
     }
 
-    public void resetEditMode(){
+    void resetEditMode(){
         editMode = false;
     }
 
-    public boolean isEditMode(){
+    boolean isEditMode(){
         return editMode;
     }
 
-    public void edit(String name, String kcal, String recipe, boolean[] mealsTypesStates) {
+    void edit(String name, String recipe, boolean[] mealsTypesStates) {
         if(addOrEditMealActivity != null){
             this.mealsTypesStates = mealsTypesStates;
-            new EditMeal().execute(name, kcal, recipe);
+            new AsyncTask<String, Void, Integer>(){
+                @Override
+                protected Integer doInBackground(String... params) {
+                    MenuDataBase menuDataBase = MenuDataBase.getInstance(addOrEditMealActivity);
+                    ContentValues editContentValues = new ContentValues();
+                    editContentValues.put(MealsTable.getSecondColumnName(), params[0]);
+                    editContentValues.put(MealsTable.getThirdColumnName(), amountOfKcal);
+                    editContentValues.put(MealsTable.getFifthColumnName(), params[1]);
+                    editContentValues.put(MealsTable.getSixthColumnName(), amountOfProteins);
+                    editContentValues.put(MealsTable.getSeventhColumnName(), amountOfCarbons);
+                    editContentValues.put(MealsTable.getEighthColumnName(), amountOfFat);
+                    String[] mealsId = {String.valueOf(mealId)};
+                    String whereClause = String.format("%s = ?", MealsTable.getFirstColumnName());
+                    int result = menuDataBase.update(MealsTable.getTableName(), editContentValues, whereClause, mealsId);
+                    menuDataBase.close();
+                    return result;
+                }
+
+                @Override
+                protected void onPostExecute(Integer integer) {
+                    if(integer == 1){
+                        editProductsInMeal();
+                    }else if(integer == 0){
+                        addOrEditMealActivity.updateFailed();
+                    }
+                }
+            }.execute(name, recipe);
         }
     }
 
@@ -193,22 +324,29 @@ public class AddOrEditMealManager {
         new DeleteProducts().execute(mealId);
     }
 
-    public void resetMealsTypesStates() {
+    void resetMealsTypesStates() {
         for (int i = 0; i < mealsTypesStates.length; i++) {
             mealsTypesStates[i] = false;
         }
     }
 
-    public void setStateName(String stateName) {
+    void setStateName(String stateName) {
         this.stateName = stateName;
     }
 
-    public void setShowMode() {
+    void setShowMode() {
         showMode = true;
     }
 
-    public void resetShowMode() {
+    void resetShowMode() {
         showMode = false;
+    }
+
+    void resetValues() {
+        stateName = "";
+        amountOfKcal = 0;
+
+        stateRecipe = "";
     }
 
     private class DeleteProducts extends AsyncTask<Long, Integer, Integer>{
@@ -230,33 +368,6 @@ public class AddOrEditMealManager {
             else if(addOrEditMealActivity != null) addOrEditMealActivity.updateFailed();
         }
     }
-
-    private class EditMeal extends AsyncTask<String, Integer, Integer>{
-
-        @Override
-        protected Integer doInBackground(String... params) {
-            MenuDataBase menuDataBase = MenuDataBase.getInstance(addOrEditMealActivity);
-            ContentValues editContentValues = new ContentValues();
-            editContentValues.put(MealsTable.getSecondColumnName(), params[0]);
-            editContentValues.put(MealsTable.getThirdColumnName(), params[1]);
-            editContentValues.put(MealsTable.getFifthColumnName(), params[2]);
-            String[] mealsId = {String.valueOf(mealId)};
-            String whereClause = String.format("%s = ?", MealsTable.getFirstColumnName());
-            int result = menuDataBase.update(MealsTable.getTableName(), editContentValues, whereClause, mealsId);
-            menuDataBase.close();
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(Integer integer) {
-            if(integer == 1){
-                editProductsInMeal();
-            }else if(integer == 0){
-                addOrEditMealActivity.updateFailed();
-            }
-        }
-    }
-
 
     private class DownloadProductsInMeal extends AsyncTask<Integer, Integer, List<Product>>{
 
@@ -292,7 +403,6 @@ public class AddOrEditMealManager {
         protected void onPostExecute(List<Product> products) {
             listOfProducts.clear();
             listOfProducts.addAll(products);
-            Log.d(addOrEditMealActivity.getPackageName(), String.format(" size %s", listOfProducts.size()));
             addOrEditMealActivity.setProducts();
         }
     }
@@ -308,7 +418,12 @@ public class AddOrEditMealManager {
             if(cursor.getCount() == 1){
                 cursor.moveToPosition(0);
                 Meal meal = new Meal(cursor.getInt(0), cursor.getString(1), cursor.getInt(2),
-                        cursor.getInt(3),cursor.getString(4));
+                        cursor.getInt(3),cursor.getString(4), cursor.getInt(5), cursor.getInt(6),
+                        cursor.getInt(7));
+                amountOfKcal = cursor.getInt(2);
+                amountOfProteins = cursor.getInt(5);
+                amountOfCarbons = cursor.getInt(6);
+                amountOfFat = cursor.getInt(7);
                 menuDataBase.close();
                 //odkomentowalam zamkniecie bazy
                 return meal;
@@ -379,45 +494,6 @@ public class AddOrEditMealManager {
         }
     }
 
-    private class AddProducts extends AsyncTask<List<Product>, Integer, Long>{
-
-        @Override
-        protected Long doInBackground(List<Product>... params) {
-            MenuDataBase menuDataBase = MenuDataBase.getInstance(addOrEditMealActivity);
-            try {
-                for (Product product : params[0]) {
-                    if(menuDataBase.insert(MealsProductsTable.getTableName(), MealsProductsTable.getContentValues(product.getProductId(), mealId, product.getQuantity())) == -1){
-                        menuDataBase.close();
-                        return (long)-1;
-                    }
-                }
-            }catch (Exception e){
-                menuDataBase.close();
-                return (long)-1;
-            }
-            menuDataBase.close();
-            return (long)0;
-        }
-
-        @Override
-        protected void onPostExecute(Long aLong) {
-            if(aLong == 0){
-                if(editMode){
-                    //addOrEditMealActivity.updateSuccess();
-                    resetMealTypes();
-                }else{
-                    setMealTypes();
-                }
-            }else if(aLong == -1){
-                if(editMode){
-                    addOrEditMealActivity.updateFailed();
-                }else{
-                    addOrEditMealActivity.saveFailed();
-                }
-            }
-        }
-    }
-
     private void resetMealTypes() {
         if(addOrEditMealActivity != null){
             new ResetMealTypes().execute();
@@ -477,35 +553,6 @@ public class AddOrEditMealManager {
                     if(editMode) addOrEditMealActivity.updateFailed();
                     else addOrEditMealActivity.saveFailed();
                 }
-            }
-        }
-    }
-
-    private class AddMeal extends AsyncTask<String, Integer, Long>{
-
-        @Override
-        protected Long doInBackground(String... params) {
-            try {
-                MenuDataBase menuDataBase = MenuDataBase.getInstance(addOrEditMealActivity);
-                String name = params[0];
-                int kcal = Integer.parseInt(params[1]);
-                int usersId = Integer.parseInt(params[2]);
-                String recipe = params[3];
-
-                ContentValues contentValues = MealsTable.getContentValues(new Meal(name, kcal, usersId, recipe));
-                long index = menuDataBase.insert(MealsTable.getTableName(), contentValues);
-                menuDataBase.close();
-                return index;
-            }catch (Exception e){
-                return (long)-1;
-            }
-
-        }
-
-        @Override
-        protected void onPostExecute(Long aLong) {
-            if(aLong != -1){
-                addProducts(aLong);
             }
         }
     }
