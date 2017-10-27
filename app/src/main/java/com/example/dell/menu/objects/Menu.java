@@ -14,6 +14,9 @@ public class Menu {
     private int cumulativeNumberOfKcal;
     private long authorsId;
     private String authorsName;
+    private int amountOfProteinsPer100g;
+    private int amountOfCarbosPer100g;
+    private int amountOfFatPer100g;
 
     public Menu(String name, java.sql.Date creationDate, int cumulativeNumberOfKcal, long authorsId){
         this.name = name;
@@ -53,5 +56,17 @@ public class Menu {
 
     public void setCumulativeNumberOfKcal(int cumulativeNumberOfKcal) {
         this.cumulativeNumberOfKcal = cumulativeNumberOfKcal;
+    }
+
+    public int getAmountOfProteinsPer100g() {
+        return amountOfProteinsPer100g;
+    }
+
+    public int getAmountOfCarbosPer100g() {
+        return amountOfCarbosPer100g;
+    }
+
+    public int getAmountOfFatPer100g() {
+        return amountOfFatPer100g;
     }
 }

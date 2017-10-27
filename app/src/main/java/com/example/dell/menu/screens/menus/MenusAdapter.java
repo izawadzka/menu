@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.dell.menu.R;
@@ -22,16 +21,13 @@ import butterknife.Bind;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 
-/**
- * Created by Dell on 04.06.2017.
- */
 
-public class MenusAdapter extends RecyclerView.Adapter<MenusAdapter.MenuViewHolder> {
+class MenusAdapter extends RecyclerView.Adapter<MenusAdapter.MenuViewHolder> {
     private final Bus bus;
-    List<Menu> menus = new ArrayList<>();
+    private List<Menu> menus = new ArrayList<>();
     private MenuClickedListener menuClickedListener;
 
-    public MenusAdapter(Bus bus) {
+    MenusAdapter(Bus bus) {
         this.bus = bus;
     }
 
@@ -43,7 +39,7 @@ public class MenusAdapter extends RecyclerView.Adapter<MenusAdapter.MenuViewHold
 
     @Override
     public void onBindViewHolder(MenuViewHolder holder, int position) {
-        holder.setMenu(menus.get(position), position);
+        holder.setMenu(menus.get(position));
     }
 
     @Override
@@ -57,7 +53,7 @@ public class MenusAdapter extends RecyclerView.Adapter<MenusAdapter.MenuViewHold
         notifyDataSetChanged();
     }
 
-    public void setMenuClickedListener(MenuClickedListener menuClickedListener) {
+    void setMenuClickedListener(MenuClickedListener menuClickedListener) {
         this.menuClickedListener = menuClickedListener;
     }
 
@@ -78,13 +74,19 @@ public class MenusAdapter extends RecyclerView.Adapter<MenusAdapter.MenuViewHold
         ImageButton deleteMenuImageButton;
         @Bind(R.id.generateShoppingList)
         ImageButton generateShoppingList;
-        @Bind(R.id.itemMenuRelativeLayout)
-        RelativeLayout itemMenuRelativeLayout;
+        @Bind(R.id.caloriesTextView)
+        TextView caloriesTextView;
+        @Bind(R.id.proteinsTextView)
+        TextView proteinsTextView;
+        @Bind(R.id.carbonsTextView)
+        TextView carbonsTextView;
+        @Bind(R.id.fatTextView)
+        TextView fatTextView;
 
         private final Bus bus;
         private Menu menu;
 
-        public MenuViewHolder(View itemView, Bus bus) {
+        MenuViewHolder(View itemView, Bus bus) {
             super(itemView);
             ButterKnife.bind(this, itemView);
             this.bus = bus;
@@ -96,32 +98,33 @@ public class MenusAdapter extends RecyclerView.Adapter<MenusAdapter.MenuViewHold
             itemClicked(menu);
         }
 
-        public void setMenu(Menu menu, int position) {
-            if(position % 2 == 0) itemMenuRelativeLayout.setBackgroundResource(R.color.contrastAdapterColor);
+        public void setMenu(Menu menu) {
             this.menu = menu;
             menuNameTextView.setText(menu.getName());
-
-            creationDateTextView.setText(menu.getCreationDate());
-
+            caloriesTextView.setText(String.format("%s kcal", menu.getCumulativeNumberOfKcal()));
+            proteinsTextView.setText(String.format("P: %s g", menu.getAmountOfProteinsPer100g()));
+            carbonsTextView.setText(String.format("C: %s g", menu.getAmountOfCarbosPer100g()));
+            fatTextView.setText(String.format("F: %s g", menu.getAmountOfFatPer100g()));
+            creationDateTextView.setText("creation date: " + menu.getCreationDate());
         }
 
         @OnClick(R.id.generateShoppingList)
-        public void onGenerateShoppingListButtonClicked() {
+        void onGenerateShoppingListButtonClicked() {
             bus.post(new GenerateShoppingListButtonClickedEvent(menu));
         }
 
         @OnClick(R.id.editMenuNameImageButton)
-        public void onEditMenuImageButtonClicked() {
+        void onEditMenuImageButtonClicked() {
             bus.post(new EditMenuNameEvent(menu));
         }
 
         @OnClick(R.id.deleteMenuImageButton)
-        public void onDeleteMenuImageButtonClicked() {
+        void onDeleteMenuImageButtonClicked() {
             bus.post(new DeleteMenuEvent(menu));
         }
     }
 
-    public interface MenuClickedListener {
+    interface MenuClickedListener {
         void menuClicked(Menu menu);
     }
 }
