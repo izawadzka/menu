@@ -23,14 +23,14 @@ import butterknife.OnClick;
  * Created by Dell on 05.06.2017.
  */
 
-public class MealsToChooseAdapter extends RecyclerView.Adapter<MealsToChooseAdapter.MealsToChooseViewHolder> {
+class MealsToChooseAdapter extends RecyclerView.Adapter<MealsToChooseAdapter.MealsToChooseViewHolder> {
     private final Bus bus;
     private final String mealType;
     private final long currentDailyMenuId;
-    List<Meal> meals = new ArrayList<>();
+    private List<Meal> meals = new ArrayList<>();
     private MealToChooseClickedListener mealToChooseClickedListener;
 
-    public MealsToChooseAdapter(Bus bus, String mealType, long currentDailyMenuId) {
+    MealsToChooseAdapter(Bus bus, String mealType, long currentDailyMenuId) {
         this.bus = bus;
         this.mealType = mealType;
         this.currentDailyMenuId = currentDailyMenuId;
@@ -52,36 +52,42 @@ public class MealsToChooseAdapter extends RecyclerView.Adapter<MealsToChooseAdap
         return meals.size();
     }
 
-    public void setMealClickedListener(MealToChooseClickedListener mealToChooseClickedListener) {
+    void setMealClickedListener(MealToChooseClickedListener mealToChooseClickedListener) {
         this.mealToChooseClickedListener = mealToChooseClickedListener;
     }
 
 
     private void itemClicked(Meal meal) {
-        if(mealToChooseClickedListener != null){
+        if (mealToChooseClickedListener != null) {
             mealToChooseClickedListener.mealToChooseClicked(meal);
         }
     }
 
-    public void setMealsToChoose(List<Meal> meals) {
+    void setMealsToChoose(List<Meal> meals) {
         this.meals.clear();
         this.meals.addAll(meals);
         notifyDataSetChanged();
     }
 
-    class MealsToChooseViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    class MealsToChooseViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         @Bind(R.id.mealToAddNameTextView)
         TextView mealToAddNameTextView;
         @Bind(R.id.mealToAddCaloriesTextView)
         TextView mealToAddCaloriesTextView;
         @Bind(R.id.addMealToDailyMenuImageButton)
         ImageButton addMealToDailyMenuImageButton;
+        @Bind(R.id.proteinsTextView)
+        TextView proteinsTextView;
+        @Bind(R.id.carbonsTextView)
+        TextView carbonsTextView;
+        @Bind(R.id.fatTextView)
+        TextView fatTextView;
 
         private final Bus bus;
         private final String mealType;
         private Meal meal;
 
-        public MealsToChooseViewHolder(View itemView, Bus bus, String mealType) {
+        MealsToChooseViewHolder(View itemView, Bus bus, String mealType) {
             super(itemView);
             this.bus = bus;
             this.mealType = mealType;
@@ -92,11 +98,14 @@ public class MealsToChooseAdapter extends RecyclerView.Adapter<MealsToChooseAdap
         public void setMeal(Meal meal) {
             this.meal = meal;
             mealToAddNameTextView.setText(meal.getName());
-            mealToAddCaloriesTextView.setText(String.valueOf(meal.getCumulativeNumberOfKcal()) + "kcal");
+            mealToAddCaloriesTextView.setText(String.format("%s kcal", meal.getCumulativeNumberOfKcal()));
+            proteinsTextView.setText(String.format("P: %s g", meal.getAmountOfProteins()));
+            carbonsTextView.setText(String.format("C: %s g", meal.getAmountOfCarbos()));
+            fatTextView.setText(String.format("F: %s g", meal.getAmountOfFat()));
         }
 
         @OnClick(R.id.addMealToDailyMenuImageButton)
-        public void onAddClicked() {
+        void onAddClicked() {
             bus.post(new AddMealToDailyMenuEvent(meal, mealType, currentDailyMenuId));
         }
 
@@ -107,7 +116,7 @@ public class MealsToChooseAdapter extends RecyclerView.Adapter<MealsToChooseAdap
         }
     }
 
-    public interface MealToChooseClickedListener {
+    interface MealToChooseClickedListener {
         void mealToChooseClicked(Meal meal);
     }
 }

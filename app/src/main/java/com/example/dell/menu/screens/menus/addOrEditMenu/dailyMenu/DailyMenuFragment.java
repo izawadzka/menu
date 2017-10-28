@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.InputType;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,10 +17,11 @@ import com.cunoraz.tagview.TagView;
 import com.example.dell.menu.App;
 import com.example.dell.menu.R;
 import com.example.dell.menu.colors.ColorsBase;
+import com.example.dell.menu.events.menus.DeleteDailyMenuClickedEvent;
 import com.example.dell.menu.objects.DailyMenu;
 import com.example.dell.menu.objects.Meal;
 import com.example.dell.menu.screens.meals.MealsFragment;
-import com.example.dell.menu.screens.meals.extendedMealInformation.FullMealInformationActivity;
+import com.example.dell.menu.screens.meals.addOrEdit.AddOrEditMealActivity;
 import com.example.dell.menu.screens.menus.addOrEditMenu.DailyMenusActivity;
 
 import java.util.ArrayList;
@@ -46,7 +46,6 @@ public class DailyMenuFragment extends Fragment {
     public static final String MEAL_TYPE_KEY = "mealType";
     public static final String DAILY_MENU_ID_KEY = "dailyMenuId";
     public static final int RESULT_OK = 0;
-    public static final int REQUEST_CODE_ADD = 1;
     public static final String EDIT_MODE_KEY = "edit_mode";
 
     @Bind(R.id.dateTextView)
@@ -63,12 +62,26 @@ public class DailyMenuFragment extends Fragment {
     TagView supperTags;
     @Bind(R.id.editDailyMenuButton)
     Button editDailyMenuButton;
-    @Bind(R.id.kcalLabelTextView)
-    TextView kcalLabelTextView;
     @Bind(R.id.kcalTextView)
     TextView kcalTextView;
     @Bind(R.id.deleteDailyMenuButton)
     Button deleteDailyMenuButton;
+    @Bind(R.id.proteinsTextView)
+    TextView proteinsTextView;
+    @Bind(R.id.carbonsTextView)
+    TextView carbonsTextView;
+    @Bind(R.id.fatTextView)
+    TextView fatTextView;
+    @Bind(R.id.amountOfServingsInBreakfastTextView)
+    TextView amountOfServingsInBreakfastTextView;
+    @Bind(R.id.amountOfServingsInLunchTextView)
+    TextView amountOfServingsInLunchTextView;
+    @Bind(R.id.amountOfServingsInDinnerTextView)
+    TextView amountOfServingsInDinnerTextView;
+    @Bind(R.id.amountOfServingsInTeatimeTextView)
+    TextView amountOfServingsInTeatimeTextView;
+    @Bind(R.id.amountOfServingsInSupperTextView)
+    TextView amountOfServingsInSupperTextView;
 
     private DailyMenu dailyMenu;
     public static final String DAILY_MENU_KEY = "dailyMenu";
@@ -88,6 +101,8 @@ public class DailyMenuFragment extends Fragment {
         ButterKnife.bind(this, view);
 
         dailyMenu = (DailyMenu) getArguments().getSerializable(DAILY_MENU_KEY);
+
+        ((App)getActivity().getApplication()).getBus().register(this);
 
         return view;
     }
@@ -122,34 +137,32 @@ public class DailyMenuFragment extends Fragment {
                 String authorsName;
                 Meal clickedMeal;
 
-                switch (mealType){
-                    case BREAKFAST_KEY: clickedMeal = dailyMenu.getBreakfast().elementAt(position);
+                switch (mealType) {
+                    case BREAKFAST_KEY:
+                        clickedMeal = dailyMenu.getBreakfast().elementAt(position);
                         break;
-                    case LUNCH_KEY: clickedMeal = dailyMenu.getLunch().elementAt(position);
+                    case LUNCH_KEY:
+                        clickedMeal = dailyMenu.getLunch().elementAt(position);
                         break;
-                    case DINNER_KEY: clickedMeal = dailyMenu.getDinner().elementAt(position);
+                    case DINNER_KEY:
+                        clickedMeal = dailyMenu.getDinner().elementAt(position);
                         break;
-                    case TEATIME_KEY: clickedMeal = dailyMenu.getTeatime().elementAt(position);
+                    case TEATIME_KEY:
+                        clickedMeal = dailyMenu.getTeatime().elementAt(position);
                         break;
-                    case SUPPER_KEY: clickedMeal = dailyMenu.getSupper().elementAt(position);
+                    case SUPPER_KEY:
+                        clickedMeal = dailyMenu.getSupper().elementAt(position);
                         break;
-                    default: clickedMeal = null;
+                    default:
+                        clickedMeal = null;
                 }
 
-                if(clickedMeal == null) Toast.makeText(getContext(),"Error. Enabled to show information about meal", Toast.LENGTH_SHORT).show();
-                else{
-                    if(clickedMeal.getAuthorsId() == 0){
-                        authorsName = "authomaticly_generated";
-                    }else{
-                        //authorsName = ((App)getActivity().getApplication()).getMealsFragmentManager().getAuthorsName(clickedMeal);
-                    }
-
-                    Intent intent = new Intent(getContext(), FullMealInformationActivity.class);
-                    intent.putExtra(MealsFragment.MEAL_NAME_KEY, clickedMeal.getName());
-                    intent.putExtra(MealsFragment.MEAL_NUMBER_OF_KCAL_KEY, String.format("%s",clickedMeal.getCumulativeNumberOfKcal()));
-                    //intent.putExtra(MealsFragment.MEALS_AUTHOR_NAME_KEY, authorsName);
-                    intent.putExtra(MealsFragment.MEALS_RECIPE_KEY, clickedMeal.getRecipe());
-                    intent.putExtra(MealsFragment.MEALS_ID_KEY, String.format("%s",clickedMeal.getMealsId()));
+                if (clickedMeal == null)
+                    Toast.makeText(getContext(), "Error. Enabled to show information about meal", Toast.LENGTH_SHORT).show();
+                else {
+                    Intent intent = new Intent(getActivity(), AddOrEditMealActivity.class);
+                    intent.putExtra(MealsFragment.SHOW_MODE_KEY, "true");
+                    intent.putExtra(MealsFragment.MEALS_ID_KEY, clickedMeal.getMealsId());
                     startActivityForResult(intent, MealsFragment.REQUEST_CODE_SHOW);
                 }
             }
@@ -164,7 +177,17 @@ public class DailyMenuFragment extends Fragment {
 
     private void getState() {
         dateTextView.setText(dailyMenu.getDate());
-        kcalTextView.setText(String.valueOf(dailyMenu.getCumulativeNumberOfKcal()) + "kcal");
+
+        kcalTextView.setText(String.format("%s kcal", dailyMenu.getCumulativeNumberOfKcal()));
+        proteinsTextView.setText(String.format("P: %s g", dailyMenu.getCumulativeAmountOfProteins()));
+        carbonsTextView.setText(String.format("C: %s g", dailyMenu.getCumulativeAmountOfCarbons()));
+        fatTextView.setText(String.format("F: %s g", dailyMenu.getCumulativeAmountOfFat()));
+
+        amountOfServingsInBreakfastTextView.setText(String.valueOf(dailyMenu.getAmountOfServingsInBreakfast()));
+        amountOfServingsInLunchTextView.setText(String.valueOf(dailyMenu.getAmountOfServingsInLunch()));
+        amountOfServingsInDinnerTextView.setText(String.valueOf(dailyMenu.getAmountOfServingsInDinner()));
+        amountOfServingsInTeatimeTextView.setText(String.valueOf(dailyMenu.getAmountOfServingsInTeatime()));
+        amountOfServingsInSupperTextView.setText(String.valueOf(dailyMenu.getAmountOfServingsInSupper()));
     }
 
     private void showDailyMenu() {
@@ -181,6 +204,8 @@ public class DailyMenuFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         ButterKnife.unbind(this);
+
+        ((App)getActivity().getApplication()).getBus().unregister(this);
     }
 
     @OnClick(R.id.editDailyMenuButton)
@@ -205,6 +230,6 @@ public class DailyMenuFragment extends Fragment {
 
     @OnClick(R.id.deleteDailyMenuButton)
     public void onDeleteClicked() {
-        ((DailyMenusActivity)getActivity()).deleteDailyMenu(dailyMenu.getDailyMenuId());
+        ((DailyMenusActivity) getActivity()).deleteDailyMenu(dailyMenu);
     }
 }

@@ -17,6 +17,9 @@ public class MenusTable {
     private final static String thirdColumnName = "creationDate";
     private final static String fourthColumnName = "cumulativeNumberOfKcal";
     private final static String fifthColumnName = "authorsId";
+    private final static String sixthColumnName = "cumulativeNumberOfProteins";
+    private final static String seventhColumnName = "cumulativeNumberOfCarbohydrates";
+    private final static String eighthColumnName = "cumulativeNumberOfFat";
 
     public static ContentValues getContentValues(Menu menu){
         ContentValues contentValues = new ContentValues();
@@ -49,5 +52,17 @@ public class MenusTable {
 
     public static String getFifthColumnName() {
         return fifthColumnName;
+    }
+
+    public static String getSixthColumnName() {
+        return sixthColumnName;
+    }
+
+    public static String getSeventhColumnName() {
+        return seventhColumnName;
+    }
+
+    public static String getEighthColumnName() {
+        return eighthColumnName;
     }
 }

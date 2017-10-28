@@ -15,6 +15,10 @@ public class DailyMenusTable {
     private final static String firstColumnName = "dailyMenuId";
     private final static String secondColumnName = "date";
     private final static String thirdColumnName = "cumulativeNumberOfKcal";
+    private final static String fourthColumnName = "cumulativeNumberOfProteins";
+    private final static String fifthColumnName = "cumulativeNumberOfCarbohydrates";
+    private final static String sixthColumnName = "cumulativeNumberOfFat";
+
 
     public static ContentValues getContentValues(String date, int cumulativeNumberOfKcal){
         ContentValues contentValues = new ContentValues();
@@ -23,15 +27,31 @@ public class DailyMenusTable {
         return contentValues;
     }
 
-
-    public static String create(){
-        String createCommand = String.format("create table %s(", tableName)
-                + String.format("%s INTEGER PRIMARY KEY, ", firstColumnName)
-                + String.format("%s DATE, %s INT); ", secondColumnName, thirdColumnName);
-
-        return createCommand;
+    public static ContentValues getContentValues(String date, int cumulativeNumberOfKcal,
+                                                 int cumulativeNumberOfProteins,
+                                                 int cumulativeNumberOfCarbohydrates,
+                                                 int cumulativeNumberOfFat){
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(secondColumnName, date);
+        contentValues.put(thirdColumnName, cumulativeNumberOfKcal);
+        contentValues.put(fourthColumnName, cumulativeNumberOfProteins);
+        contentValues.put(fifthColumnName, cumulativeNumberOfCarbohydrates);
+        contentValues.put(sixthColumnName, cumulativeNumberOfFat);
+        return contentValues;
     }
 
+
+    public static String getFourthColumnName() {
+        return fourthColumnName;
+    }
+
+    public static String getFifthColumnName() {
+        return fifthColumnName;
+    }
+
+    public static String getSixthColumnName() {
+        return sixthColumnName;
+    }
 
     public static String getTableName() {
         return tableName;

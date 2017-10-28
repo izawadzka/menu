@@ -3,10 +3,8 @@ package com.example.dell.menu.screens.menus.addOrEditMenu.dailyMenu;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.text.InputType;
 import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.ExtractedText;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -16,6 +14,7 @@ import android.widget.Toast;
 import com.cunoraz.tagview.Tag;
 import com.cunoraz.tagview.TagView;
 import com.example.dell.menu.App;
+import com.example.dell.menu.MealsType;
 import com.example.dell.menu.R;
 import com.example.dell.menu.colors.ColorsBase;
 import com.example.dell.menu.objects.DailyMenu;
@@ -69,10 +68,24 @@ public class CreateNewDailyMenuActivity extends AppCompatActivity {
     Button saveDailyMenuButton;
     @Bind(R.id.cancel_action)
     Button cancelAction;
-    @Bind(R.id.kcalLabelTextView)
-    TextView kcalLabelTextView;
     @Bind(R.id.kcalTextView)
     TextView kcalTextView;
+    @Bind(R.id.amountOfServingsInBreakfastEditText)
+    EditText amountOfServingsInBreakfastEditText;
+    @Bind(R.id.amountOfServingsInLunchEditText)
+    EditText amountOfServingsInLunchEditText;
+    @Bind(R.id.amountOfServingsInDinnerEditText)
+    EditText amountOfServingsInDinnerEditText;
+    @Bind(R.id.amountOfServingsInTeatimeEditText)
+    EditText amountOfServingsInTeatimeEditText;
+    @Bind(R.id.amountOfServingsInSupperEditText)
+    EditText amountOfServingsInSupperEditText;
+    @Bind(R.id.proteinsTextView)
+    TextView proteinsTextView;
+    @Bind(R.id.carbonsTextView)
+    TextView carbonsTextView;
+    @Bind(R.id.fatTextView)
+    TextView fatTextView;
 
 
     private CreateNewDailyMenuManager manager;
@@ -99,8 +112,8 @@ public class CreateNewDailyMenuActivity extends AppCompatActivity {
             currentDailyMenu = (DailyMenu) intent.getSerializableExtra(DailyMenuFragment.DAILY_MENU_KEY);
 
             if (currentDailyMenu != null) {
-                manager.setCurrentDailyMenu(currentDailyMenu);
-                manager.setCumulativeNumberOfKcal(currentDailyMenu.getCumulativeNumberOfKcal());
+                manager.setCurrentDailyMenuAndDetails(currentDailyMenu);
+                manager.setEditMode(editMode);
                 if (currentDailyMenu.getDailyMenuId() == -1) {
                     Log.e(getClass().getSimpleName(), "An error occurred while passing a daily menu");
                     finish();
@@ -112,20 +125,20 @@ public class CreateNewDailyMenuActivity extends AppCompatActivity {
     }
 
     private void setOnTagDeleteListeners() {
-        setOnTagDeleteListener(breakfastTags, BREAKFAST_KEY);
-        setOnTagDeleteListener(lunchTags, LUNCH_KEY);
-        setOnTagDeleteListener(dinnerTags, DINNER_KEY);
-        setOnTagDeleteListener(teatimeTags, TEATIME_KEY);
-        setOnTagDeleteListener(supperTags, SUPPER_KEY);
+        setOnTagDeleteListener(breakfastTags, MealsType.BREAKFAST_INDX);
+        setOnTagDeleteListener(lunchTags, MealsType.LUNCH_INDX);
+        setOnTagDeleteListener(dinnerTags, MealsType.DINNER_INDX);
+        setOnTagDeleteListener(teatimeTags, MealsType.TEATIME_INDX);
+        setOnTagDeleteListener(supperTags, MealsType.SUPPER_INDX);
     }
 
-    private void setOnTagDeleteListener(final TagView tagView, final String mealType) {
+    private void setOnTagDeleteListener(final TagView tagView, final int mealTypeIndx) {
         tagView.setOnTagDeleteListener(new TagView.OnTagDeleteListener() {
 
             @Override
             public void onTagDeleted(final TagView view, final Tag tag, final int position) {
                 view.remove(position);
-                manager.removeMeal(position, mealType);
+                manager.removeMeal(position, mealTypeIndx);
             }
         });
     }
@@ -139,11 +152,11 @@ public class CreateNewDailyMenuActivity extends AppCompatActivity {
         super.onStart();
         manager.onAttach(this);
 
-        if (manager.getCurrentDailyMenu() == null) manager.setCurrentDailyMenu(currentDailyMenu);
+        if (manager.getCurrentDailyMenu() == null) manager.setCurrentDailyMenuAndDetails(currentDailyMenu);
 
         getState();
 
-        if (editMode) setEditMode();
+        if (editMode) setTitle("Edit daily menu");
         else setCreateMode();
 
         setChosenMeals();
@@ -153,16 +166,6 @@ public class CreateNewDailyMenuActivity extends AppCompatActivity {
         manager.setEditMode(false);
     }
 
-    private void setEditMode() {
-        dateEditText.setText(currentDailyMenu.getDate());
-        saveDailyMenuButton.setText("save changes");
-        if (!manager.isEditMode()) {
-            manager.setEditMode(true);
-            manager.setDailyMenuMeals(currentDailyMenu);
-        }
-
-        setTitle("Edit daily menu");
-    }
 
     public void setChosenMeals() {
         setTags(breakfastTags, manager.getBreakfastMeals(), breakfastTagList);
@@ -192,16 +195,23 @@ public class CreateNewDailyMenuActivity extends AppCompatActivity {
     }
 
     private void setState() {
-        String date = dateEditText.getText().toString();
-        if (!date.equals("")){
-            manager.setDailyMenuDate(dateEditText.getText().toString());
-        }
+        manager.setDailyMenuDate(dateEditText.getText().toString());
+        manager.setAmountOfServingsInBreakfast(Integer.parseInt(amountOfServingsInBreakfastEditText
+                .getText().toString()));
+        manager.setAmountOfServingsInLunch(Integer.parseInt(amountOfServingsInLunchEditText
+                .getText().toString()));
+        manager.setAmountOfServingsInDinner(Integer.parseInt(amountOfServingsInDinnerEditText
+                .getText().toString()));
+        manager.setAmountOfServingsInTeatime(Integer.parseInt(amountOfServingsInTeatimeEditText
+                .getText().toString()));
 
+        manager.setAmountOfServingsInSupper(Integer.parseInt(amountOfServingsInSupperEditText
+                .getText().toString()));
     }
 
     private boolean isCorrectDate(String date) {
         Pattern pattern = Pattern.compile("\\d{4}-[0-1]\\d-[0-3]\\d");
-        if(pattern.matcher(date).matches()){
+        if (pattern.matcher(date).matches()) {
             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             try {
                 dateFormat.setLenient(false);
@@ -210,7 +220,7 @@ public class CreateNewDailyMenuActivity extends AppCompatActivity {
             } catch (ParseException e) {
                 return false;
             }
-        }else return false;
+        } else return false;
     }
 
     @OnClick({R.id.saveDailyMenuButton, R.id.cancel_action})
@@ -227,24 +237,27 @@ public class CreateNewDailyMenuActivity extends AppCompatActivity {
     }
 
     private void updateDailyMenu() {
-        if(validateUsersInput()) {
+        if (validateUsersInput()) {
             setState();
             manager.updateDailyMenu();
         }
     }
 
     private void cancel() {
-       finishWorkOfActivity();
+        finishWorkOfActivity();
     }
 
     private boolean validateUsersInput() {
         boolean hasErrors = false;
+
         if (manager.getBreakfastMeals().size() == 0 && manager.getLunchMeals().size() == 0
                 && manager.getDinnerMeals().size() == 0 && manager.getTeatimeMeals().size() == 0
                 && manager.getSupperMeals().size() == 0) {
             Toast.makeText(this, "Your menu can't be empty! Choose at least one meal", Toast.LENGTH_LONG).show();
             hasErrors = true;
-        } else if (dateEditText.length() == 0) {
+        }
+
+        if (dateEditText.length() == 0) {
             dateEditText.setError("You should type date");
             hasErrors = true;
         } else if (!isCorrectDate(dateEditText.getText().toString())) {
@@ -252,11 +265,46 @@ public class CreateNewDailyMenuActivity extends AppCompatActivity {
             hasErrors = true;
         }
 
+        if (Integer.parseInt(amountOfServingsInBreakfastEditText.getText().toString()) == 0
+                && manager.getBreakfastMeals().size() != 0) {
+            amountOfServingsInBreakfastEditText
+                    .setError("If you added meals, the typed amount mustn't be 0!");
+            hasErrors = true;
+        }
+
+        if (Integer.parseInt(amountOfServingsInLunchEditText.getText().toString()) == 0
+                && manager.getLunchMeals().size() != 0) {
+            amountOfServingsInLunchEditText
+                    .setError("If you added meals, the typed amount mustn't be 0!");
+            hasErrors = true;
+        }
+
+        if (Integer.parseInt(amountOfServingsInDinnerEditText.getText().toString()) == 0
+                && manager.getDinnerMeals().size() != 0) {
+            amountOfServingsInDinnerEditText
+                    .setError("If you added meals, the typed amount mustn't be 0!");
+            hasErrors = true;
+        }
+
+        if (Integer.parseInt(amountOfServingsInTeatimeEditText.getText().toString()) == 0
+                && manager.getTeatimeMeals().size() != 0) {
+            amountOfServingsInTeatimeEditText
+                    .setError("If you added meals, the typed amount mustn't be 0!");
+            hasErrors = true;
+        }
+
+        if (Integer.parseInt(amountOfServingsInSupperEditText.getText().toString()) == 0
+                && manager.getSupperMeals().size() != 0) {
+            amountOfServingsInSupperEditText
+                    .setError("If you added meals, the typed amount mustn't be 0!");
+            hasErrors = true;
+        }
+
         return !hasErrors;
     }
 
     private void save() {
-        if(validateUsersInput()){
+        if (validateUsersInput()) {
             setState();
             manager.saveDailyMenu();
         }
@@ -290,26 +338,29 @@ public class CreateNewDailyMenuActivity extends AppCompatActivity {
         startActivityForResult(intent, REQUEST_CODE_ADD);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CODE_ADD) {
-            // TODO: 05.06.2017
-        }
-    }
-
     public void getState() {
         if (manager.getDailyMenuDate() != null) {
             dateEditText.setText(manager.getDailyMenuDate());
         }
-        kcalTextView.setText(String.valueOf(manager.getCumulativeNumberOfKcal()) + "kcal");
+        setDetails();
+
+        amountOfServingsInBreakfastEditText.setText(String.format("%s", manager.getAmountOfServingsInBreakfast()));
+        amountOfServingsInLunchEditText.setText(String.format("%s", manager.getAmountOfServingsInLunch()));
+        amountOfServingsInDinnerEditText.setText(String.format("%s", manager.getAmountOfServingsInDinner()));
+        amountOfServingsInTeatimeEditText.setText(String.format("%s", manager.getAmountOfServingsInTeatime()));
+        amountOfServingsInSupperEditText.setText(String.format("%s", manager.getAmountOfServingsInSupper()));
 
         if (!editMode && manager.isEditMode()) editMode = true;
         if (currentDailyMenu == null) currentDailyMenu = manager.getCurrentDailyMenu();
     }
 
-    public void updateCalories(){
-        kcalTextView.setText(String.valueOf(manager.getCumulativeNumberOfKcal()) + "kcal");
+    void setDetails() {
+        kcalTextView.setText(String.format("%s kcal", manager.getCumulativeNumberOfKcal()));
+        proteinsTextView.setText(String.format("P: %s g", manager.getAmountOfProteins()));
+        carbonsTextView.setText(String.format("C: %s g", manager.getAmountOfCarbons()));
+        fatTextView.setText(String.format("F: %s g", manager.getAmountOfFat()));
     }
+
 
     public void saveFailed() {
         makeAStatement("Error while saving menu", Toast.LENGTH_SHORT);
@@ -331,8 +382,14 @@ public class CreateNewDailyMenuActivity extends AppCompatActivity {
         dateEditText.setText("");
         manager.setDailyMenuDate(null);
         manager.setEditMode(false);
-        manager.setCurrentDailyMenu(null);
+        manager.setCurrentDailyMenuAndDetails(null);
         manager.setCumulativeNumberOfKcal(0);
+
+        manager.setAmountOfServingsInBreakfast(1);
+        manager.setAmountOfServingsInLunch(1);
+        manager.setAmountOfServingsInDinner(1);
+        manager.setAmountOfServingsInTeatime(1);
+        manager.setAmountOfServingsInSupper(1);
         finish();
     }
 

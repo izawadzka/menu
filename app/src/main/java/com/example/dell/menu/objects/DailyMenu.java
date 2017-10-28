@@ -1,5 +1,7 @@
 package com.example.dell.menu.objects;
 
+import com.example.dell.menu.MealsType;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Vector;
@@ -9,15 +11,19 @@ import java.util.Vector;
  */
 
 public class DailyMenu implements Serializable{
-    public static final String BREAKFAST_KEY = "breakfast";
-    public static final String LUNCH_KEY = "lunch";
-    public static final String DINNER_KEY = "dinner";
-    public static final String TEATIME_KEY = "teatime";
-    public static final String SUPPER_KEY = "supper";
-
     private Long dailyMenuId;
     private String date;
+
     private int cumulativeNumberOfKcal = 0;
+    private int cumulativeAmountOfProteins;
+    private int cumulativeAmountOfCarbons;
+    private int cumulativeAmountOfFat;
+
+    private int amountOfServingsInBreakfast = 1;
+    private int amountOfServingsInLunch = 1;
+    private int amountOfServingsInDinner = 1;
+    private int amountOfServingsInTeatime = 1;
+    private int amountOfServingsInSupper = 1;
 
     private Vector<Meal> breakfast = new Vector<>();
     private Vector<Meal> lunch = new Vector<>();
@@ -48,6 +54,97 @@ public class DailyMenu implements Serializable{
         this.supper = supper;
     }
 
+    public void setAmountOfServings(int amount, int indxOfMeal){
+
+        switch (indxOfMeal){
+            case MealsType.BREAKFAST_INDX: amountOfServingsInBreakfast = amount;
+                break;
+            case MealsType.LUNCH_INDX: amountOfServingsInLunch = amount;
+                break;
+            case MealsType.DINNER_INDX: amountOfServingsInDinner = amount;
+                break;
+            case MealsType.TEATIME_INDX: amountOfServingsInTeatime = amount;
+                break;
+            case MealsType.SUPPER_INDX: amountOfServingsInSupper = amount;
+                break;
+        }
+    }
+
+    public int getAmountOfServings(int indxOfMeal){
+        switch (indxOfMeal){
+            case MealsType.BREAKFAST_INDX: return amountOfServingsInBreakfast;
+            case MealsType.LUNCH_INDX: return amountOfServingsInLunch;
+            case MealsType.DINNER_INDX: return amountOfServingsInDinner;
+            case MealsType.TEATIME_INDX: return amountOfServingsInTeatime;
+            case MealsType.SUPPER_INDX: return amountOfServingsInSupper;
+            default: return -1;
+        }
+    }
+
+    public int getCumulativeAmountOfProteins() {
+        return cumulativeAmountOfProteins;
+    }
+
+    public void setCumulativeAmountOfProteins(int cumulativeAmountOfProteins) {
+        this.cumulativeAmountOfProteins = cumulativeAmountOfProteins;
+    }
+
+    public int getCumulativeAmountOfCarbons() {
+        return cumulativeAmountOfCarbons;
+    }
+
+    public void setCumulativeAmountOfCarbons(int cumulativeAmountOfCarbons) {
+        this.cumulativeAmountOfCarbons = cumulativeAmountOfCarbons;
+    }
+
+    public int getCumulativeAmountOfFat() {
+        return cumulativeAmountOfFat;
+    }
+
+    public void setCumulativeAmountOfFat(int cumulativeAmountOfFat) {
+        this.cumulativeAmountOfFat = cumulativeAmountOfFat;
+    }
+
+    public int getAmountOfServingsInBreakfast() {
+        return amountOfServingsInBreakfast;
+    }
+
+    public void setAmountOfServingsInBreakfast(int amountOfServingsInBreakfast) {
+        this.amountOfServingsInBreakfast = amountOfServingsInBreakfast;
+    }
+
+    public int getAmountOfServingsInLunch() {
+        return amountOfServingsInLunch;
+    }
+
+    public void setAmountOfServingsInLunch(int amountOfServingsInLunch) {
+        this.amountOfServingsInLunch = amountOfServingsInLunch;
+    }
+
+    public int getAmountOfServingsInDinner() {
+        return amountOfServingsInDinner;
+    }
+
+    public void setAmountOfServingsInDinner(int amountOfServingsInDinner) {
+        this.amountOfServingsInDinner = amountOfServingsInDinner;
+    }
+
+    public int getAmountOfServingsInTeatime() {
+        return amountOfServingsInTeatime;
+    }
+
+    public void setAmountOfServingsInTeatime(int amountOfServingsInTeatime) {
+        this.amountOfServingsInTeatime = amountOfServingsInTeatime;
+    }
+
+    public int getAmountOfServingsInSupper() {
+        return amountOfServingsInSupper;
+    }
+
+    public void setAmountOfServingsInSupper(int amountOfServingsInSupper) {
+        this.amountOfServingsInSupper = amountOfServingsInSupper;
+    }
+
     public void setDailyMenuId(Long dailyMenuId) {
         this.dailyMenuId = dailyMenuId;
     }
@@ -61,18 +158,18 @@ public class DailyMenu implements Serializable{
     }
 
 
-    public void addMeal(Meal meal, String mealType){
-        switch (mealType){
-            case BREAKFAST_KEY: breakfast.add(meal);
-                                break;
-            case LUNCH_KEY: lunch.add(meal);
-                                break;
-            case DINNER_KEY: dinner.add(meal);
-                                break;
-            case TEATIME_KEY: teatime.add(meal);
-                                break;
-            case SUPPER_KEY: supper.add(meal);
-                                break;
+    public void addMeal(Meal meal, int mealTypeIndx){
+        switch (mealTypeIndx){
+            case MealsType.BREAKFAST_INDX: breakfast.add(meal);
+                break;
+            case MealsType.LUNCH_INDX: lunch.add(meal);
+                break;
+            case MealsType.DINNER_INDX: dinner.add(meal);
+                break;
+            case MealsType.TEATIME_INDX: teatime.add(meal);
+                break;
+            case MealsType.SUPPER_INDX: supper.add(meal);
+                break;
         }
     }
 

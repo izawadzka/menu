@@ -244,9 +244,9 @@ public class AddOrEditMealActivity extends AppCompatActivity {
     public void loadingMealSuccess(Meal meal, boolean[] result) {
         addedMealNameEditText.setText(meal.getName());
         addedMealNumbOfKcal.setText(String.valueOf(meal.getCumulativeNumberOfKcal()));
-        addedMealNumberOfProtein.setText(String.valueOf(meal.getAmountOfProteinsPer100g()));
-        addedMealAmountOfCarbos.setText(String.valueOf(meal.getAmountOfCarbosPer100g()));
-        addedMealAmountOfFat.setText(String.valueOf(meal.getAmountOfFatPer100g()));
+        addedMealNumberOfProtein.setText(String.valueOf(meal.getAmountOfProteins()));
+        addedMealAmountOfCarbos.setText(String.valueOf(meal.getAmountOfCarbos()));
+        addedMealAmountOfFat.setText(String.valueOf(meal.getAmountOfFat()));
         addedMealRecipeEditText.setText(meal.getRecipe());
 
 

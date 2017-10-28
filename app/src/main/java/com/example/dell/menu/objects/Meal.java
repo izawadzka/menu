@@ -13,9 +13,9 @@ public class Meal implements Serializable{
     private int authorsId;
     private String recipe;
     private String authorsName;
-    private int amountOfProteinsPer100g;
-    private int amountOfCarbosPer100g;
-    private int amountOfFatPer100g;
+    private int amountOfProteins;
+    private int amountOfCarbos;
+    private int amountOfFat;
 
     public Meal(int mealsId){
         this.mealsId = mealsId;
@@ -24,6 +24,7 @@ public class Meal implements Serializable{
         this.mealsId = mealsId;
         this.name = name;
     }
+
 
     public Meal(int mealsId, String name, int cumulativeNumberOfKcal,int authorsId, String recipe){
         this.mealsId = mealsId;
@@ -40,9 +41,9 @@ public class Meal implements Serializable{
         this.cumulativeNumberOfKcal = cumulativeNumberOfKcal;
         this.authorsId = authorsId;
         this.recipe = recipe;
-        this.amountOfProteinsPer100g = amountOfProteins;
-        this.amountOfCarbosPer100g = amountOfCarbons;
-        this.amountOfFatPer100g = amountOfFat;
+        this.amountOfProteins = amountOfProteins;
+        this.amountOfCarbos = amountOfCarbons;
+        this.amountOfFat = amountOfFat;
     }
 
     public Meal(String name){
@@ -53,9 +54,9 @@ public class Meal implements Serializable{
         this.mealsId = mealsId;
         this.name = name;
         this.cumulativeNumberOfKcal = amountOfKCal;
-        this.amountOfProteinsPer100g = amountOfProteins;
-        this.amountOfCarbosPer100g = amountOfCarbons;
-        this.amountOfFatPer100g = amountOfFat;
+        this.amountOfProteins = amountOfProteins;
+        this.amountOfCarbos = amountOfCarbons;
+        this.amountOfFat = amountOfFat;
     }
 
     public Meal(String mealsName, int amountOfKcal, int authorsId, String mealsRecipe, int amountOfProteins, int amountOfCarbons, int amountOfFat) {
@@ -63,9 +64,9 @@ public class Meal implements Serializable{
         this.cumulativeNumberOfKcal = amountOfKcal;
         this.authorsId = authorsId;
         this.recipe = mealsRecipe;
-        this.amountOfProteinsPer100g = amountOfProteins;
-        this.amountOfCarbosPer100g = amountOfCarbons;
-        this.amountOfFatPer100g = amountOfFat;
+        this.amountOfProteins = amountOfProteins;
+        this.amountOfCarbos = amountOfCarbons;
+        this.amountOfFat = amountOfFat;
     }
 
     public void setName(String name) {
@@ -112,15 +113,15 @@ public class Meal implements Serializable{
         return name;
     }
 
-    public int getAmountOfProteinsPer100g() {
-        return amountOfProteinsPer100g;
+    public int getAmountOfProteins() {
+        return amountOfProteins;
     }
 
-    public int getAmountOfCarbosPer100g() {
-        return amountOfCarbosPer100g;
+    public int getAmountOfCarbos() {
+        return amountOfCarbos;
     }
 
-    public int getAmountOfFatPer100g() {
-        return amountOfFatPer100g;
+    public int getAmountOfFat() {
+        return amountOfFat;
     }
 }

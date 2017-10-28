@@ -66,7 +66,9 @@
     <ImageButton
         android:id="@+id/updateProductImageButton"
         android:layout_centerVertical="true"
+        android:contentDescription="@string/update_product"
         android:layout_toLeftOf="@+id/deleteMealImageButton"
+        android:layout_toStartOf="@+id/deleteMealImageButton"
         android:layout_marginRight="@dimen/right_padding_for_buttons"
         android:layout_marginEnd="@dimen/right_padding_for_buttons"
         android:src="@drawable/ic_edit"
@@ -75,6 +77,7 @@
 
     <ImageButton
         android:id="@+id/deleteMealImageButton"
+        android:contentDescription="@string/delete_meal"
         android:layout_centerVertical="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"

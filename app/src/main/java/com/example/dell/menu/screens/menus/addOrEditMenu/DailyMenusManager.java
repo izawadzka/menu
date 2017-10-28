@@ -4,22 +4,22 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.widget.Toast;
 
+import com.example.dell.menu.MealsType;
 import com.example.dell.menu.MenuDataBase;
 import com.example.dell.menu.events.menus.AddNewDailyMenuEvent;
 import com.example.dell.menu.events.menus.DailyMenuHasChangedEvent;
+import com.example.dell.menu.events.menus.DeleteDailyMenuClickedEvent;
 import com.example.dell.menu.objects.DailyMenu;
 import com.example.dell.menu.objects.Meal;
 import com.example.dell.menu.tables.DailyMenusTable;
 import com.example.dell.menu.tables.MealsTable;
+import com.example.dell.menu.tables.MealsTypesDailyMenusAmountOfPeopleTable;
+import com.example.dell.menu.tables.MealsTypesMealsDailyMenusTable;
 import com.example.dell.menu.tables.MenusDailyMenusTable;
 import com.example.dell.menu.tables.MenusTable;
-import com.example.dell.menu.tables.mealTypes.BreakfastTable;
-import com.example.dell.menu.tables.mealTypes.DinnerTable;
-import com.example.dell.menu.tables.mealTypes.LunchTable;
-import com.example.dell.menu.tables.mealTypes.SupperTable;
-import com.example.dell.menu.tables.mealTypes.TeatimeTable;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -34,6 +34,7 @@ import java.util.List;
  */
 
 public class DailyMenusManager {
+    private static final String TAG = "DailyMenusManager";
     private final Bus bus;
     private DailyMenusActivity dailyMenusActivity;
 
@@ -42,12 +43,11 @@ public class DailyMenusManager {
 
     private static final int RESULT_OK = 1;
     private static final int RESULT_NO_DATA_DOWNLOADED = 0;
-    private static final int RESULT_ERROR = -1;
-    private DailyMenu dailyMenuToAddOrEdit;
+    private DailyMenu currentDailyMenu;
     private boolean waitingToAddNewDailyMenu = false;
     private boolean waitingToEditDailyMenu = false;
-    private boolean waitingToDeleteDailyMenu = false;
-    private long dailyMenuToDeleteId = -1;
+    private boolean edit_mode = false;
+    private boolean delete_mode = false;
 
     public DailyMenusManager(Bus bus) {
         this.bus = bus;
@@ -62,506 +62,585 @@ public class DailyMenusManager {
         this.dailyMenusActivity = null;
     }
 
-    public void loadDailyMenus() {
+    void loadDailyMenus() {
+        if(dailyMenusActivity != null) {
             listOfDailyMenus.clear();
-            new LoadListOfDailyMenus().execute();
+
+            new AsyncTask<Void, Void, Integer>() {
+                @Override
+                protected Integer doInBackground(Void... params) {
+                    int result;
+                    MenuDataBase menuDataBase = MenuDataBase.getInstance(dailyMenusActivity);
+                    String query = String.format("SELECT dailyMenuId FROM MenusDailyMenus WHERE menuId = '%s';", menuId);
+                    Cursor cursor = menuDataBase.downloadData(query);
+                    if (cursor.getCount() > 0) {
+                        cursor.moveToPosition(-1);
+                        while (cursor.moveToNext()) {
+                            listOfDailyMenus.add(new DailyMenu(cursor.getLong(0)));
+                        }
+                        result = RESULT_OK;
+                    } else {
+                        result = RESULT_NO_DATA_DOWNLOADED;
+                    }
+                    menuDataBase.close();
+
+                    return result;
+                }
+
+                @Override
+                protected void onPostExecute(Integer result) {
+                    if (result == RESULT_OK) {
+                        loadDailyMenusDetails();
+                    } else {
+                        if (dailyMenusActivity != null) {
+                            dailyMenusActivity.makeAStatement("Seems like current menu doesn't " +
+                                    "contain any daily menu as yet", Toast.LENGTH_LONG);
+                            dailyMenusActivity.setAdapter();
+                        }
+                    }
+                }
+            }.execute();
+        }
     }
 
     @Subscribe
     public void onAddNewDailyMenu(AddNewDailyMenuEvent event) {
-            dailyMenuToAddOrEdit = event.dailyMenu;
-            waitingToAddNewDailyMenu = true;
+            currentDailyMenu = event.dailyMenu;
+            waitingToAddNewDailyMenu = true;        //waiting for DailyMenuActivity to start,
+                                                    // need context to open database
     }
+
 
     @Subscribe
     public void onDailyMenuHasChanged(DailyMenuHasChangedEvent event){
-        dailyMenuToAddOrEdit = event.dailyMenu;
+        currentDailyMenu = event.dailyMenu;
         waitingToEditDailyMenu = true;
+        edit_mode = true;
     }
 
-    public boolean isWaitingToAddNewDailyMenu() {
+    boolean isWaitingToAddNewDailyMenu() {
         return waitingToAddNewDailyMenu;
     }
 
-    public boolean isWaitingToEditDailyMenu() {
+    boolean isWaitingToEditDailyMenu() {
         return waitingToEditDailyMenu;
     }
 
-    @Nullable
-    private DailyMenu findDailyMenu(long dailyMenuId) {
-        for (DailyMenu dailyMenu : listOfDailyMenus) {
-            if(dailyMenu.getDailyMenuId() == dailyMenuId) return dailyMenu;
+    public void deleteDailyMenu(DailyMenu dailyMenu) {
+        delete_mode = true;
+        currentDailyMenu = dailyMenu;
+
+        if(dailyMenusActivity != null){
+            new AsyncTask<Void, Void, Boolean>(){
+                @Override
+                protected Boolean doInBackground(Void... params) {
+                    MenuDataBase menuDataBase = MenuDataBase.getInstance(dailyMenusActivity);
+                    String[] dailyMenusId = {String.valueOf(currentDailyMenu.getDailyMenuId())};
+                    boolean result;
+
+                    result = menuDataBase.delete(MenusDailyMenusTable.getTableName(),
+                            String.format("%s = ?", MenusDailyMenusTable.getSecondColumnName()),
+                            dailyMenusId) != 0;
+
+
+                    if(result) result = menuDataBase.delete(DailyMenusTable.getTableName(),
+                            String.format("%s = ?", DailyMenusTable.getFirstColumnName()),
+                            dailyMenusId) != 0;
+
+                    menuDataBase.close();
+                    return result;
+                }
+
+                @Override
+                protected void onPostExecute(Boolean result){
+                    if(dailyMenusActivity != null){
+                        if(result){
+                           deleteAmountOfServings();
+                        }else dailyMenusActivity.dailyMenuDeleteFailed();
+                    }
+                }
+            }.execute();
         }
-        return null;
     }
 
-    public void addNewDailyMenu() {
+
+    void addNewDailyMenu() {
         if(dailyMenusActivity != null) {
             waitingToAddNewDailyMenu = false;
-            new CreateNewDailyMenuInDatabase().execute(dailyMenuToAddOrEdit);
+
+            new AsyncTask<Void, Void, Boolean>(){
+
+                @Override
+                protected Boolean doInBackground(Void... params) {
+                    MenuDataBase menuDataBase = MenuDataBase.getInstance(dailyMenusActivity);
+                    boolean result;
+
+                    long dailyMenuId = menuDataBase.insert(DailyMenusTable.getTableName(),
+                            DailyMenusTable.getContentValues(currentDailyMenu.getDate(),
+                                    currentDailyMenu.getCumulativeNumberOfKcal(),
+                                    currentDailyMenu.getCumulativeAmountOfProteins(),
+                                    currentDailyMenu.getCumulativeAmountOfCarbons(),
+                                    currentDailyMenu.getCumulativeAmountOfFat())); //add new daily menu into DailyMenusTable
+
+                    if(dailyMenuId != -1){
+                        currentDailyMenu.setDailyMenuId(dailyMenuId);
+                        //add new daily menu and current menu into MenusDailyMenusTable
+                        result = menuDataBase.insert(MenusDailyMenusTable.getTableName(),
+                                MenusDailyMenusTable.getContentValues(menuId, dailyMenuId)) != -1;
+                    } else result = false;
+
+                    menuDataBase.close();
+                    return result;
+                }
+
+
+                @Override
+                protected void onPostExecute(Boolean result) {
+                    if(result){
+                        addDailyMenuMeals();
+                    }
+                }
+            }.execute();
         }
     }
 
-    public void updateDailyMenu() {
+    private void addDailyMenuMeals(){
         if(dailyMenusActivity != null){
-            new UpdateDailyMenu().execute(dailyMenuToAddOrEdit);
+            new AsyncTask<Void, Void, Boolean>(){
+
+                @Override
+                protected Boolean doInBackground(Void... params) {
+                    MenuDataBase menuDataBase = MenuDataBase.getInstance(dailyMenusActivity);
+
+                    for (Meal meal : currentDailyMenu.getBreakfast()) {
+                        if(menuDataBase.insert(MealsTypesMealsDailyMenusTable.getTableName(),
+                                MealsTypesMealsDailyMenusTable.getContentValues(MealsType.BREAKFAST_INDX,
+                                        meal.getMealsId(), currentDailyMenu.getDailyMenuId())) == -1){
+                            menuDataBase.close();
+                            return false;
+                        }
+                    }
+
+                    for (Meal meal : currentDailyMenu.getLunch()) {
+                        if(menuDataBase.insert(MealsTypesMealsDailyMenusTable.getTableName(),
+                                MealsTypesMealsDailyMenusTable.getContentValues(MealsType.LUNCH_INDX,
+                                        meal.getMealsId(), currentDailyMenu.getDailyMenuId())) == -1){
+                            menuDataBase.close();
+                            return false;
+                        }
+                    }
+
+
+                    for (Meal meal : currentDailyMenu.getDinner()) {
+                        if(menuDataBase.insert(MealsTypesMealsDailyMenusTable.getTableName(),
+                                MealsTypesMealsDailyMenusTable.getContentValues(MealsType.DINNER_INDX,
+                                        meal.getMealsId(), currentDailyMenu.getDailyMenuId())) == -1){
+                            menuDataBase.close();
+                            return false;
+                        }
+                    }
+
+                    for (Meal meal : currentDailyMenu.getTeatime()) {
+                        if(menuDataBase.insert(MealsTypesMealsDailyMenusTable.getTableName(),
+                                MealsTypesMealsDailyMenusTable.getContentValues(MealsType.TEATIME_INDX,
+                                        meal.getMealsId(), currentDailyMenu.getDailyMenuId())) == -1){
+                            menuDataBase.close();
+                            return false;
+                        }
+                    }
+
+                    for (Meal meal : currentDailyMenu.getSupper()) {
+                        if(menuDataBase.insert(MealsTypesMealsDailyMenusTable.getTableName(),
+                                MealsTypesMealsDailyMenusTable.getContentValues(MealsType.SUPPER_INDX,
+                                        meal.getMealsId(), currentDailyMenu.getDailyMenuId())) == -1){
+                            menuDataBase.close();
+                            return false;
+                        }
+                    }
+                    menuDataBase.close();
+                    return true;
+                }
+
+                @Override
+                protected void onPostExecute(Boolean result) {
+                    if(result) {
+                        if(edit_mode){
+                            loadDailyMenus();
+                            updateMenuCumulativeNumberOfKcalProteinsCarbonsAndFat();
+                        }
+                        else addAmountOfServings();
+                    }else{
+                        if(dailyMenusActivity != null && edit_mode)
+                            dailyMenusActivity.makeAStatement("An error occurred while trying to update meals", Toast.LENGTH_LONG);
+                    }
+                    edit_mode = false;
+                }
+            }.execute();
         }
     }
 
-    public void deleteDailyMenu(long dailyMenuId) {
+    void updateDailyMenu() {
+        if(dailyMenusActivity != null){
+            new AsyncTask<Void, Void, Boolean>(){
+                @Override
+                protected Boolean doInBackground(Void... params) {
+                    boolean result;
+
+                    MenuDataBase menuDataBase = MenuDataBase.getInstance(dailyMenusActivity);
+
+                    ContentValues editContentValues = new ContentValues();
+                    editContentValues.put(DailyMenusTable.getSecondColumnName(), currentDailyMenu.getDate());
+                    editContentValues.put(DailyMenusTable.getThirdColumnName(), currentDailyMenu.getCumulativeNumberOfKcal());
+                    editContentValues.put(DailyMenusTable.getFourthColumnName(), currentDailyMenu.getCumulativeAmountOfProteins());
+                    editContentValues.put(DailyMenusTable.getFifthColumnName(), currentDailyMenu.getCumulativeAmountOfCarbons());
+                    editContentValues.put(DailyMenusTable.getSixthColumnName(), currentDailyMenu.getCumulativeAmountOfFat());
+
+                    String[] dailyMenusId = {String.valueOf(currentDailyMenu.getDailyMenuId())};
+                    String whereClause = String.format("%s = ?", DailyMenusTable.getFirstColumnName());
+                    result = menuDataBase.update(DailyMenusTable.getTableName(), editContentValues, whereClause, dailyMenusId) != -1;
+                    menuDataBase.close();
+                    return result;
+                }
+
+                @Override
+                protected void onPostExecute(Boolean result) {
+                    waitingToEditDailyMenu = false;
+                    if(result){
+                        if(dailyMenusActivity != null) dailyMenusActivity.makeAStatement("Daily menu details successfully changed", Toast.LENGTH_SHORT);
+                        updateAmountsOfServings();
+                    }else{
+                        if(dailyMenusActivity != null) dailyMenusActivity.makeAStatement("An error occurred while trying to update daily menu", Toast.LENGTH_SHORT);
+                    }
+                }
+            }.execute();
+        }
+    }
+
+    private void updateAmountsOfServings() {
+        if(dailyMenusActivity != null){
+            new AsyncTask<Void, Void, Boolean>(){
+
+                @Override
+                protected Boolean doInBackground(Void... params) {
+                    boolean result = false;
+                    MenuDataBase menuDataBase = MenuDataBase.getInstance(dailyMenusActivity);
+
+                    String whereClause = String.format("%s = ? AND %s = ?",
+                            MealsTypesDailyMenusAmountOfPeopleTable.getSecondColumnName(),
+                            MealsTypesDailyMenusAmountOfPeopleTable.getFirstColumnName());
+
+                    for (int type : MealsType.arrayOfTypes) {
+                        String[] args = {String.valueOf(currentDailyMenu.getDailyMenuId()),
+                        String.valueOf(type)};
+
+                        int amount = currentDailyMenu.getAmountOfServings(type);
+                        if(amount != -1) {
+                            ContentValues editContentValues = new ContentValues();
+                            editContentValues.put(MealsTypesDailyMenusAmountOfPeopleTable.getThirdColumnName(),
+                                    amount);
+
+                            result = menuDataBase
+                                    .update(MealsTypesDailyMenusAmountOfPeopleTable.getTableName(),
+                                            editContentValues, whereClause, args) != -1;
+                            if(!result) break;
+                        }else{
+                            result = false;
+                            break;
+                        }
+                    }
+
+
+
+                    menuDataBase.close();
+                    return result;
+                }
+
+                @Override
+                protected void onPostExecute(Boolean result) {
+                    if(result) deleteDailyMenuMeals();
+                    else if(dailyMenusActivity != null){
+                        dailyMenusActivity.makeAStatement("An error occurred while an attempt to" +
+                                " update some details about daily menu", Toast.LENGTH_LONG);
+                    }
+                }
+            }.execute();
+        }
+    }
+
+    private void deleteAmountOfServings(){
+
         if(dailyMenusActivity != null) {
-            dailyMenuToDeleteId = dailyMenuId;
-            waitingToDeleteDailyMenu = true;
-            new DeleteDailyMenuMeals().execute(dailyMenuId);
-        }
-    }
+            new AsyncTask<Void, Void, Boolean>() {
 
-    class DeleteDailyMenu extends AsyncTask<Long, Void, Boolean>{
-
-        @Override
-        protected Boolean doInBackground(Long... params) {
-            MenuDataBase menuDataBase = MenuDataBase.getInstance(dailyMenusActivity);
-            String[] dailyMenusId = {String.valueOf(params[0])};
-            boolean result;
-            try {
-                menuDataBase.delete(MenusDailyMenusTable.getTableName(), String.format("%s = ?", MenusDailyMenusTable.getSecondColumnName()), dailyMenusId);
-                result = true;
-            }catch (Exception e){
-                dailyMenusActivity.makeAStatement(e.getLocalizedMessage(), Toast.LENGTH_LONG);
-                result = false;
-            }
-
-            if(result){
-                try {
-                    menuDataBase.delete(DailyMenusTable.getTableName(), String.format("%s = ?", DailyMenusTable.getFirstColumnName()), dailyMenusId);
-                    result = true;
-                }catch (Exception e){
-                    dailyMenusActivity.makeAStatement(e.getLocalizedMessage(), Toast.LENGTH_LONG);
-                    result = false;
-                }
-            }
-            menuDataBase.close();
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean result){
-            if(dailyMenusActivity != null){
-                if(result){
-                    dailyMenusActivity.dailyMenuDeleteSuccess();
-                    updateMenuCumulativeNumberOfKcal();
-                }else dailyMenusActivity.dailyMenuDeleteFailed();
-            }
-        }
-    }
-
-    class UpdateDailyMenu extends AsyncTask<DailyMenu, Void, Boolean>{
-
-        @Override
-        protected Boolean doInBackground(DailyMenu... params) {
-            boolean result;
-            if(dailyMenusActivity != null){
-                MenuDataBase menuDataBase = MenuDataBase.getInstance(dailyMenusActivity);
-
-                ContentValues editContentValues = new ContentValues();
-                editContentValues.put(DailyMenusTable.getSecondColumnName(), params[0].getDate());
-                editContentValues.put(DailyMenusTable.getThirdColumnName(), params[0].getCumulativeNumberOfKcal());
-                String[] dailyMenusId = {String.valueOf(params[0].getDailyMenuId())};
-                String whereClause = String.format("%s = ?", DailyMenusTable.getFirstColumnName());
-                if(menuDataBase.update(DailyMenusTable.getTableName(), editContentValues, whereClause, dailyMenusId) != -1) result = true;
-                else  result = false;
-                menuDataBase.close();
-                return result;
-            }else return false;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean result) {
-            if(result){
-                if(dailyMenusActivity != null) dailyMenusActivity.makeAStatement("Daily menu date successfully changed", Toast.LENGTH_SHORT);
-                    deleteDailyMenuMeals(dailyMenuToAddOrEdit.getDailyMenuId());
-            }else{
-                waitingToEditDailyMenu = false;
-                if(dailyMenusActivity != null) dailyMenusActivity.makeAStatement("An error occurred while trying to update daily menu", Toast.LENGTH_SHORT);
-            }
-        }
-    }
-
-    private void deleteDailyMenuMeals(long dailyMenuId) {
-        if(dailyMenusActivity != null) new DeleteDailyMenuMeals().execute(dailyMenuId);
-    }
-
-    class DeleteDailyMenuMeals extends AsyncTask<Long, Void, Boolean>{
-
-        @Override
-        protected Boolean doInBackground(Long... params) {
-            MenuDataBase menuDataBase = MenuDataBase.getInstance(dailyMenusActivity);
-            String[] dailyMenusId = {String.valueOf(params[0])};
-
-            //breakfast
-            try {
-                menuDataBase.delete(BreakfastTable.getTableName(),
-                        String.format("%s = ?", BreakfastTable.getFirstColumnName()), dailyMenusId);
-            }catch (Exception e){
-                dailyMenusActivity.makeAStatement(e.getLocalizedMessage(), Toast.LENGTH_LONG);
-                menuDataBase.close();
-                return false;
-            }
-
-
-            //lunch
-            try {
-                menuDataBase.delete(LunchTable.getTableName(),
-                        String.format("%s = ?", LunchTable.getFirstColumnName()), dailyMenusId);
-            }catch (Exception e){
-                dailyMenusActivity.makeAStatement(e.getLocalizedMessage(), Toast.LENGTH_LONG);
-                menuDataBase.close();
-                return false;
-            }
-
-            //dinner
-            try {
-                menuDataBase.delete(DinnerTable.getTableName(),
-                        String.format("%s = ?", DinnerTable.getFirstColumnName()), dailyMenusId);
-            }catch (Exception e){
-                dailyMenusActivity.makeAStatement(e.getLocalizedMessage(), Toast.LENGTH_LONG);
-                menuDataBase.close();
-                return false;
-            }
-
-            //teatime
-            try {
-                menuDataBase.delete(TeatimeTable.getTableName(),
-                        String.format("%s = ?", TeatimeTable.getFirstColumnName()), dailyMenusId);
-            }catch (Exception e){
-                dailyMenusActivity.makeAStatement(e.getLocalizedMessage(), Toast.LENGTH_LONG);
-                menuDataBase.close();
-                return false;
-            }
-
-            //supper
-            try {
-                menuDataBase.delete(SupperTable.getTableName(),
-                        String.format("%s = ?", SupperTable.getFirstColumnName()), dailyMenusId);
-            }catch (Exception e){
-                dailyMenusActivity.makeAStatement(e.getLocalizedMessage(), Toast.LENGTH_LONG);
-                menuDataBase.close();
-                return false;
-            }
-
-            menuDataBase.close();
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean result) {
-            //onPost in case of updating dailyMenu
-            if (waitingToEditDailyMenu) {
-                if(result){
-                    addDailyMenuMeals(dailyMenuToAddOrEdit);
-                }else waitingToEditDailyMenu = false;
-            }else if(waitingToDeleteDailyMenu){
-                waitingToDeleteDailyMenu = false;
-                if(result) {
-                    new DeleteDailyMenu().execute(dailyMenuToDeleteId);
-                }else{
-                    dailyMenusActivity.makeAStatement("An error occurred while trying to delete a daily menu", Toast.LENGTH_LONG);
-                }
-            }
-        }
-    }
-
-    private void addDailyMenuMeals(DailyMenu dailyMenuToAddOrEdit) {
-        if(dailyMenusActivity != null) new AddDailyMenuMeals().execute(dailyMenuToAddOrEdit);
-    }
-
-    class AddDailyMenuMeals extends AsyncTask<DailyMenu, Void, Boolean>{
-
-        @Override
-        protected Boolean doInBackground(DailyMenu... params) {
-            MenuDataBase menuDataBase = MenuDataBase.getInstance(dailyMenusActivity);
-
-
-            for (Meal meal : params[0].getBreakfast()) {
-                if(menuDataBase.insert(BreakfastTable.getTableName(), BreakfastTable.getContentValues(params[0].getDailyMenuId(), meal.getMealsId())) == -1){
+                @Override
+                protected Boolean doInBackground(Void... params) {
+                    MenuDataBase menuDataBase = MenuDataBase.getInstance(dailyMenusActivity);
+                    String[] dailyMenusId = {String.valueOf(currentDailyMenu.getDailyMenuId())};
+                    boolean result;
+                    result = menuDataBase
+                            .delete(MealsTypesDailyMenusAmountOfPeopleTable.getTableName(),
+                            String.format("%s = ?", MealsTypesDailyMenusAmountOfPeopleTable.getSecondColumnName()),
+                            dailyMenusId) != 0;
                     menuDataBase.close();
-                    return false;
+                    return result;
                 }
-            }
 
-            for (Meal meal : params[0].getLunch()) {
-                if(menuDataBase.insert(LunchTable.getTableName(), LunchTable.getContentValues(params[0].getDailyMenuId(), meal.getMealsId())) == -1){
-                    menuDataBase.close();
-                    return false;
-                }
-            }
-
-            for (Meal meal : params[0].getDinner()) {
-                if(menuDataBase.insert(DinnerTable.getTableName(), DinnerTable.getContentValues(params[0].getDailyMenuId(), meal.getMealsId())) == -1){
-                    menuDataBase.close();
-                    return false;
-                }
-            }
-
-            for (Meal meal : params[0].getTeatime()) {
-                if(menuDataBase.insert(TeatimeTable.getTableName(), TeatimeTable.getContentValues(params[0].getDailyMenuId(), meal.getMealsId())) == -1){
-                    menuDataBase.close();
-                    return false;
-                }
-            }
-
-            for (Meal meal : params[0].getSupper()) {
-                if(menuDataBase.insert(SupperTable.getTableName(), SupperTable.getContentValues(params[0].getDailyMenuId(), meal.getMealsId())) == -1){
-                    menuDataBase.close();
-                    return false;
-                }
-            }
-
-            menuDataBase.close();
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean result) {
-            if(waitingToEditDailyMenu){
-                waitingToEditDailyMenu = false;
-                if(result){
-                    updateMenuCumulativeNumberOfKcal();
-                    loadDailyMenus();
-                }else{
-                    if(dailyMenusActivity != null){
-                        dailyMenusActivity.makeAStatement("An error occurred while trying to update meals", Toast.LENGTH_LONG);
+                @Override
+                protected void onPostExecute(Boolean result) {
+                    if (result) deleteDailyMenuMeals();
+                    else if(dailyMenusActivity != null) {
+                        if (edit_mode)
+                            dailyMenusActivity.makeAStatement("An error occurred while an attempt to" +
+                                    "update amounts of servings", Toast.LENGTH_LONG);
+                        else if(delete_mode) dailyMenusActivity.makeAStatement("An error occurred " +
+                                "while an attempt to delete amount of servings", Toast.LENGTH_LONG);
                     }
                 }
-            }
+            }.execute();
         }
     }
 
-    private void updateMenuCumulativeNumberOfKcal() {
+    private void deleteDailyMenuMeals() {
         if(dailyMenusActivity != null){
-            new UpdateMenuCumulativeNumberOfKcal().execute();
-        }
-    }
+            new AsyncTask<Void, Void, Boolean>() {
+                @Override
+                protected Boolean doInBackground(Void... params) {
+                    MenuDataBase menuDataBase = MenuDataBase.getInstance(dailyMenusActivity);
+                    String[] dailyMenusId = {String.valueOf(currentDailyMenu.getDailyMenuId())};
+                    boolean result;
+                    result = menuDataBase.delete(MealsTypesMealsDailyMenusTable.getTableName(),
+                            String.format("%s = ?", MealsTypesMealsDailyMenusTable.getThirdColumnName()),
+                            dailyMenusId) != 0;
 
-    class UpdateMenuCumulativeNumberOfKcal extends AsyncTask<Void, Void, Boolean>{
+                    menuDataBase.close();
+                    return result;
+                }
 
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            int sum = 0;
-            boolean result;
-            MenuDataBase menuDataBase = MenuDataBase.getInstance(dailyMenusActivity);
-            String[] mealsTypes = {"Breakfast", "Lunch", "Dinner", "Teatime", "Supper"};
-            for (String mealsType : mealsTypes) {
-                String query = String.format("SELECT SUM(cumulativeNumberOfKcal) FROM Meals WHERE mealsId IN (SELECT mealId FROM %s WHERE dailyMenuId IN (SELECT dailyMenuId FROM MenusDailyMenus WHERE\n" +
-                        "menuId = '%s'));", mealsType, menuId);
-                Cursor cursor = menuDataBase.downloadData(query);
-                if(cursor.getCount() > 0){
-                    cursor.moveToPosition(-1);
-                    while (cursor.moveToNext()){
-                        sum += cursor.getInt(0);
+                @Override
+                protected void onPostExecute(Boolean result) {
+                    //onPost in case of updating dailyMenu
+                    if(edit_mode){
+                        if(result) addDailyMenuMeals();
+                        else if(dailyMenusActivity != null){
+                            dailyMenusActivity.makeAStatement("An error occurred while an attempt " +
+                                    "to update some details about daily menu", Toast.LENGTH_LONG);
+                        }
+                    }else if(delete_mode){
+                        if(result){
+                            updateMenuCumulativeNumberOfKcalProteinsCarbonsAndFat();
+                            delete_mode = false;
+                            if(dailyMenusActivity != null) dailyMenusActivity.dailyMenuDeleteSuccess();
+                        }
+                        else if(dailyMenusActivity != null)
+                            dailyMenusActivity.makeAStatement("An error occurred while trying to " +
+                                "delete a daily menu", Toast.LENGTH_LONG);
+
                     }
                 }
-            }
-
-            ContentValues editContentValues = new ContentValues();
-            editContentValues.put(MenusTable.getFourthColumnName(), sum);
-            String[] menusId = {String.valueOf(menuId)};
-            String whereClause = String.format("%s = ?", MenusTable.getFirstColumnName());
-            if(menuDataBase.update(MenusTable.getTableName(), editContentValues, whereClause, menusId) != -1) result = true;
-            else  result = false;
-            menuDataBase.close();
-
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean result) {
-            if(dailyMenusActivity != null){
-                if(result) dailyMenusActivity.makeAStatement("Successfully updated menus cumulative number of kcal", Toast.LENGTH_LONG);
-                else dailyMenusActivity.makeAStatement("An error occurred while an attempt to update menus cumulative number of kcal", Toast.LENGTH_LONG);
-            }
+            }.execute();
         }
     }
 
+    private void addAmountOfServings() {
+        if(dailyMenusActivity != null){
+            new AsyncTask<Void, Void, Boolean>(){
 
-    class CreateNewDailyMenuInDatabase extends AsyncTask<DailyMenu, Void, Boolean>{
+                @Override
+                protected Boolean doInBackground(Void... params) {
+                    MenuDataBase menuDataBase = MenuDataBase.getInstance(dailyMenusActivity);
 
-        private MenuDataBase menuDataBase;
+                    int[] amountsOfService = {currentDailyMenu.getAmountOfServingsInBreakfast(),
+                    currentDailyMenu.getAmountOfServingsInLunch(),
+                    currentDailyMenu.getAmountOfServingsInDinner(),
+                    currentDailyMenu.getAmountOfServingsInTeatime(),
+                    currentDailyMenu.getAmountOfServingsInSupper()};
 
-        @Override
-        protected Boolean doInBackground(DailyMenu... params) {
-            menuDataBase = MenuDataBase.getInstance(dailyMenusActivity);
+                    int[] sizeOfMels = {currentDailyMenu.getBreakfast().size(),
+                    currentDailyMenu.getLunch().size(),
+                    currentDailyMenu.getDinner().size(),
+                    currentDailyMenu.getTeatime().size(),
+                    currentDailyMenu.getSupper().size()};
 
-            long dailyMenuId = menuDataBase.insert(DailyMenusTable.getTableName(),
-                    DailyMenusTable.getContentValues(params[0].getDate(), params[0].getCumulativeNumberOfKcal())); //add new daily menu into DailyMenusTable
-
-            if(dailyMenuId != -1){
-                //add new daily menu and current menu into MenusDailyMenusTable
-                if( menuDataBase.insert(MenusDailyMenusTable.getTableName(),
-                        MenusDailyMenusTable.getContentValues((long)menuId, dailyMenuId)) == -1){
-                    menuDataBase.close();
-                    return false;
-                }
-                if(!addDailyMenuMeals(dailyMenuId, params[0])){
-                    return false;
-                }
-            }else{
-                menuDataBase.close();
-                return false;
-            }
-
-            menuDataBase.close();
-            dailyMenuToAddOrEdit.setDailyMenuId(dailyMenuId);
-            return true;
-        }
-
-        public boolean addDailyMenuMeals(long dailyMenuId, DailyMenu dailyMenu) {
-            for (Meal meal : dailyMenu.getBreakfast()) {
-                if(menuDataBase.insert(BreakfastTable.getTableName(), BreakfastTable.getContentValues(dailyMenuId, meal.getMealsId())) == -1){
-                    menuDataBase.close();
-                    return false;
-                }
-            }
-
-            for (Meal meal : dailyMenu.getLunch()) {
-                if(menuDataBase.insert(LunchTable.getTableName(), LunchTable.getContentValues(dailyMenuId, meal.getMealsId())) == -1){
-                    menuDataBase.close();
-                    return false;
-                }
-            }
-
-            for (Meal meal : dailyMenu.getDinner()) {
-                if(menuDataBase.insert(DinnerTable.getTableName(), DinnerTable.getContentValues(dailyMenuId, meal.getMealsId())) == -1){
-                    menuDataBase.close();
-                    return false;
-                }
-            }
-
-            for (Meal meal : dailyMenu.getTeatime()) {
-                if(menuDataBase.insert(TeatimeTable.getTableName(), TeatimeTable.getContentValues(dailyMenuId, meal.getMealsId())) == -1){
-                    menuDataBase.close();
-                    return false;
-                }
-            }
-
-            for (Meal meal : dailyMenu.getSupper()) {
-                if(menuDataBase.insert(SupperTable.getTableName(), SupperTable.getContentValues(dailyMenuId, meal.getMealsId())) == -1){
-                    menuDataBase.close();
-                    return false;
-                }
-            }
-            menuDataBase.close();
-            return true;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean result) {
-            if(result){
-                listOfDailyMenus.add(dailyMenuToAddOrEdit);
-                updateMenuCumulativeNumberOfKcal();
-                if(dailyMenusActivity != null){
-                    dailyMenusActivity.setAdapter();
-                }
-            }
-        }
-    }
+                    int[] index = {MealsType.BREAKFAST_INDX, MealsType.LUNCH_INDX,
+                            MealsType.DINNER_INDX,MealsType.TEATIME_INDX, MealsType.SUPPER_INDX};
 
 
-
-
-    class LoadListOfDailyMenus extends AsyncTask<Void, Void, Integer>{
-
-        @Override
-        protected Integer doInBackground(Void... params) {
-            int result;
-            if(dailyMenusActivity != null){
-                MenuDataBase menuDataBase = MenuDataBase.getInstance(dailyMenusActivity);
-                String query = String.format("SELECT dailyMenuId FROM MenusDailyMenus WHERE menuId = '%s';",menuId);
-                Cursor cursor = menuDataBase.downloadData(query);
-                if(cursor.getCount() > 0){
-                    cursor.moveToPosition(-1);
-                    while (cursor.moveToNext()){
-                        listOfDailyMenus.add(new DailyMenu(cursor.getLong(0)));
+                    for (int i = 0; i < MealsType.AMOUNT_OF_TYPES; i++) {
+                        if(amountsOfService[i] != 0 && sizeOfMels[i] > 0){
+                            if(menuDataBase.insert(MealsTypesDailyMenusAmountOfPeopleTable.getTableName(),
+                                    MealsTypesDailyMenusAmountOfPeopleTable
+                                            .getContentValues(index[i],
+                                                    currentDailyMenu.getDailyMenuId(),
+                                                    amountsOfService[i])) == -1){
+                                menuDataBase.close();
+                                return false;
+                            }
+                        }
                     }
-                    result = RESULT_OK;
-                }else{
-                    result = RESULT_NO_DATA_DOWNLOADED;
+
+                    menuDataBase.close();
+                    return true;
                 }
-                menuDataBase.close();
-            }else result = RESULT_ERROR;
 
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(Integer result) {
-            if(result == RESULT_OK){
-                loadDailyMenusDatesAndCalories();
-            }else {
-                if (dailyMenusActivity != null) {
-                    if (result == RESULT_ERROR) {
-                        dailyMenusActivity.makeAStatement("An error occurred while trying to download dailyMenus", Toast.LENGTH_SHORT);
-                    } else if (result == RESULT_NO_DATA_DOWNLOADED) {
-                        dailyMenusActivity.makeAStatement("Seems like current menu doesn't contain any daily menu as yet", Toast.LENGTH_LONG);
+                @Override
+                protected void onPostExecute(Boolean result) {
+                    if(result){
+                        updateMenuCumulativeNumberOfKcalProteinsCarbonsAndFat();
+                        loadDailyMenus();
+                    }else{
+                        if(dailyMenusActivity != null)
+                            dailyMenusActivity.makeAStatement("An error occurred while an attempt to " +
+                                    "insert amount of serving", Toast.LENGTH_LONG);
                     }
                 }
-            }
+            }.execute();
+        }
+    }
+
+    private void updateMenuCumulativeNumberOfKcalProteinsCarbonsAndFat() {
+        if(dailyMenusActivity != null){
+
+            new AsyncTask<Void, Void, Boolean>(){
+
+                @Override
+                protected Boolean doInBackground(Void... params) {
+                    boolean result;
+                    MenuDataBase menuDataBase = MenuDataBase.getInstance(dailyMenusActivity);
+                    /*
+                    int sum = 0;
+                    String[] mealsTypes = {"Breakfast", "Lunch", "Dinner", "Teatime", "Supper"};
+                    for (String mealsType : mealsTypes) {
+                        String query = String.format("SELECT SUM(cumulativeNumberOfKcal) FROM Meals WHERE mealsId IN (SELECT mealId FROM %s WHERE dailyMenuId IN (SELECT dailyMenuId FROM MenusDailyMenus WHERE\n" +
+                                "menuId = '%s'));", mealsType, menuId);
+                        Cursor cursor = menuDataBase.downloadData(query);
+                        if(cursor.getCount() > 0){
+                            cursor.moveToPosition(-1);
+                            while (cursor.moveToNext()){
+                                sum += cursor.getInt(0);
+                            }
+                        }
+                    }*/
+
+                    String query = String.format("SELECT SUM(%s), SUM(%s), SUM(%s), SUM(%s) FROM %s WHERE %s IN " +
+                            "(SELECT %s FROM %s WHERE %s = '%s')", DailyMenusTable.getThirdColumnName(),
+                            DailyMenusTable.getFourthColumnName(), DailyMenusTable.getFifthColumnName(),
+                            DailyMenusTable.getSixthColumnName(),
+                            DailyMenusTable.getTableName(), DailyMenusTable.getFirstColumnName(),
+                            MenusDailyMenusTable.getSecondColumnName(), MenusDailyMenusTable.getTableName(),
+                            MenusDailyMenusTable.getFirstColumnName(), menuId);
+
+                    Cursor cursor = menuDataBase.downloadData(query);
+                    if(cursor.getCount() > 0){
+                        cursor.moveToPosition(0);
+                        ContentValues editContentValues = new ContentValues();
+                        editContentValues.put(MenusTable.getFourthColumnName(), cursor.getInt(0));
+                        editContentValues.put(MenusTable.getSixthColumnName(), cursor.getInt(1));
+                        editContentValues.put(MenusTable.getSeventhColumnName(), cursor.getInt(2));
+                        editContentValues.put(MenusTable.getEighthColumnName(), cursor.getInt(3));
+                        String[] menusId = {String.valueOf(menuId)};
+                        String whereClause = String.format("%s = ?", MenusTable.getFirstColumnName());
+                        result = menuDataBase.update(MenusTable.getTableName(), editContentValues, whereClause, menusId) != -1;
+                        menuDataBase.close();
+                    }else result = false;
+
+
+
+                    return result;
+                }
+
+                @Override
+                protected void onPostExecute(Boolean result) {
+                    if(dailyMenusActivity != null){
+                        if(result) dailyMenusActivity.makeAStatement("Successfully updated menus cumulative number of kcal", Toast.LENGTH_LONG);
+                        else dailyMenusActivity.makeAStatement("An error occurred while an attempt to update menus cumulative number of kcal", Toast.LENGTH_LONG);
+                    }
+                }
+            }.execute();
         }
     }
 
 
-    private void loadDailyMenusDatesAndCalories() {
-        new LoadDailyMenusDatesAndCalories().execute();
+
+    private void loadDailyMenusDetails() {
+
+        if(dailyMenusActivity != null){
+            new AsyncTask<Void, Void, Boolean>(){
+                @Override
+                protected Boolean doInBackground(Void... params) {
+
+                    MenuDataBase menuDataBase = MenuDataBase.getInstance(dailyMenusActivity);
+
+                    for (int i = 0; i < listOfDailyMenus.size(); i++) {
+                        String query =  String.format("SELECT %s, %s, %s, %s, %s FROM %s " +
+                                "WHERE %s = '%s';",
+                                DailyMenusTable.getSecondColumnName(),
+                                DailyMenusTable.getThirdColumnName(),
+                                DailyMenusTable.getFourthColumnName(),
+                                DailyMenusTable.getFifthColumnName(),
+                                DailyMenusTable.getSixthColumnName(),
+                                DailyMenusTable.getTableName(),
+                                DailyMenusTable.getFirstColumnName(),
+                                listOfDailyMenus.get(i).getDailyMenuId());
+
+                        Cursor cursor = menuDataBase.downloadData(query);
+                        if(cursor.getCount() > 0){
+                            cursor.moveToPosition(-1);
+                            while(cursor.moveToNext()){
+                                listOfDailyMenus.get(i).setDailyMenuDate(cursor.getString(0));
+                                listOfDailyMenus.get(i).setCumulativeNumberOfKcal(cursor.getInt(1));
+                                listOfDailyMenus.get(i).setCumulativeAmountOfProteins(cursor.getInt(2));
+                                listOfDailyMenus.get(i).setCumulativeAmountOfCarbons(cursor.getInt(3));
+                                listOfDailyMenus.get(i).setCumulativeAmountOfFat(cursor.getInt(4));
+                            }
+                        }else{
+                            menuDataBase.close();
+                            return false;
+                        }
+
+                        String amountQuery = String.format("SELECT %s, %s FROM %s WHERE %s = '%s'",
+                                MealsTypesDailyMenusAmountOfPeopleTable.getFirstColumnName(),
+                                MealsTypesDailyMenusAmountOfPeopleTable.getThirdColumnName(),
+                                MealsTypesDailyMenusAmountOfPeopleTable.getTableName(),
+                                MealsTypesDailyMenusAmountOfPeopleTable.getSecondColumnName(),
+                                listOfDailyMenus.get(i).getDailyMenuId());
+
+                        Cursor amountCursor = menuDataBase.downloadData(amountQuery);
+                        if(amountCursor.getCount() > 0){
+                            amountCursor.moveToPosition(-1);
+                            while (amountCursor.moveToNext()){
+                                listOfDailyMenus.get(i).setAmountOfServings(amountCursor.getInt(1),
+                                        amountCursor.getInt(0));
+                            }
+                        }else{
+                            menuDataBase.close();
+                            return false;
+                        }
+                    }
+                    menuDataBase.close();
+                    return true;
+                }
+
+                @Override
+                protected void onPostExecute(Boolean result) {
+                    if(dailyMenusActivity != null){
+                        if(result){
+                            sortDailyMenusByDate();
+                            loadDailyMenusMeals();
+                        }else{
+                            dailyMenusActivity.makeAStatement("An error occurred while an attempt to download daily menus",
+                                    Toast.LENGTH_SHORT);
+                            dailyMenusActivity.makeAStatement("Impossible to display daily menus", Toast.LENGTH_LONG);
+                        }
+                    }
+                }
+            }.execute();
+        }
     }
 
     public void setMenuId(long menuId) {
         this.menuId = menuId;
     }
 
-    class LoadDailyMenusDatesAndCalories extends AsyncTask<Void, Void, Boolean>{
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            boolean result;
-            if(dailyMenusActivity != null) {
-                MenuDataBase menuDataBase = MenuDataBase.getInstance(dailyMenusActivity);
-
-                for (int i = 0; i < listOfDailyMenus.size(); i++) {
-                    String query =  String.format("SELECT date, cumulativeNumberOfKcal FROM DailyMenus WHERE dailyMenuId = '%s';",
-                            listOfDailyMenus.get(i).getDailyMenuId());
-                    Cursor cursor = menuDataBase.downloadData(query);
-                    if(cursor.getCount() > 0){
-                        cursor.moveToPosition(-1);
-                        while(cursor.moveToNext()){
-                            listOfDailyMenus.get(i).setDailyMenuDate(cursor.getString(0));
-                            listOfDailyMenus.get(i).setCumulativeNumberOfKcal(cursor.getInt(1));
-                        }
-                    }else{
-                        menuDataBase.close();
-                        return false;
-                    }
-                }
-                result = true;
-                menuDataBase.close();
-            }else result = false;
-
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean result) {
-            if(dailyMenusActivity != null){
-                if(result){
-                    sortDailyMenusByDate();
-                    loadDailyMenusMeals();
-                }else{
-                    dailyMenusActivity.makeAStatement("An error occurred while an attempt to download daily menus",
-                            Toast.LENGTH_SHORT);
-                    dailyMenusActivity.makeAStatement("Impossible to display daily menus", Toast.LENGTH_LONG);
-                }
-            }
-        }
-    }
 
     private void sortDailyMenusByDate() {
         Collections.sort(listOfDailyMenus, new Comparator<DailyMenu>() {
@@ -573,115 +652,77 @@ public class DailyMenusManager {
     }
 
     private void loadDailyMenusMeals() {
-        new LoadDailyMenusMeals().execute();
-    }
 
-    class LoadDailyMenusMeals extends AsyncTask<Void, Void, Boolean>{
+        if(dailyMenusActivity != null){
+            new AsyncTask<Void, Void, Boolean>(){
 
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            if(dailyMenusActivity != null){
-                MenuDataBase menuDataBase = MenuDataBase.getInstance(dailyMenusActivity);
+                @Override
+                protected Boolean doInBackground(Void... params) {
+                    MenuDataBase menuDataBase = MenuDataBase.getInstance(dailyMenusActivity);
+                    for (DailyMenu dailyMenu : listOfDailyMenus) {
+                        dailyMenu.clearVectors();
 
-                for (DailyMenu dailyMenu : listOfDailyMenus) {
-                    dailyMenu.clearVectors();   //remove previously loaded meals
+                        //load types of meals and id of those meals (that belongs to current daily
+                        //menu
+                        String query = String.format("SELECT %s, %s FROM %s WHERE %s = '%s'",
+                                MealsTypesMealsDailyMenusTable.getFirstColumnName(),
+                                MealsTypesMealsDailyMenusTable.getSecondColumnName(),
+                                MealsTypesMealsDailyMenusTable.getTableName(),
+                                MealsTypesMealsDailyMenusTable.getThirdColumnName(),
+                                dailyMenu.getDailyMenuId());
 
+                        Cursor cursor = menuDataBase.downloadData(query);
+                        if(cursor.getCount() > 0){
+                            cursor.moveToPosition(-1);
+                            while (cursor.moveToNext()){
+                                //load name of current meal
+                                String mealQuery = String.format("SELECT %s FROM %s WHERE %s = '%s'",
+                                        MealsTable.getSecondColumnName(), MealsTable.getTableName(),
+                                        MealsTable.getFirstColumnName(), cursor.getInt(1));
 
-                    //breakfast
-                    String breakfastQuery = String.format("SELECT mealId, name, cumulativeNumberOfKcal, authorsId, recipe FROM %s bf JOIN  %s me ON bf.%s = me.%s WHERE bf.%s = '%s';",
-                            BreakfastTable.getTableName(), MealsTable.getTableName(),
-                            BreakfastTable.getSecondColumnName(), MealsTable.getFirstColumnName(),
-                            BreakfastTable.getFirstColumnName(), dailyMenu.getDailyMenuId());
-                    Cursor breakfastCursor = menuDataBase.downloadData(breakfastQuery);
-                    if(breakfastCursor.getCount() > 0){
-                        breakfastCursor.moveToPosition(-1);
-                        while (breakfastCursor.moveToNext()){
-                            dailyMenu.addMeal(new Meal(breakfastCursor.getInt(0),breakfastCursor.getString(1),
-                                    breakfastCursor.getInt(2), breakfastCursor.getInt(3),
-                                    breakfastCursor.getString(4)), DailyMenu.BREAKFAST_KEY);
+                                Cursor mealCursor = menuDataBase.downloadData(mealQuery);
+                                if(mealCursor.getCount() == 1){
+                                    mealCursor.moveToPosition(0);
+                                    dailyMenu.addMeal(new Meal(cursor.getInt(1),
+                                            mealCursor.getString(0)), cursor.getInt(0));
+                                }else{
+                                    Log.e(TAG, "Loading meals failed");
+                                    menuDataBase.close();
+                                    return false;
+                                }
+                            }
+                        }else {
+                            menuDataBase.close();
+                            Log.e(TAG, "Something went wrong");
+                            return false;
                         }
                     }
 
-                    //lunch
-                    String lunchQuery = String.format("SELECT mealId, name, cumulativeNumberOfKcal, authorsId, recipe FROM %s bf JOIN  %s me ON bf.%s = me.%s WHERE bf.%s = '%s';",
-                            LunchTable.getTableName(), MealsTable.getTableName(),
-                            LunchTable.getSecondColumnName(), MealsTable.getFirstColumnName(),
-                            LunchTable.getFirstColumnName(), dailyMenu.getDailyMenuId());
-                    Cursor lunchCursor = menuDataBase.downloadData(lunchQuery);
-                    if(lunchCursor.getCount() > 0){
-                        lunchCursor.moveToPosition(-1);
-                        while (lunchCursor.moveToNext()){
-                            dailyMenu.addMeal(new Meal(lunchCursor.getInt(0),lunchCursor.getString(1),
-                                    lunchCursor.getInt(2), lunchCursor.getInt(3),
-                                    lunchCursor.getString(4)), DailyMenu.LUNCH_KEY);
-                        }
-                    }
-
-                    //lunch
-                    String dinnerQuery = String.format("SELECT mealId, name, cumulativeNumberOfKcal, authorsId, recipe FROM %s bf JOIN  %s me ON bf.%s = me.%s WHERE bf.%s = '%s';",
-                            DinnerTable.getTableName(), MealsTable.getTableName(),
-                            DinnerTable.getSecondColumnName(), MealsTable.getFirstColumnName(),
-                            DinnerTable.getFirstColumnName(), dailyMenu.getDailyMenuId());
-                    Cursor dinnerCursor = menuDataBase.downloadData(dinnerQuery);
-                    if(dinnerCursor.getCount() > 0){
-                        dinnerCursor.moveToPosition(-1);
-                        while (dinnerCursor.moveToNext()){
-                            dailyMenu.addMeal(new Meal(dinnerCursor.getInt(0),dinnerCursor.getString(1),
-                                    dinnerCursor.getInt(2), dinnerCursor.getInt(3),
-                                    dinnerCursor.getString(4)), DailyMenu.DINNER_KEY);
-                        }
-                    }
+                    menuDataBase.close();
+                    return true;
+                }
 
 
-                    //teatime
-                    String teatimeQuery = String.format("SELECT mealId, name, cumulativeNumberOfKcal, authorsId, recipe FROM %s bf JOIN  %s me ON bf.%s = me.%s WHERE bf.%s = '%s';",
-                            TeatimeTable.getTableName(), MealsTable.getTableName(),
-                            TeatimeTable.getSecondColumnName(), MealsTable.getFirstColumnName(),
-                            TeatimeTable.getFirstColumnName(), dailyMenu.getDailyMenuId());
-                    Cursor teatimeCursor = menuDataBase.downloadData(teatimeQuery);
-                    if(teatimeCursor.getCount() > 0){
-                        teatimeCursor.moveToPosition(-1);
-                        while (teatimeCursor.moveToNext()){
-                            dailyMenu.addMeal(new Meal(teatimeCursor.getInt(0),teatimeCursor.getString(1),
-                                    teatimeCursor.getInt(2), teatimeCursor.getInt(3),
-                                    teatimeCursor.getString(4)), DailyMenu.TEATIME_KEY);
-                        }
-                    }
-
-                    //supper
-                    String supperQuery = String.format("SELECT mealId, name, cumulativeNumberOfKcal, authorsId, recipe FROM %s bf JOIN  %s me ON bf.%s = me.%s WHERE bf.%s = '%s';",
-                            SupperTable.getTableName(), MealsTable.getTableName(),
-                            SupperTable.getSecondColumnName(), MealsTable.getFirstColumnName(),
-                            SupperTable.getFirstColumnName(), dailyMenu.getDailyMenuId());
-                    Cursor supperCursor = menuDataBase.downloadData(supperQuery);
-                    if(supperCursor.getCount() > 0){
-                        supperCursor.moveToPosition(-1);
-                        while (supperCursor.moveToNext()){
-                            dailyMenu.addMeal(new Meal(supperCursor.getInt(0),supperCursor.getString(1),
-                                    supperCursor.getInt(2), supperCursor.getInt(3),
-                                    supperCursor.getString(4)), DailyMenu.SUPPER_KEY);
+                @Override
+                protected void onPostExecute(Boolean result) {
+                    if(dailyMenusActivity != null){
+                        if(result){
+                            dailyMenusActivity.setAdapter();
+                        }else{
+                            dailyMenusActivity.downloadingDailyMenusFailed();
                         }
                     }
                 }
-                menuDataBase.close();
-                return true;
-            }else return false;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean result) {
-            if(dailyMenusActivity != null){
-                if(result){
-                    dailyMenusActivity.setAdapter();
-                }else{
-                    dailyMenusActivity.downloadingDailyMenusFailed();
-                }
-            }
+            }.execute();
         }
     }
 
 
-    public List<DailyMenu> getDailyMenus() {
+
+
+    List<DailyMenu> getDailyMenus() {
         return listOfDailyMenus;
     }
+
+
 }

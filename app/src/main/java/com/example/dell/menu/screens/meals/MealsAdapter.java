@@ -98,9 +98,9 @@ public class MealsAdapter extends RecyclerView.Adapter<MealsAdapter.MealsViewHol
             this.meal = meal;
             mealNameTextView.setText(meal.getName());
             caloriesTextView.setText(String.format("%s kcal", meal.getCumulativeNumberOfKcal()));
-            proteinsTextView.setText(String.format("P: %s g", meal.getAmountOfProteinsPer100g()));
-            carbonsTextView.setText(String.format("C: %s g", meal.getAmountOfCarbosPer100g()));
-            fatTextView.setText(String.format("F: %s g", meal.getAmountOfFatPer100g()));
+            proteinsTextView.setText(String.format("P: %s g", meal.getAmountOfProteins()));
+            carbonsTextView.setText(String.format("C: %s g", meal.getAmountOfCarbos()));
+            fatTextView.setText(String.format("F: %s g", meal.getAmountOfFat()));
         }
 
         @OnClick(R.id.deleteMealImageButton)

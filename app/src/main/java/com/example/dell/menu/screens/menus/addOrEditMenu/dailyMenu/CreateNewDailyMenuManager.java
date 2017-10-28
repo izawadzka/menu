@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.example.dell.menu.MealsType;
 import com.example.dell.menu.MenuDataBase;
 import com.example.dell.menu.events.menus.AddMealToDailyMenuEvent;
 import com.example.dell.menu.events.menus.AddNewDailyMenuEvent;
@@ -36,6 +37,14 @@ public class CreateNewDailyMenuManager {
     private boolean editMode;
     private int cumulativeNumberOfKcal;
     private DailyMenu currentDailyMenu;
+    private int amountOfServingsInBreakfast = 1;
+    private int amountOfServingsInLunch = 1;
+    private int amountOfServingsInDinner = 1;
+    private int amountOfServingsInTeatime = 1;
+    private int amountOfServingsInSupper = 1;
+    private int amountOfProteins;
+    private int amountOfCarbons;
+    private int amountOfFat;
 
 
     public void setCumulativeNumberOfKcal(int cumulativeNumberOfKcal) {
@@ -43,19 +52,35 @@ public class CreateNewDailyMenuManager {
     }
 
 
-    public DailyMenu getCurrentDailyMenu() {
+    DailyMenu getCurrentDailyMenu() {
         return currentDailyMenu;
     }
 
-    public void setCurrentDailyMenu(DailyMenu currentDailyMenu) {
+    void setCurrentDailyMenuAndDetails(DailyMenu currentDailyMenu) {
         this.currentDailyMenu = currentDailyMenu;
+        if(currentDailyMenu != null){
+            dailyMenuDate = currentDailyMenu.getDate();
+
+            cumulativeNumberOfKcal = currentDailyMenu.getCumulativeNumberOfKcal();
+            amountOfProteins = currentDailyMenu.getCumulativeAmountOfProteins();
+            amountOfCarbons = currentDailyMenu.getCumulativeAmountOfCarbons();
+            amountOfFat = currentDailyMenu.getCumulativeAmountOfFat();
+
+            amountOfServingsInBreakfast = currentDailyMenu.getAmountOfServingsInBreakfast();
+            amountOfServingsInLunch = currentDailyMenu.getAmountOfServingsInLunch();
+            amountOfServingsInDinner = currentDailyMenu.getAmountOfServingsInDinner();
+            amountOfServingsInTeatime = currentDailyMenu.getAmountOfServingsInTeatime();
+            amountOfServingsInSupper = currentDailyMenu.getAmountOfServingsInSupper();
+
+            setDailyMenuMeals();
+        }
     }
 
-    public String getDailyMenuDate() {
+    String getDailyMenuDate() {
         return dailyMenuDate;
     }
 
-    public void setDailyMenuDate(String dailyMenuDate) {
+    void setDailyMenuDate(String dailyMenuDate) {
         this.dailyMenuDate = dailyMenuDate;
     }
 
@@ -72,7 +97,7 @@ public class CreateNewDailyMenuManager {
         this.createNewDailyMenuActivity = null;
     }
 
-    public void clearVectorsOfMeals() {
+    void clearVectorsOfMeals() {
         breakfastMeals.clear();
         lunchMeals.clear();
         dinnerMeals.clear();
@@ -80,23 +105,23 @@ public class CreateNewDailyMenuManager {
         supperMeals.clear();
     }
 
-    public Vector<Meal> getBreakfastMeals() {
+    Vector<Meal> getBreakfastMeals() {
         return breakfastMeals;
     }
 
-    public Vector<Meal> getLunchMeals() {
+    Vector<Meal> getLunchMeals() {
         return lunchMeals;
     }
 
-    public Vector<Meal> getDinnerMeals() {
+    Vector<Meal> getDinnerMeals() {
         return dinnerMeals;
     }
 
-    public Vector<Meal> getTeatimeMeals() {
+    Vector<Meal> getTeatimeMeals() {
         return teatimeMeals;
     }
 
-    public Vector<Meal> getSupperMeals() {
+    Vector<Meal> getSupperMeals() {
         return supperMeals;
     }
 
@@ -104,6 +129,10 @@ public class CreateNewDailyMenuManager {
     @Subscribe
     public void onAddClicked(AddMealToDailyMenuEvent event) {
         cumulativeNumberOfKcal += event.meal.getCumulativeNumberOfKcal();
+        amountOfProteins += event.meal.getAmountOfProteins();
+        amountOfCarbons += event.meal.getAmountOfCarbos();
+        amountOfFat += event.meal.getAmountOfFat();
+
         switch (event.mealType) {
             case CreateNewDailyMenuActivity.BREAKFAST_KEY:
                 addMeal(breakfastMeals, event.meal);
@@ -140,20 +169,19 @@ public class CreateNewDailyMenuManager {
         return false;
     }
 
-    public void saveDailyMenu() {
+    void saveDailyMenu() {
         try {
             DailyMenu dailyMenu = addMealsAndDateToNewDailyMenu();
-            Log.d("save", String.valueOf(dailyMenu.getCumulativeNumberOfKcal()));
-            createNewDailyMenuActivity.saveSuccess();
 
             bus.post(new AddNewDailyMenuEvent(dailyMenu));
+            if(createNewDailyMenuActivity != null) createNewDailyMenuActivity.saveSuccess();
         }catch (Exception e){
             Log.d(createNewDailyMenuActivity.getPackageName(), e.getLocalizedMessage());
             createNewDailyMenuActivity.saveFailed();
         }
     }
 
-    public void updateDailyMenu() {
+    void updateDailyMenu() {
         try {
             DailyMenu dailyMenu = addMealsAndDateToNewDailyMenu();
             dailyMenu.setDailyMenuId(currentDailyMenu.getDailyMenuId());
@@ -168,18 +196,28 @@ public class CreateNewDailyMenuManager {
     @NonNull
     private DailyMenu addMealsAndDateToNewDailyMenu() {
         DailyMenu dailyMenu = new DailyMenu(dailyMenuDate);
+
         dailyMenu.setCumulativeNumberOfKcal(cumulativeNumberOfKcal);
+        dailyMenu.setCumulativeAmountOfProteins(amountOfProteins);
+        dailyMenu.setCumulativeAmountOfCarbons(amountOfCarbons);
+        dailyMenu.setCumulativeAmountOfFat(amountOfFat);
 
-        for (Meal breakfastMeal : breakfastMeals) dailyMenu.addMeal(breakfastMeal, DailyMenu.BREAKFAST_KEY);
+        dailyMenu.setAmountOfServingsInBreakfast(amountOfServingsInBreakfast);
+        dailyMenu.setAmountOfServingsInLunch(amountOfServingsInLunch);
+        dailyMenu.setAmountOfServingsInDinner(amountOfServingsInDinner);
+        dailyMenu.setAmountOfServingsInTeatime(amountOfServingsInTeatime);
+        dailyMenu.setAmountOfServingsInSupper(amountOfServingsInSupper);
+
+        for (Meal breakfastMeal : breakfastMeals) dailyMenu.addMeal(breakfastMeal, MealsType.BREAKFAST_INDX);
 
 
-        for (Meal lunchMeal : lunchMeals) dailyMenu.addMeal(lunchMeal, DailyMenu.LUNCH_KEY);
+        for (Meal lunchMeal : lunchMeals) dailyMenu.addMeal(lunchMeal, MealsType.LUNCH_INDX);
 
-        for (Meal dinnerMeal : dinnerMeals) dailyMenu.addMeal(dinnerMeal, DailyMenu.DINNER_KEY);
+        for (Meal dinnerMeal : dinnerMeals) dailyMenu.addMeal(dinnerMeal, MealsType.DINNER_INDX);
 
-        for (Meal teatimeMeal : teatimeMeals) dailyMenu.addMeal(teatimeMeal, DailyMenu.TEATIME_KEY);
+        for (Meal teatimeMeal : teatimeMeals) dailyMenu.addMeal(teatimeMeal, MealsType.TEATIME_INDX);
 
-        for(Meal supperMeal : supperMeals) dailyMenu.addMeal(supperMeal, DailyMenu.SUPPER_KEY);
+        for(Meal supperMeal : supperMeals) dailyMenu.addMeal(supperMeal, MealsType.SUPPER_INDX);
 
         return dailyMenu;
     }
@@ -200,40 +238,34 @@ public class CreateNewDailyMenuManager {
             }
     }
 
-    public void removeMeal(int position, String mealType) {
-        Log.d("man", "przed usunieciem " + String.valueOf(cumulativeNumberOfKcal));
-        switch (mealType){
-            case CreateNewDailyMenuActivity.BREAKFAST_KEY: cumulativeNumberOfKcal -= breakfastMeals.get(position).getCumulativeNumberOfKcal();
-                Log.d("w man", String.valueOf(breakfastMeals.get(position).getCumulativeNumberOfKcal()));
-                breakfastMeals.remove(position);
-                                                            break;
-            case CreateNewDailyMenuActivity.LUNCH_KEY:    cumulativeNumberOfKcal -= lunchMeals.get(position).getCumulativeNumberOfKcal();
-                Log.d("w man", String.valueOf(lunchMeals.get(position).getCumulativeNumberOfKcal()));
-
-                lunchMeals.remove(position);
-                                                            break;
-            case CreateNewDailyMenuActivity.DINNER_KEY: cumulativeNumberOfKcal -= dinnerMeals.get(position).getCumulativeNumberOfKcal();
-                Log.d("w man", String.valueOf(dinnerMeals.get(position).getCumulativeNumberOfKcal()));
-
-                dinnerMeals.remove(position);
-                                                        break;
-            case CreateNewDailyMenuActivity.TEATIME_KEY: cumulativeNumberOfKcal -= teatimeMeals.get(position).getCumulativeNumberOfKcal();
-                Log.d("w man", String.valueOf(teatimeMeals.get(position).getCumulativeNumberOfKcal()));
-
-                teatimeMeals.remove(position);
-                                                        break;
-            case CreateNewDailyMenuActivity.SUPPER_KEY: cumulativeNumberOfKcal -= supperMeals.get(position).getCumulativeNumberOfKcal();
-                Log.d("w man", String.valueOf(supperMeals.get(position).getCumulativeNumberOfKcal()));
-
-                supperMeals.remove(position);
-                                                        break;
+    void removeMeal(int position, int mealTypeIndx) {
+        Vector<Meal> mealVector;
+        switch (mealTypeIndx){
+            case MealsType.BREAKFAST_INDX: mealVector = breakfastMeals;
+                break;
+            case MealsType.LUNCH_INDX:    mealVector = lunchMeals;
+                break;
+            case MealsType.DINNER_INDX: mealVector = dinnerMeals;
+                break;
+            case MealsType.TEATIME_INDX: mealVector = teatimeMeals;
+                break;
+            case MealsType.SUPPER_INDX: mealVector = supperMeals;
+                break;
+            default: mealVector = null;
         }
 
-        Log.d("man", "po " + String.valueOf(cumulativeNumberOfKcal));
-        if(createNewDailyMenuActivity != null) createNewDailyMenuActivity.updateCalories();
+        if(mealVector != null) {
+            cumulativeNumberOfKcal -= mealVector.get(position).getCumulativeNumberOfKcal();
+            amountOfProteins -= mealVector.get(position).getAmountOfProteins();
+            amountOfCarbons -= mealVector.get(position).getAmountOfCarbos();
+            amountOfFat -= mealVector.get(position).getAmountOfFat();
+            mealVector.remove(position);
+
+            if (createNewDailyMenuActivity != null) createNewDailyMenuActivity.setDetails();
+        }
     }
 
-    public void setDailyMenuMeals(DailyMenu dailyMenu) {
+    void setDailyMenuMeals() {
         clearVectorsOfMeals();
 
         breakfastMeals.addAll(currentDailyMenu.getBreakfast());
@@ -248,16 +280,68 @@ public class CreateNewDailyMenuManager {
     }
 
 
-    public boolean isEditMode() {
+    boolean isEditMode() {
         return editMode;
     }
 
-    public void setEditMode(boolean editMode) {
+    void setEditMode(boolean editMode) {
         this.editMode = editMode;
     }
 
     public int getCumulativeNumberOfKcal() {
         return cumulativeNumberOfKcal;
+    }
+
+    void setAmountOfServingsInBreakfast(int amountOfServingsInBreakfast) {
+        this.amountOfServingsInBreakfast = amountOfServingsInBreakfast;
+    }
+
+    void setAmountOfServingsInLunch(int amountOfServingsInLunch) {
+        this.amountOfServingsInLunch = amountOfServingsInLunch;
+    }
+
+    void setAmountOfServingsInDinner(int amountOfServingsInDinner) {
+        this.amountOfServingsInDinner = amountOfServingsInDinner;
+    }
+
+    void setAmountOfServingsInTeatime(int amountOfServingsInTeatime) {
+        this.amountOfServingsInTeatime = amountOfServingsInTeatime;
+    }
+
+    void setAmountOfServingsInSupper(int amountOfServingsInSupper) {
+        this.amountOfServingsInSupper = amountOfServingsInSupper;
+    }
+
+    int getAmountOfServingsInBreakfast() {
+        return amountOfServingsInBreakfast;
+    }
+
+    int getAmountOfServingsInLunch() {
+        return amountOfServingsInLunch;
+    }
+
+    int getAmountOfServingsInDinner() {
+        return amountOfServingsInDinner;
+    }
+
+    int getAmountOfServingsInTeatime() {
+        return amountOfServingsInTeatime;
+    }
+
+    int getAmountOfServingsInSupper() {
+        return amountOfServingsInSupper;
+    }
+
+    int getAmountOfProteins() {
+        return amountOfProteins;
+    }
+
+    int getAmountOfCarbons() {
+        return amountOfCarbons;
+    }
+
+    public int getAmountOfFat() {
+        return amountOfFat;
     }
 
 

@@ -38,9 +38,6 @@ public class DailyMenusActivity extends AppCompatActivity {
     TabLayout dailyMenusTabLayout;
 
     private DailyMenusManager dailyMenusManager;
-    private List<DailyMenu> dailyMenuList;
-    private DailyMenusPagerAdapter adapter;
-    private ActionBar supportActionBar;
     private long menuId;
 
     @Override
@@ -49,7 +46,7 @@ public class DailyMenusActivity extends AppCompatActivity {
         setContentView(R.layout.activity_daily_menus);
         ButterKnife.bind(this);
 
-        supportActionBar = getSupportActionBar();
+        ActionBar supportActionBar = getSupportActionBar();
         supportActionBar.setDefaultDisplayHomeAsUpEnabled(true);
 
         dailyMenusManager = ((App) getApplication()).getDailyMenusManager();
@@ -74,14 +71,9 @@ public class DailyMenusActivity extends AppCompatActivity {
         else dailyMenusManager.loadDailyMenus();
     }
 
-    public void deleteDailyMenu(long dailyMenuId){
-        dailyMenusManager.deleteDailyMenu(dailyMenuId);
-    }
-
-
     public void setAdapter() {
-        dailyMenuList = dailyMenusManager.getDailyMenus();
-        adapter = new DailyMenusPagerAdapter(getSupportFragmentManager(), dailyMenuList);
+        List<DailyMenu> dailyMenuList = dailyMenusManager.getDailyMenus();
+        DailyMenusPagerAdapter adapter = new DailyMenusPagerAdapter(getSupportFragmentManager(), dailyMenuList);
         dailyMenusViewPager.setAdapter(adapter);
         dailyMenusTabLayout.setupWithViewPager(dailyMenusViewPager);
     }
@@ -128,5 +120,9 @@ public class DailyMenusActivity extends AppCompatActivity {
 
     public void dailyMenuDeleteFailed() {
         makeAStatement("An error occurred while trying to delete daily menu", Toast.LENGTH_LONG);
+    }
+
+    public void deleteDailyMenu(DailyMenu dailyMenu) {
+        dailyMenusManager.deleteDailyMenu(dailyMenu);
     }
 }

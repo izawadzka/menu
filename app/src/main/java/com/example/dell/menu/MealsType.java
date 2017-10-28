@@ -13,4 +13,7 @@ public class MealsType {
 
     public final static int AMOUNT_OF_TYPES = 5;
 
+    public static int[] arrayOfTypes = {BREAKFAST_INDX, LUNCH_INDX, DINNER_INDX, TEATIME_INDX,
+    SUPPER_INDX};
+
 }

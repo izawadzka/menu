@@ -49,4 +49,12 @@
     <string name="amount_hint">Amount</string>
     <string name="show_meal_title">Show meal</string>
     <string name="kcalLabel">Kcal:</string>
+    <string name="amount_of_servings">Amount of servings:</string>
+    <string name="calories">Calories:</string>
+    <string name="default_value_for_amount">1</string>
+    <string name="edit_daily_menu_button_text">edit daily menu</string>
+    <string name="date_label">Date:</string>
+    <string name="update_product">update product</string>
+    <string name="delete_meal">delete meal</string>
+    <string name="add_meal_to_daily_menu">add meal to daily menu</string>
 </resources>

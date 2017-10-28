@@ -26,9 +26,9 @@ public class MealsTable {
         contentValues.put(thirdColumnName, meal.getCumulativeNumberOfKcal());
         contentValues.put(fourthColumnName, meal.getAuthorsId());
         contentValues.put(fifthColumnName, meal.getRecipe());
-        contentValues.put(sixthColumnName, meal.getAmountOfProteinsPer100g());
-        contentValues.put(seventhColumnName, meal.getAmountOfCarbosPer100g());
-        contentValues.put(eighthColumnName, meal.getAmountOfFatPer100g());
+        contentValues.put(sixthColumnName, meal.getAmountOfProteins());
+        contentValues.put(seventhColumnName, meal.getAmountOfCarbos());
+        contentValues.put(eighthColumnName, meal.getAmountOfFat());
         return contentValues;
     }
 

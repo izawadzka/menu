@@ -18,6 +18,7 @@ import com.example.dell.menu.App;
 import com.example.dell.menu.R;
 import com.example.dell.menu.objects.Meal;
 import com.example.dell.menu.screens.meals.MealsFragment;
+import com.example.dell.menu.screens.meals.addOrEdit.AddOrEditMealActivity;
 import com.example.dell.menu.screens.meals.extendedMealInformation.FullMealInformationActivity;
 import com.example.dell.menu.screens.menus.addOrEditMenu.dailyMenu.DailyMenuFragment;
 
@@ -107,19 +108,9 @@ public class ChooseFromMealsActivity extends AppCompatActivity implements MealsT
 
     @Override
     public void mealToChooseClicked(Meal meal) {
-        String authorsName;
-        if(meal.getAuthorsId() == 0){
-            authorsName = "authomaticly_generated";
-        }else{
-            //authorsName = ((App)getApplication()).getMealsFragmentManager().getAuthorsName(meal);
-        }
-
-        Intent intent = new Intent(this, FullMealInformationActivity.class);
-        intent.putExtra(MealsFragment.MEAL_NAME_KEY, meal.getName());
-        intent.putExtra(MealsFragment.MEAL_NUMBER_OF_KCAL_KEY, String.format("%s",meal.getCumulativeNumberOfKcal()));
-        //intent.putExtra(MealsFragment.MEALS_AUTHOR_NAME_KEY, authorsName);
-        intent.putExtra(MealsFragment.MEALS_RECIPE_KEY, meal.getRecipe());
-        intent.putExtra(MealsFragment.MEALS_ID_KEY, String.format("%s",meal.getMealsId()));
+        Intent intent = new Intent(this, AddOrEditMealActivity.class);
+        intent.putExtra(MealsFragment.SHOW_MODE_KEY, "true");
+        intent.putExtra(MealsFragment.MEALS_ID_KEY, meal.getMealsId());
         startActivityForResult(intent, MealsFragment.REQUEST_CODE_SHOW);
     }
 
