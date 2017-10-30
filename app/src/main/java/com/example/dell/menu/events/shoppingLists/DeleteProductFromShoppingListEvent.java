@@ -1,4 +1,4 @@
-package com.example.dell.menu.events.shoppingLists;
+package com.example.dell.menu.events.shoppinglists;
 
 /**
  * Created by Dell on 04.09.2017.

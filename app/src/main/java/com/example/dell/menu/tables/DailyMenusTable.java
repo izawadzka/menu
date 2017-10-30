@@ -2,10 +2,6 @@ package com.example.dell.menu.tables;
 
 import android.content.ContentValues;
 
-import com.example.dell.menu.objects.DailyMenu;
-
-import java.util.Date;
-
 /**
  * Created by Dell on 05.06.2017.
  */

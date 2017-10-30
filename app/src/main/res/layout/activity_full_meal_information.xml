@@ -10,7 +10,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:background="@color/appBackgroundColor"
-    tools:context="com.example.dell.menu.screens.meals.extendedMealInformation.FullMealInformationActivity">
+    tools:context=".screens.menuplanning.meals.extendedMealInformation.FullMealInformationActivity">
 
     <TextView
         android:id="@+id/mealNameTextViewExt"

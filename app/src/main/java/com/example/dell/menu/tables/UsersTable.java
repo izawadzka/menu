@@ -14,17 +14,10 @@ public class UsersTable {
     private final static String firstColumnName = "usersId";
     private final static String secondColumnName = "login";
     private final static String thirdColumnName = "password";
-    private final static String fourthColumnName = "lastActivity";
-
-    public static String create(){
-        String createCommand = String.format("create table %s(", tableName)
-                + String.format("%s INTEGER PRIMARY KEY, ", firstColumnName)
-                + String.format("%s TEXT, ", secondColumnName)
-                + String.format("%s TEXT, ", thirdColumnName)
-                + String.format("%s DATE);", fourthColumnName);
-
-        return createCommand;
-    }
+    private final static String fourthColumnName = "limitOfKcalPerDay";
+    private final static String sixthColumnName = "limitOfProteinsPerDay";
+    private final static String seventhColumnName = "limitOfCarbohydratesPerDay";
+    private final static String eigththColumnName = "limitOfFatPerDay";
 
     public static ContentValues getContentValues(User user){
         ContentValues contentValues = new ContentValues();

@@ -2,9 +2,7 @@ package com.example.dell.menu.tables;
 
 import android.content.ContentValues;
 
-import com.example.dell.menu.objects.Menu;
-
-import java.sql.Date;
+import com.example.dell.menu.objects.menuplanning.Menu;
 
 /**
  * Created by Dell on 04.06.2017.

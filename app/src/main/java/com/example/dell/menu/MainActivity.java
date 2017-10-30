@@ -19,15 +19,14 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.example.dell.menu.backup.Backup;
 import com.example.dell.menu.backup.BackupService;
-import com.example.dell.menu.events.shoppingLists.ShowShoppingListEvent;
-import com.example.dell.menu.internetconnection.ConnectivityReceiver;
+import com.example.dell.menu.events.shoppinglists.ShowShoppingListEvent;
 import com.example.dell.menu.screens.login.LoginActivity;
-import com.example.dell.menu.screens.meals.MealsFragment;
-import com.example.dell.menu.screens.menus.MenusFragment;
-import com.example.dell.menu.screens.products.ProductsFragment;
-import com.example.dell.menu.screens.products.dialog.Dialog;
+import com.example.dell.menu.screens.menuplanning.meals.MealsFragment;
+import com.example.dell.menu.screens.menuplanning.menus.MenusFragment;
+import com.example.dell.menu.screens.menuplanning.products.ProductsFragment;
 import com.example.dell.menu.screens.reports.ReportsFragment;
 import com.example.dell.menu.screens.shoppingLists.ShoppingListsFragment;
+import com.example.dell.menu.screens.virtualfridge.VirtualFridgeFragment;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -140,7 +139,7 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.action_logout) {
             logout();
-        }else if(id == R.id.actione_restore_backup){
+        }else if(id == R.id.action_restore_backup){
             restoreBackup();
         }
 
@@ -200,6 +199,8 @@ public class MainActivity extends AppCompatActivity
             showFragment(new ShoppingListsFragment());
         } else if (id == R.id.nav_reports) {
             showFragment(new ReportsFragment());
+        } else if(id == R.id.nav_manage_fridge){
+            showFragment(new VirtualFridgeFragment());
         }
 
 

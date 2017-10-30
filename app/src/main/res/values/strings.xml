@@ -57,4 +57,7 @@
     <string name="update_product">update product</string>
     <string name="delete_meal">delete meal</string>
     <string name="add_meal_to_daily_menu">add meal to daily menu</string>
+    <string name="empty_fridge_alert">Your fridge is empty!</string>
+    <string name="delete_product_from_fridge">delete_product_from_fridge</string>
+    <string name="edit_quantity_of_product">edit_quantity_of_product</string>
 </resources>

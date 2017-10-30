@@ -1,6 +1,6 @@
-package com.example.dell.menu.events.shoppingLists;
+package com.example.dell.menu.events.shoppinglists;
 
-import com.example.dell.menu.objects.ShoppingList;
+import com.example.dell.menu.objects.shoppinglist.ShoppingList;
 
 /**
  * Created by Dell on 27.08.2017.

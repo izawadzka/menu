@@ -1,26 +1,26 @@
 package com.example.dell.menu;
 
 import android.app.Application;
-import android.preference.PreferenceManager;
-import android.util.Log;
 
-import com.example.dell.menu.backup.Backup;
 import com.example.dell.menu.backup.BackupFlagStorage;
 import com.example.dell.menu.screens.login.LoginManager;
-import com.example.dell.menu.screens.meals.addOrEdit.AddOrEditMealManager;
-import com.example.dell.menu.screens.meals.addOrEdit.ChooseFromProductsManager;
-import com.example.dell.menu.screens.meals.extendedMealInformation.FullMealInformationActivityManager;
-import com.example.dell.menu.screens.meals.MealsFragmentManager;
-import com.example.dell.menu.screens.menus.MenusManager;
-import com.example.dell.menu.screens.menus.addOrEditMenu.DailyMenusManager;
-import com.example.dell.menu.screens.menus.addOrEditMenu.dailyMenu.chooseMeals.ChooseFromMealsManager;
-import com.example.dell.menu.screens.menus.addOrEditMenu.dailyMenu.CreateNewDailyMenuManager;
-import com.example.dell.menu.screens.products.ProductFragmentManager;
-import com.example.dell.menu.screens.products.addOrEdit.AddOrEditProductManager;
+import com.example.dell.menu.screens.menuplanning.meals.addOrEdit.AddOrEditMealManager;
+import com.example.dell.menu.screens.menuplanning.meals.addOrEdit.ChooseFromProductsManager;
+import com.example.dell.menu.screens.menuplanning.meals.extendedMealInformation.FullMealInformationActivityManager;
+import com.example.dell.menu.screens.menuplanning.meals.MealsFragmentManager;
+import com.example.dell.menu.screens.menuplanning.menus.MenusManager;
+import com.example.dell.menu.screens.menuplanning.menus.addOrEditMenu.DailyMenusManager;
+import com.example.dell.menu.screens.menuplanning.menus.addOrEditMenu.dailyMenu.chooseMeals.ChooseFromMealsManager;
+import com.example.dell.menu.screens.menuplanning.menus.addOrEditMenu.dailyMenu.CreateNewDailyMenuManager;
+import com.example.dell.menu.screens.menuplanning.products.ProductFragmentManager;
+import com.example.dell.menu.screens.menuplanning.products.addOrEdit.AddOrEditProductManager;
 import com.example.dell.menu.screens.register.RegisterManager;
 import com.example.dell.menu.screens.reports.ReportsManager;
 import com.example.dell.menu.screens.shoppingLists.ShoppingListsManager;
 import com.example.dell.menu.screens.shoppingLists.ShowProductsInListManager;
+import com.example.dell.menu.screens.virtualfridge.AddProductToFridgeActivity;
+import com.example.dell.menu.screens.virtualfridge.AddProductToFridgeManager;
+import com.example.dell.menu.screens.virtualfridge.VirtualFridgeManager;
 import com.squareup.otto.Bus;
 
 /**
@@ -46,7 +46,9 @@ public class App extends Application {
     private ShowProductsInListManager showProductsInListManager;
     private ReportsManager reportsManager;
     private DailyMenusManager dailyMenusManager;
+    private VirtualFridgeManager virtualFridgeManager;
     private boolean backupFlag = false;
+    private AddProductToFridgeManager addProductToFridgeManager;
 
     public boolean isBackupFlag() {
         return backupFlag;
@@ -58,6 +60,10 @@ public class App extends Application {
 
     public DailyMenusManager getDailyMenusManager() {
         return dailyMenusManager;
+    }
+
+    public VirtualFridgeManager getVirtualFridgeManager() {
+        return virtualFridgeManager;
     }
 
     @Override
@@ -82,6 +88,12 @@ public class App extends Application {
         addOrEditMealManager = new AddOrEditMealManager(bus);
         dailyMenusManager = new DailyMenusManager(bus);
         reportsManager = new ReportsManager();
+        virtualFridgeManager = new VirtualFridgeManager(bus);
+        addProductToFridgeManager = new AddProductToFridgeManager(bus);
+    }
+
+    public AddProductToFridgeManager getAddProductToFridgeManager() {
+        return addProductToFridgeManager;
     }
 
     public ReportsManager getReportsManager() {

@@ -11,9 +11,9 @@ import android.widget.ViewSwitcher;
 
 import com.example.dell.menu.R;
 import com.example.dell.menu.StorageType;
-import com.example.dell.menu.events.shoppingLists.DeleteProductFromShoppingListEvent;
-import com.example.dell.menu.events.shoppingLists.QuantityOfProductChangedEvent;
-import com.example.dell.menu.objects.Product;
+import com.example.dell.menu.events.shoppinglists.DeleteProductFromShoppingListEvent;
+import com.example.dell.menu.events.shoppinglists.QuantityOfProductChangedEvent;
+import com.example.dell.menu.objects.menuplanning.Product;
 import com.squareup.otto.Bus;
 
 import java.util.ArrayList;
@@ -73,7 +73,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
         ViewSwitcher textViewEditTextSwitcher;
         @Bind(R.id.unitTextView)
         TextView unitTextView;
-        @Bind(R.id.updateProductImageButton)
+        @Bind(R.id.updateOrAddProductImageButton)
         ImageButton updateQuantityImageButton;
         @Bind(R.id.deleteProductImageButton)
         ImageButton deleteProductImageButton;
@@ -102,7 +102,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
             updateQuantityImageButton.setVisibility(View.VISIBLE);
         }
 
-        @OnClick(R.id.updateProductImageButton)
+        @OnClick(R.id.updateOrAddProductImageButton)
         public void onUpdateQuantityImageButtonClicked(){
             try {
                 double newQuantity = Double.valueOf(quantityEditText.getText().toString());

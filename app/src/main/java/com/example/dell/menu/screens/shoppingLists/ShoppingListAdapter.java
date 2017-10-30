@@ -8,9 +8,9 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.example.dell.menu.R;
-import com.example.dell.menu.events.shoppingLists.DeleteShoppingListEvent;
-import com.example.dell.menu.events.shoppingLists.EditShoppingListNameEvent;
-import com.example.dell.menu.objects.ShoppingList;
+import com.example.dell.menu.events.shoppinglists.DeleteShoppingListEvent;
+import com.example.dell.menu.events.shoppinglists.EditShoppingListNameEvent;
+import com.example.dell.menu.objects.shoppinglist.ShoppingList;
 import com.squareup.otto.Bus;
 
 import java.util.ArrayList;

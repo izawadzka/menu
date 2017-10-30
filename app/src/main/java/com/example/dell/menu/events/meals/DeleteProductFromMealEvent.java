@@ -1,7 +1,6 @@
 package com.example.dell.menu.events.meals;
 
-import com.example.dell.menu.events.products.DeleteProductEvent;
-import com.example.dell.menu.objects.Product;
+import com.example.dell.menu.objects.menuplanning.Product;
 
 /**
  * Created by Dell on 03.06.2017.

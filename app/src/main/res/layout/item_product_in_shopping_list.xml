@@ -45,7 +45,7 @@
         android:layout_height="wrap_content" />
 
     <ImageButton
-        android:id="@+id/updateProductImageButton"
+        android:id="@+id/updateOrAddProductImageButton"
         android:layout_marginTop="7dp"
         android:layout_toLeftOf="@+id/deleteProductImageButton"
         android:layout_toStartOf="@+id/deleteProductImageButton"

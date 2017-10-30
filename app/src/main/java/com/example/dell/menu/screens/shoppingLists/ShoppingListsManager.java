@@ -6,21 +6,15 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import com.example.dell.menu.MenuDataBase;
-import com.example.dell.menu.events.shoppingLists.DeleteShoppingListEvent;
-import com.example.dell.menu.events.shoppingLists.EditShoppingListNameEvent;
-import com.example.dell.menu.events.shoppingLists.GenerateShoppingListEvent;
-import com.example.dell.menu.objects.Menu;
-import com.example.dell.menu.objects.Product;
-import com.example.dell.menu.objects.ShoppingList;
-import com.example.dell.menu.tables.ShoppingListsMenusTable;
+import com.example.dell.menu.events.shoppinglists.DeleteShoppingListEvent;
+import com.example.dell.menu.events.shoppinglists.EditShoppingListNameEvent;
+import com.example.dell.menu.events.shoppinglists.GenerateShoppingListEvent;
+import com.example.dell.menu.objects.menuplanning.Menu;
+import com.example.dell.menu.objects.menuplanning.Product;
+import com.example.dell.menu.objects.shoppinglist.ShoppingList;
 import com.example.dell.menu.tables.ShoppingListsProductsTable;
 import com.example.dell.menu.tables.ShoppingListsTable;
 import com.example.dell.menu.tables.UsersTable;
-import com.example.dell.menu.tables.mealTypes.BreakfastTable;
-import com.example.dell.menu.tables.mealTypes.DinnerTable;
-import com.example.dell.menu.tables.mealTypes.LunchTable;
-import com.example.dell.menu.tables.mealTypes.SupperTable;
-import com.example.dell.menu.tables.mealTypes.TeatimeTable;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -259,9 +253,10 @@ public class ShoppingListsManager {
         @Override
         protected Long doInBackground(Long... params) {
             MenuDataBase menuDataBase = MenuDataBase.getInstance(shoppingListsFragment.getActivity());
-            long result = menuDataBase.insert(ShoppingListsMenusTable.getTableName(),
+            /*long result = menuDataBase.insert(ShoppingListsMenusTable.getTableName(),
                     ShoppingListsMenusTable.getContentValues(params[0], currentMenu.getMenuId()));
-            return result;
+            return result;*/
+            return null;
         }
 
         @Override
@@ -315,7 +310,7 @@ public class ShoppingListsManager {
         protected Boolean doInBackground(Long... params) {
             MenuDataBase menuDataBase = MenuDataBase.getInstance(shoppingListsFragment.getActivity());
             ArrayList<Product> productList = new ArrayList<>();
-
+/*
             String[] mealTypesTableNames = {BreakfastTable.getTableName(), LunchTable.getTableName(),
                     DinnerTable.getTableName(), TeatimeTable.getTableName(), SupperTable.getTableName()};
 
@@ -364,7 +359,8 @@ public class ShoppingListsManager {
             for (int i = 0; i < products.size(); i++) {
                 if(products.get(i).getProductId() == productId) return i;
             }
-            return -1;
+            */
+            return false;
         }
 
         @Override

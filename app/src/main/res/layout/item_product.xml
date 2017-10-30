@@ -64,7 +64,7 @@
 
 
     <ImageButton
-        android:id="@+id/updateProductImageButton"
+        android:id="@+id/updateOrAddProductImageButton"
         android:layout_centerVertical="true"
         android:layout_toLeftOf="@+id/deleteProductImageButton"
         android:layout_toStartOf="@+id/deleteProductImageButton"

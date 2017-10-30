@@ -5,13 +5,11 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.example.dell.menu.App;
 import com.example.dell.menu.R;
-import com.example.dell.menu.objects.Product;
-import com.example.dell.menu.objects.ShoppingList;
+import com.example.dell.menu.objects.menuplanning.Product;
 
 import java.util.List;
 

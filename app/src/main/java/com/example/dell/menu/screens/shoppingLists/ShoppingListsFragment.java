@@ -16,9 +16,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.dell.menu.App;
-import com.example.dell.menu.MainActivity;
 import com.example.dell.menu.R;
-import com.example.dell.menu.objects.ShoppingList;
+import com.example.dell.menu.objects.shoppinglist.ShoppingList;
 
 import java.util.List;
 

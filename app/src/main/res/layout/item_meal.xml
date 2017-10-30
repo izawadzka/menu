@@ -64,7 +64,7 @@
     </LinearLayout>
 
     <ImageButton
-        android:id="@+id/updateProductImageButton"
+        android:id="@+id/updateOrAddProductImageButton"
         android:layout_centerVertical="true"
         android:contentDescription="@string/update_product"
         android:layout_toLeftOf="@+id/deleteMealImageButton"

@@ -1,8 +1,5 @@
 package com.example.dell.menu;
 
-import com.example.dell.menu.objects.Meal;
-import com.example.dell.menu.tables.MealsTable;
-
 import java.util.ArrayList;
 import java.util.List;
 

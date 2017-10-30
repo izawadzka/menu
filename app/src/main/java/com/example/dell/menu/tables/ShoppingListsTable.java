@@ -2,7 +2,7 @@ package com.example.dell.menu.tables;
 
 import android.content.ContentValues;
 
-import com.example.dell.menu.objects.ShoppingList;
+import com.example.dell.menu.objects.shoppinglist.ShoppingList;
 
 /**
  * Created by Dell on 07.06.2017.

@@ -2,7 +2,7 @@ package com.example.dell.menu.tables;
 
 import android.content.ContentValues;
 
-import com.example.dell.menu.objects.Product;
+import com.example.dell.menu.objects.menuplanning.Product;
 
 /**
  * Created by Dell on 27.05.2017.

@@ -9,7 +9,7 @@
     android:paddingRight="30dp"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:background="@color/appBackgroundColor"
-    tools:context="com.example.dell.menu.screens.meals.addOrEdit.AddOrEditMealActivity">
+    tools:context=".screens.menuplanning.meals.addOrEdit.AddOrEditMealActivity">
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
