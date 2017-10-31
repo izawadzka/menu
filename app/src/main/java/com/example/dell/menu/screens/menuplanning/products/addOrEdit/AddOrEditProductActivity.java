@@ -3,14 +3,15 @@ package com.example.dell.menu.screens.menuplanning.products.addOrEdit;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.text.InputType;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.dell.menu.App;
@@ -44,6 +45,18 @@ public class AddOrEditProductActivity extends AppCompatActivity {
     EditText addedProductAmountOfFat;
     @Bind(R.id.activity_add_or_edit_product)
     LinearLayout activityAddOrEditProduct;
+    @Bind(R.id.addedProductNumberOfKcalTextView)
+    TextView addedProductNumberOfKcalTextView;
+    @Bind(R.id.addedProductNumberOfProteinTextView)
+    TextView addedProductNumberOfProteinTextView;
+    @Bind(R.id.addedProductAmountOfCarbosTextView)
+    TextView addedProductAmountOfCarbosTextView;
+    @Bind(R.id.addedProductAmountOfFatTextView)
+    TextView addedProductAmountOfFatTextView;
+    @Bind(R.id.kcalRelativeLayout)
+    RelativeLayout kcalRelativeLayout;
+    @Bind(R.id.carbonsRelativeLayout)
+    RelativeLayout carbonsRelativeLayout;
 
 
     private ArrayAdapter<CharSequence> productTypesaAdapter;
@@ -127,13 +140,26 @@ public class AddOrEditProductActivity extends AppCompatActivity {
 
     private void prepareShowMode() {
         saveProductButton.setVisibility(View.INVISIBLE);
-        addedProductName.setInputType(InputType.TYPE_NULL);
-        addedProductNumbOfKcal.setInputType(InputType.TYPE_NULL);
-        addedProductNumberOfProtein.setInputType(InputType.TYPE_NULL);
-        addedProductAmountOfCarbos.setInputType(InputType.TYPE_NULL);
-        addedProductAmountOfFat.setInputType(InputType.TYPE_NULL);
+
+        addedProductName.setVisibility(View.GONE);
+
+        addedProductNumbOfKcal.setVisibility(View.INVISIBLE);
+        addedProductNumberOfKcalTextView.setVisibility(View.VISIBLE);
+
+        addedProductNumberOfProtein.setVisibility(View.INVISIBLE);
+        addedProductNumberOfProteinTextView.setVisibility(View.VISIBLE);
+
+        addedProductAmountOfCarbos.setVisibility(View.INVISIBLE);
+        addedProductAmountOfCarbosTextView.setVisibility(View.VISIBLE);
+
+        addedProductAmountOfFat.setVisibility(View.INVISIBLE);
+        addedProductAmountOfFatTextView.setVisibility(View.VISIBLE);
+
         addedProductTypes.setEnabled(false);
         addedProductStorageTypes.setEnabled(false);
+
+        kcalRelativeLayout.setBackgroundResource(R.color.lighterAdapterColor);
+        carbonsRelativeLayout.setBackgroundResource(R.color.lighterAdapterColor);
     }
 
     @Override
@@ -170,13 +196,14 @@ public class AddOrEditProductActivity extends AppCompatActivity {
             if (addedProductNumbOfKcal.length() == 0) amountOfKcal = 0;
             else amountOfKcal = Integer.parseInt(addedProductNumbOfKcal.getText().toString());
 
-            if(addedProductNumberOfProtein.length() == 0) amountOfProteins = 0;
-            else amountOfProteins = Integer.parseInt(addedProductNumberOfProtein.getText().toString());
+            if (addedProductNumberOfProtein.length() == 0) amountOfProteins = 0;
+            else
+                amountOfProteins = Integer.parseInt(addedProductNumberOfProtein.getText().toString());
 
-            if(addedProductAmountOfCarbos.length() == 0) amountOfCarbos = 0;
+            if (addedProductAmountOfCarbos.length() == 0) amountOfCarbos = 0;
             else amountOfCarbos = Integer.parseInt(addedProductAmountOfCarbos.getText().toString());
 
-            if(addedProductAmountOfFat.length() == 0) amountOfFat = 0;
+            if (addedProductAmountOfFat.length() == 0) amountOfFat = 0;
             else amountOfFat = Integer.parseInt(addedProductAmountOfFat.getText().toString());
 
             if (edit_mode)
@@ -205,14 +232,25 @@ public class AddOrEditProductActivity extends AppCompatActivity {
     }
 
     public void loadingProductSuccess(Product product) {
-        addedProductName.setText(product.getName());
-        addedProductNumbOfKcal.setText(String.valueOf(product.getNumberOfKcalPer100g()));
-        addedProductNumberOfProtein.setText(String.valueOf(product.getAmountOfProteinsPer100g()));
-        addedProductAmountOfCarbos.setText(String.valueOf(product.getAmountOfCarbosPer100g()));
-        addedProductAmountOfFat.setText(String.valueOf(product.getAmountOfFatPer100g()));
+        if (show_mode) {
+            setTitle(product.getName());
+            addedProductNumberOfKcalTextView.setText(String.valueOf(product.getNumberOfKcalPer100g()));
+            addedProductNumberOfProteinTextView.setText(String.
+                    valueOf(product.getAmountOfProteinsPer100g()));
+            addedProductAmountOfCarbosTextView.setText(String
+                    .valueOf(product.getAmountOfCarbosPer100g()));
+            addedProductAmountOfFatTextView.setText(String.valueOf(product.getAmountOfFatPer100g()));
+        } else {
+            addedProductName.setText(product.getName());
+            addedProductNumbOfKcal.setText(String.valueOf(product.getNumberOfKcalPer100g()));
+            addedProductNumberOfProtein.setText(String.valueOf(product.getAmountOfProteinsPer100g()));
+            addedProductAmountOfCarbos.setText(String.valueOf(product.getAmountOfCarbosPer100g()));
+            addedProductAmountOfFat.setText(String.valueOf(product.getAmountOfFatPer100g()));
+        }
+
         addedProductTypes.setSelection(productTypesaAdapter.getPosition(product.getType()));
         addedProductStorageTypes.setSelection(storageTypesAdapter.getPosition(product.getStorageType()));
-        if(show_mode) setTitle(product.getName());
+
     }
 
     public void editingSuccess() {

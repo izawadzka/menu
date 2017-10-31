@@ -6,7 +6,6 @@ import com.example.dell.menu.backup.BackupFlagStorage;
 import com.example.dell.menu.screens.login.LoginManager;
 import com.example.dell.menu.screens.menuplanning.meals.addOrEdit.AddOrEditMealManager;
 import com.example.dell.menu.screens.menuplanning.meals.addOrEdit.ChooseFromProductsManager;
-import com.example.dell.menu.screens.menuplanning.meals.extendedMealInformation.FullMealInformationActivityManager;
 import com.example.dell.menu.screens.menuplanning.meals.MealsFragmentManager;
 import com.example.dell.menu.screens.menuplanning.menus.MenusManager;
 import com.example.dell.menu.screens.menuplanning.menus.addOrEditMenu.DailyMenusManager;
@@ -31,7 +30,6 @@ public class App extends Application {
     private RegisterManager registerManager;
     private ProductFragmentManager productFragmentManager;
     private MealsFragmentManager mealsFragmentManager;
-    private FullMealInformationActivityManager fullMealInformationActivityManager;
     private UserStorage userStorage;
     private BackupFlagStorage backupFlagStorage;
     private Bus bus;
@@ -79,7 +77,6 @@ public class App extends Application {
         menusManager = new MenusManager(bus, userStorage);
         chooseFromMealsManager = new ChooseFromMealsManager(bus);
         createNewDailyMenuManager = new CreateNewDailyMenuManager(bus);
-        fullMealInformationActivityManager = new FullMealInformationActivityManager();
         addOrEditProductManager = new AddOrEditProductManager();
         shoppingListsManager = new ShoppingListsManager(bus);
         chooseFromProductsManager = new ChooseFromProductsManager(bus);
@@ -126,10 +123,6 @@ public class App extends Application {
 
     public ChooseFromProductsManager getChooseFromProductsManager() {
         return chooseFromProductsManager;
-    }
-
-    public FullMealInformationActivityManager getFullMealInformationActivityManager() {
-        return fullMealInformationActivityManager;
     }
 
     public MealsFragmentManager getMealsFragmentManager() {

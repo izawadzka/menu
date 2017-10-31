@@ -46,9 +46,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.dell.menu.screens.login.LoginActivity" />
         </activity>
-        <activity
-            android:name=".screens.menuplanning.meals.extendedMealInformation.FullMealInformationActivity"
-            android:label="Meal information" />
         <activity android:name=".screens.menuplanning.products.addOrEdit.AddOrEditProductActivity" />
         <activity android:name=".screens.menuplanning.meals.addOrEdit.AddOrEditMealActivity" />
         <activity

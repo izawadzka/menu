@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -59,6 +60,10 @@ public class AddOrEditMealActivity extends AppCompatActivity {
     TextView addedMealAmountOfCarbos;
     @Bind(R.id.addedMealAmountOfFat)
     TextView addedMealAmountOfFat;
+    @Bind(R.id.addedMealNameTextView)
+    TextView addedMealNameTextView;
+    @Bind(R.id.addeMealRecipeTextView)
+    TextView addeMealRecipeTextView;
 
     private AddedProductsAdapter adapter;
     private AddOrEditMealManager addOrEditMealManager;
@@ -106,8 +111,11 @@ public class AddOrEditMealActivity extends AppCompatActivity {
 
         addProductsTextView.setText("Products:");
 
-        addedMealNameEditText.setFocusable(false);
-        addedMealRecipeEditText.setFocusable(false);
+        addedMealNameEditText.setVisibility(View.GONE);
+        addedMealNameTextView.setVisibility(View.VISIBLE);
+
+        addedMealRecipeEditText.setVisibility(View.GONE);
+        addeMealRecipeTextView.setVisibility(View.VISIBLE);
 
         breakfastCheckBox.setClickable(false);
         lunchCheckBox.setClickable(false);
@@ -116,7 +124,6 @@ public class AddOrEditMealActivity extends AppCompatActivity {
         supperCheckBox.setClickable(false);
 
         addOrEditMealManager.setShowMode();
-        show_mode = false;
         addOrEditMealManager.loadMealToShow(getIntent().getIntExtra(MealsFragment.MEALS_ID_KEY, 0));
     }
 
@@ -130,6 +137,8 @@ public class AddOrEditMealActivity extends AppCompatActivity {
     private void getState() {
         addedMealNameEditText.setText(addOrEditMealManager.getStateName());
         addedMealRecipeEditText.setText(addOrEditMealManager.getStateRecipe());
+
+
         mealsTypesStates = addOrEditMealManager.getMealsTypesStates();
         addedMealNumbOfKcal.setText(String.valueOf(addOrEditMealManager.getAmountOfKcal()));
         addedMealNumberOfProtein.setText(String.valueOf(addOrEditMealManager.getAmountOfProteins()));
@@ -242,12 +251,19 @@ public class AddOrEditMealActivity extends AppCompatActivity {
     }
 
     public void loadingMealSuccess(Meal meal, boolean[] result) {
-        addedMealNameEditText.setText(meal.getName());
+        if(show_mode){
+            addedMealNameTextView.setText(meal.getName());
+            addeMealRecipeTextView.setText(meal.getRecipe());
+        }else{
+            addedMealNameEditText.setText(meal.getName());
+            addedMealRecipeEditText.setText(meal.getRecipe());
+        }
+
         addedMealNumbOfKcal.setText(String.valueOf(meal.getCumulativeNumberOfKcal()));
         addedMealNumberOfProtein.setText(String.valueOf(meal.getAmountOfProteins()));
         addedMealAmountOfCarbos.setText(String.valueOf(meal.getAmountOfCarbos()));
         addedMealAmountOfFat.setText(String.valueOf(meal.getAmountOfFat()));
-        addedMealRecipeEditText.setText(meal.getRecipe());
+
 
 
         mealsTypesStates = result;
