@@ -150,22 +150,6 @@ public class MealsFragment extends Fragment implements MealsAdapter.MealClickedL
 
     @Override
     public void mealClicked(Meal meal) {
-        /*String authorsName;
-        if(meal.getAuthorsId() == 0){
-            authorsName = "authomaticly_generated";
-        }else{
-            authorsName = mealsFragmentManager.getAuthorsName(meal);
-        }
-
-        Intent intent = new Intent(getActivity(), FullMealInformationActivity.class);
-        intent.putExtra(MEAL_NAME_KEY, meal.getName());
-        intent.putExtra(MEAL_NUMBER_OF_KCAL_KEY, String.format("%s",meal.getCumulativeNumberOfKcal()));
-        intent.putExtra(MEALS_AUTHOR_NAME_KEY, authorsName);
-        intent.putExtra(MEALS_RECIPE_KEY, meal.getRecipe());
-        intent.putExtra(MEALS_ID_KEY, String.format("%s",meal.getMealsId()));
-        startActivityForResult(intent, REQUEST_CODE_SHOW);*/
-
-
         Intent intent = new Intent(getActivity(), AddOrEditMealActivity.class);
         intent.putExtra(SHOW_MODE_KEY, "true");
         intent.putExtra(MEALS_ID_KEY, meal.getMealsId());

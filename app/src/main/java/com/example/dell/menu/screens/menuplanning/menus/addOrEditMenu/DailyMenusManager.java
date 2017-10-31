@@ -12,6 +12,7 @@ import com.example.dell.menu.events.menus.AddNewDailyMenuEvent;
 import com.example.dell.menu.events.menus.DailyMenuHasChangedEvent;
 import com.example.dell.menu.objects.menuplanning.DailyMenu;
 import com.example.dell.menu.objects.menuplanning.Meal;
+import com.example.dell.menu.objects.shoppinglist.ShoppingList;
 import com.example.dell.menu.tables.DailyMenusTable;
 import com.example.dell.menu.tables.MealsTable;
 import com.example.dell.menu.tables.MealsTypesDailyMenusAmountOfPeopleTable;
@@ -320,34 +321,41 @@ public class DailyMenusManager {
 
                 @Override
                 protected Boolean doInBackground(Void... params) {
-                    boolean result = false;
+                    boolean result = true;
                     MenuDataBase menuDataBase = MenuDataBase.getInstance(dailyMenusActivity);
+                    String[] dailyMenusId = {String.valueOf(currentDailyMenu.getDailyMenuId())};
+                    result = menuDataBase.delete(MealsTypesDailyMenusAmountOfPeopleTable.getTableName(),
+                            String.format("%s = ?", DailyMenusTable.getFirstColumnName()),
+                            dailyMenusId) > 0;
 
-                    String whereClause = String.format("%s = ? AND %s = ?",
-                            MealsTypesDailyMenusAmountOfPeopleTable.getSecondColumnName(),
-                            MealsTypesDailyMenusAmountOfPeopleTable.getFirstColumnName());
+                    if(result){
+                        int[] amountsOfService = {currentDailyMenu.getAmountOfServingsInBreakfast(),
+                                currentDailyMenu.getAmountOfServingsInLunch(),
+                                currentDailyMenu.getAmountOfServingsInDinner(),
+                                currentDailyMenu.getAmountOfServingsInTeatime(),
+                                currentDailyMenu.getAmountOfServingsInSupper()};
 
-                    for (int type : MealsType.arrayOfTypes) {
-                        String[] args = {String.valueOf(currentDailyMenu.getDailyMenuId()),
-                        String.valueOf(type)};
+                        int[] sizeOfMeals = {currentDailyMenu.getBreakfast().size(),
+                                currentDailyMenu.getLunch().size(),
+                                currentDailyMenu.getDinner().size(),
+                                currentDailyMenu.getTeatime().size(),
+                                currentDailyMenu.getSupper().size()};
 
-                        int amount = currentDailyMenu.getAmountOfServings(type);
-                        if(amount != -1) {
-                            ContentValues editContentValues = new ContentValues();
-                            editContentValues.put(MealsTypesDailyMenusAmountOfPeopleTable.getThirdColumnName(),
-                                    amount);
+                        int[] index = MealsType.arrayOfTypes;
 
-                            result = menuDataBase
-                                    .update(MealsTypesDailyMenusAmountOfPeopleTable.getTableName(),
-                                            editContentValues, whereClause, args) != -1;
-                            if(!result) break;
-                        }else{
-                            result = false;
-                            break;
+                        for (int i = 0; i < MealsType.AMOUNT_OF_TYPES; i++) {
+                            if(amountsOfService[i] != 0 && sizeOfMeals[i] > 0){
+                                if(menuDataBase.insert(MealsTypesDailyMenusAmountOfPeopleTable.getTableName(),
+                                        MealsTypesDailyMenusAmountOfPeopleTable
+                                                .getContentValues(index[i],
+                                                        currentDailyMenu.getDailyMenuId(),
+                                                        amountsOfService[i])) == -1){
+                                    menuDataBase.close();
+                                    return false;
+                                }
+                            }
                         }
                     }
-
-
 
                     menuDataBase.close();
                     return result;
@@ -387,10 +395,7 @@ public class DailyMenusManager {
                 protected void onPostExecute(Boolean result) {
                     if (result) deleteDailyMenuMeals();
                     else if(dailyMenusActivity != null) {
-                        if (edit_mode)
-                            dailyMenusActivity.makeAStatement("An error occurred while an attempt to" +
-                                    "update amounts of servings", Toast.LENGTH_LONG);
-                        else if(delete_mode) dailyMenusActivity.makeAStatement("An error occurred " +
+                        if(delete_mode) dailyMenusActivity.makeAStatement("An error occurred " +
                                 "while an attempt to delete amount of servings", Toast.LENGTH_LONG);
                     }
                 }
@@ -453,7 +458,7 @@ public class DailyMenusManager {
                     currentDailyMenu.getAmountOfServingsInTeatime(),
                     currentDailyMenu.getAmountOfServingsInSupper()};
 
-                    int[] sizeOfMels = {currentDailyMenu.getBreakfast().size(),
+                    int[] sizeOfMeals = {currentDailyMenu.getBreakfast().size(),
                     currentDailyMenu.getLunch().size(),
                     currentDailyMenu.getDinner().size(),
                     currentDailyMenu.getTeatime().size(),
@@ -464,7 +469,7 @@ public class DailyMenusManager {
 
 
                     for (int i = 0; i < MealsType.AMOUNT_OF_TYPES; i++) {
-                        if(amountsOfService[i] != 0 && sizeOfMels[i] > 0){
+                        if(amountsOfService[i] != 0 && sizeOfMeals[i] > 0){
                             if(menuDataBase.insert(MealsTypesDailyMenusAmountOfPeopleTable.getTableName(),
                                     MealsTypesDailyMenusAmountOfPeopleTable
                                             .getContentValues(index[i],

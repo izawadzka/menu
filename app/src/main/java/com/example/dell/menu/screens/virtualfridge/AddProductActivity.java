@@ -9,21 +9,22 @@ import android.widget.Toast;
 
 import com.example.dell.menu.App;
 import com.example.dell.menu.R;
-import com.example.dell.menu.objects.menuplanning.Product;
+import com.example.dell.menu.screens.shoppingLists.ShowProductsInListActivity;
 import com.example.dell.menu.screens.virtualfridge.shelf.ProductsOnTheShelfAdapter;
 
-
-import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class AddProductToFridgeActivity extends AppCompatActivity {
+public class AddProductActivity extends AppCompatActivity {
 
     ProductsOnTheShelfAdapter adapter;
     @Bind(R.id.productsOnTheShelfRecyclerView)
     RecyclerView productsOnTheShelfRecyclerView;
-    AddProductToFridgeManager manager;
+    AddProductManager manager;
+    private boolean shopping_list_mode = false;
+    private boolean fridge_mode = false;
+    private int shoppingListId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +32,7 @@ public class AddProductToFridgeActivity extends AppCompatActivity {
         setContentView(R.layout.fragment_products_shelf);
         ButterKnife.bind(this);
 
-        manager = ((App)getApplication()).getAddProductToFridgeManager();
+        manager = ((App)getApplication()).getAddProductManager();
 
         productsOnTheShelfRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -41,12 +42,22 @@ public class AddProductToFridgeActivity extends AppCompatActivity {
 
         getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
 
+        shopping_list_mode = getIntent()
+                .getBooleanExtra(ShowProductsInListActivity.ADD_DO_LIST_KEY, false);
+        if(shopping_list_mode) shoppingListId = getIntent()
+                .getIntExtra(ShowProductsInListActivity.SHOPPING_LIST_ID_KEY, -1);
+        fridge_mode = getIntent()
+                .getBooleanExtra(VirtualFridgeFragment.ADD_TO_FRIDGE_KEY, fridge_mode);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         manager.onAttach(this);
+        manager.setShoppingListMode(shopping_list_mode, shoppingListId);
+        manager.setFridgeMode(fridge_mode);
+        if(shopping_list_mode) setTitle("Add products to the list");
+        else if(fridge_mode) setTitle("Add products to the fridge");
         manager.loadProducts();
     }
 

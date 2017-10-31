@@ -1,6 +1,7 @@
 package com.example.dell.menu.screens.shoppingLists;
 
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -8,7 +9,11 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -31,8 +36,14 @@ public class ShoppingListsFragment extends Fragment implements ShoppingListAdapt
 
 
     public static final String SHOPPING_LIST_ID_KEY = "shoppingListId";
+    public static final String CREATE_MODE_KEY = "create_mode";
+    public static final String SHOW_MODE_KEY = "show mode";
     @Bind(R.id.shoppingListRecyclerView)
     RecyclerView shoppingListRecyclerView;
+    EditText menuNameEditText;
+    Button addMenuButton;
+    Button cancelButton;
+
     private ShoppingListsManager shoppingListsManager;
     private ShoppingListAdapter adapter;
     private LayoutInflater inflater;
@@ -42,13 +53,15 @@ public class ShoppingListsFragment extends Fragment implements ShoppingListAdapt
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         shoppingListsManager = ((App) getActivity().getApplication()).getShoppingListsManager();
+
+        setHasOptionsMenu(true);
     }
 
     @Override
     public void onStart() {
         super.onStart();
         shoppingListsManager.onAttach(this);
-        if (shoppingListsManager.isGenerateNewShoppingListEvent()) {
+        if (shoppingListsManager.isWaitingToGenerateNewShoppingList()) {
             shoppingListsManager.createShoppingList();
         }
         shoppingListsManager.loadShoppingLists();
@@ -62,6 +75,69 @@ public class ShoppingListsFragment extends Fragment implements ShoppingListAdapt
 
     public ShoppingListsFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_search, menu);
+        MenuItem item = menu.findItem(R.id.search_menu);
+        SearchView searchView = (SearchView) item.getActionView();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                shoppingListsManager.findLists(newText);
+                return true;
+            }
+        });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if(item.getItemId() == R.id.action_add){
+            addNewShoppingList();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void addNewShoppingList() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        View view = inflater.inflate(R.layout.name_dialog_layout, null);
+        menuNameEditText = (EditText) view.findViewById(R.id.addNameEditText);
+        menuNameEditText.setHint("new menu name");
+        addMenuButton = (Button) view.findViewById(R.id.addButton);
+        addMenuButton.setText("Add new shopping list");
+        cancelButton = (Button) view.findViewById(R.id.cancelButton);
+        builder.setView(view);
+        final AlertDialog dialog = builder.create();
+
+        dialog.show();
+        addMenuButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String shoppingListName = menuNameEditText.getText().toString();
+                if (shoppingListName.length() > 0) {
+                    dialog.dismiss();
+                    shoppingListsManager.setCreateShoppingList_mode(true);
+                    shoppingListsManager.addNewShoppingList(shoppingListName,
+                            ((App)getActivity().getApplication()).getUserStorage().getUserId());
+                } else menuNameEditText.setError("Shopping list must have a name!");
+            }
+        });
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
     }
 
 
@@ -111,6 +187,7 @@ public class ShoppingListsFragment extends Fragment implements ShoppingListAdapt
     @Override
     public void shoppingListClicked(ShoppingList shoppingList) {
         Intent intent = new Intent(getActivity(), ShowProductsInListActivity.class);
+        intent.putExtra(SHOW_MODE_KEY, true);
         intent.putExtra(SHOPPING_LIST_ID_KEY, shoppingList.getShoppingListId());
         startActivity(intent);
     }
@@ -161,5 +238,12 @@ public class ShoppingListsFragment extends Fragment implements ShoppingListAdapt
 
     public void editShoppingListNameFailed() {
         Toast.makeText(getContext(), "An error occurred while an attempt to change shopping list's name", Toast.LENGTH_LONG).show();
+    }
+
+    public void goToShoppingList(Long shoppingListId) {
+        Intent intent = new Intent(getActivity(), ShowProductsInListActivity.class);
+        intent.putExtra(CREATE_MODE_KEY, true);
+        intent.putExtra(SHOPPING_LIST_ID_KEY, shoppingListId);
+        startActivity(intent);
     }
 }

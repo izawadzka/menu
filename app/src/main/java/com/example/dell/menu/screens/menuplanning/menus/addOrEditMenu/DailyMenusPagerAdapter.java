@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import com.example.dell.menu.objects.menuplanning.DailyMenu;
 import com.example.dell.menu.screens.menuplanning.menus.addOrEditMenu.dailyMenu.DailyMenuFragment;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,11 +15,12 @@ import java.util.List;
  */
 
 public class DailyMenusPagerAdapter extends FragmentStatePagerAdapter{
-    private final List<DailyMenu> dailyMenus;
+    private final List<DailyMenu> dailyMenus = new ArrayList<>();
 
     public DailyMenusPagerAdapter(FragmentManager fm, List<DailyMenu> dailyMenus) {
         super(fm);
-        this.dailyMenus = dailyMenus;
+        this.dailyMenus.clear();
+        this.dailyMenus.addAll(dailyMenus);
     }
 
 

@@ -65,7 +65,11 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".screens.menuplanning.menus.addOrEditMenu.dailyMenu.CreateNewDailyMenuActivity" />
         </activity>
-        <activity android:name=".screens.shoppingLists.ShowProductsInListActivity" />
+        <activity android:name=".screens.shoppingLists.ShowProductsInListActivity"
+            android:parentActivityName=".MainActivity"/>
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value=".MainActivity"/>
         <activity
             android:name=".screens.menuplanning.menus.addOrEditMenu.DailyMenusActivity"
             android:label="Daily menus">
@@ -76,7 +80,7 @@
         <activity
             android:name=".screens.menuplanning.menus.addOrEditMenu.dailyMenu.CreateNewDailyMenuActivity"
             android:label="Create new daily menu"></activity>
-        <activity android:name=".screens.virtualfridge.AddProductToFridgeActivity"
+        <activity android:name=".screens.virtualfridge.AddProductActivity"
             android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

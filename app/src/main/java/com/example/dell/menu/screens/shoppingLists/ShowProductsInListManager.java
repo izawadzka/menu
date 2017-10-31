@@ -37,7 +37,6 @@ public class ShowProductsInListManager {
         shoppingListId = 0;
     }
 
-
     public void onAttach(ShowProductsInListActivity showProductsInListActivity){
         this.showProductsInListActivity = showProductsInListActivity;
     }
@@ -46,7 +45,7 @@ public class ShowProductsInListManager {
         this.showProductsInListActivity = null;
     }
 
-    public void loadProducts() {
+    void loadProducts() {
         if(showProductsInListActivity != null){
             new DownloadProductsFromDatabase().execute();
         }
@@ -56,7 +55,7 @@ public class ShowProductsInListManager {
         return shoppingListId;
     }
 
-    public List<Product> getProductsInShoppingList() {
+    List<Product> getProductsInShoppingList() {
         return productsInShoppingList;
     }
 
@@ -64,46 +63,87 @@ public class ShowProductsInListManager {
     public void onDeleteProductFromShoppingList(DeleteProductFromShoppingListEvent event){
         if(showProductsInListActivity != null){
             idOfProductToDelete = event.productId;
-            new DeleteProductFromShoppingList().execute(event.productId);
-        }
-    }
 
-    class DeleteProductFromShoppingList extends AsyncTask<Integer, Void, Boolean>{
+            new AsyncTask<Void, Void, Boolean>(){
+                @Override
+                protected Boolean doInBackground(Void... params) {
+                    MenuDataBase menuDataBase = MenuDataBase.getInstance(showProductsInListActivity);
+                    String[] ids = {String.valueOf(idOfProductToDelete), String.valueOf(shoppingListId)};
+                    boolean result;
+                    String whereClause = String.format("%s = ? AND %s = ?", ShoppingListsProductsTable.getSecondColumnName(),
+                            ShoppingListsProductsTable.getFirstColumnName());
+                    try {
+                        menuDataBase.delete(ShoppingListsProductsTable.getTableName(), whereClause,
+                                ids);
+                        result = true;
+                    }catch (Exception e){
+                        Log.e(getClass().getName(), e.getLocalizedMessage());
+                        result = false;
+                    }
 
-        @Override
-        protected Boolean doInBackground(Integer... params) {
-            MenuDataBase menuDataBase = MenuDataBase.getInstance(showProductsInListActivity);
-            String[] ids = {String.valueOf(params[0]), String.valueOf(shoppingListId)};
-            boolean result;
-            String whereClause = String.format("%s = ? AND %s = ?", ShoppingListsProductsTable.getSecondColumnName(),
-                    ShoppingListsProductsTable.getFirstColumnName());
-            try {
-                menuDataBase.delete(ShoppingListsProductsTable.getTableName(), whereClause,
-                        ids);
-                result = true;
-            }catch (Exception e){
-                Log.e(getClass().getName(), e.getLocalizedMessage());
-                result = false;
-            }
-
-            menuDataBase.close();
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean result) {
-            if(showProductsInListActivity != null){
-                if(result) {
-                    if(deleteProductFromArrayList(idOfProductToDelete)){
-                    showProductsInListActivity.productFromShoppingListDeletedSuccessfully();
-                }else loadProducts();
-
+                    menuDataBase.close();
+                    return result;
                 }
-                else showProductsInListActivity.makeAStatement("An error occurred while an attempt to delete product from shopping list",
-                        Toast.LENGTH_LONG);
-            }
+
+                @Override
+                protected void onPostExecute(Boolean result) {
+                    if(showProductsInListActivity != null){
+                        if(result) {
+                            if(deleteProductFromArrayList(idOfProductToDelete)){
+                                showProductsInListActivity.productFromShoppingListDeletedSuccessfully();
+                            }else loadProducts();
+
+                        }
+                        else showProductsInListActivity.makeAStatement("An error occurred while an attempt to delete product from shopping list",
+                                Toast.LENGTH_LONG);
+                    }
+                }
+            }.execute();
         }
     }
+
+    void findProducts(final String newText) {
+        if(showProductsInListActivity != null) {
+            new AsyncTask<Void, Void, List<Product>>() {
+                @Override
+                protected List<Product> doInBackground(Void... params) {
+                    MenuDataBase menuDataBase = MenuDataBase.getInstance(showProductsInListActivity);
+                    productsInShoppingList = new ArrayList<>();
+
+                    String query = String.format("SELECT productsId, name, storageType, " +
+                            "totalQuantity FROM %s p JOIN %s slp ON p.productsId = slp.productId " +
+                            "WHERE %s = '%s' AND %s LIKE '%%%s%%' ORDER BY %s ",
+                            ProductsTable.getTableName(), ShoppingListsProductsTable.getTableName(),
+                            ShoppingListsProductsTable.getFirstColumnName(), shoppingListId,
+                            ProductsTable.getSecondColumnName(),
+                            newText,
+                            ProductsTable.getSecondColumnName());
+
+                    Cursor cursor = menuDataBase.downloadData(query);
+                    if (cursor.getCount() > 0) {
+                        cursor.moveToPosition(-1);
+                        while (cursor.moveToNext()) {
+                            productsInShoppingList.add(new Product(cursor.getInt(0), cursor.getString(1), cursor.getDouble(3), cursor.getString(2)));
+                        }
+                    }
+
+                    menuDataBase.close();
+                    return productsInShoppingList;
+                }
+
+                @Override
+                protected void onPostExecute(List<Product> products) {
+                    if (products.size() > 0) {
+                        showProductsInListActivity.setProducts(products);
+                        showProductsInListActivity.makeAStatement("You can change quantity by clicking on it", Toast.LENGTH_LONG);
+                    } else {
+                        showProductsInListActivity.shoppingListIsEmpty();
+                    }
+                }
+            }.execute();
+        }
+    }
+
 
     private boolean deleteProductFromArrayList(int idOfProductToDelete) {
         int indx = -1;
@@ -119,41 +159,39 @@ public class ShowProductsInListManager {
     }
 
     @Subscribe
-    public void onQuantityOfProductChangedEvent(QuantityOfProductChangedEvent event){
+    public void onQuantityOfProductChangedEvent(final QuantityOfProductChangedEvent event){
         if(showProductsInListActivity != null){
             productToChangeId = event.productId;
             holder = event.holder;
-            new UpdateQuantityOfProduct().execute(event.quantity);
-        }
-    }
 
-    class UpdateQuantityOfProduct extends AsyncTask<Double, Void, Boolean>{
+            new AsyncTask<Void, Void, Boolean>(){
+                @Override
+                protected Boolean doInBackground(Void... params) {
+                    MenuDataBase menuDataBase = MenuDataBase.getInstance(showProductsInListActivity);
+                    boolean result;
+                    ContentValues editContentValues = new ContentValues();
+                    editContentValues.put(ShoppingListsProductsTable.getThirdColumnName(), event.quantity);
 
-        @Override
-        protected Boolean doInBackground(Double... params) {
-            MenuDataBase menuDataBase = MenuDataBase.getInstance(showProductsInListActivity);
-            boolean result;
-            ContentValues editContentValues = new ContentValues();
-            editContentValues.put(ShoppingListsProductsTable.getThirdColumnName(), params[0]);
+                    String[] whereClauseArgs = {String.valueOf(shoppingListId),String.valueOf(productToChangeId)};
 
-            String[] whereClauseArgs = {String.valueOf(shoppingListId),String.valueOf(productToChangeId)};
+                    String whereClause = String.format("%s = ? AND %s = ?",
+                            ShoppingListsProductsTable.getFirstColumnName(),ShoppingListsProductsTable.getSecondColumnName());
 
-            String whereClause = String.format("%s = ? AND %s = ?",
-                    ShoppingListsProductsTable.getFirstColumnName(),ShoppingListsProductsTable.getSecondColumnName());
-            if(menuDataBase.update(ShoppingListsProductsTable.getTableName(), editContentValues, whereClause,
-                    whereClauseArgs) != -1) result = true;
-            else  result = false;
-            menuDataBase.close();
-            return result;
-        }
+                    result = menuDataBase.update(ShoppingListsProductsTable.getTableName(), editContentValues, whereClause,
+                            whereClauseArgs) != -1;
+                    menuDataBase.close();
+                    return result;
+                }
 
-        @Override
-        protected void onPostExecute(Boolean result) {
-            if(showProductsInListActivity != null){
-                if(result){
-                    showProductsInListActivity.updateQuantitySuccess(holder);
-                }else showProductsInListActivity.updateQuantityFailed();
-            }
+                @Override
+                protected void onPostExecute(Boolean result) {
+                    if(showProductsInListActivity != null){
+                        if(result){
+                            showProductsInListActivity.updateQuantitySuccess(holder);
+                        }else showProductsInListActivity.updateQuantityFailed();
+                    }
+                }
+            }.execute();
         }
     }
 
@@ -169,9 +207,11 @@ public class ShowProductsInListManager {
             MenuDataBase menuDataBase = MenuDataBase.getInstance(showProductsInListActivity);
             productsInShoppingList = new ArrayList<>();
 
-            String query = String.format("SELECT productsId, name, storageType, totalQuantity FROM %s p JOIN %s slp" +
-                    " ON p.productsId = slp.productId WHERE %s = '%s'", ProductsTable.getTableName(),
-                    ShoppingListsProductsTable.getTableName(), ShoppingListsProductsTable.getFirstColumnName(),shoppingListId);
+            String query = String.format("SELECT productsId, name, storageType, totalQuantity FROM " +
+                    "%s p JOIN %s slp ON p.productsId = slp.productId WHERE %s = '%s' ORDER BY %s ",
+                    ProductsTable.getTableName(), ShoppingListsProductsTable.getTableName(),
+                    ShoppingListsProductsTable.getFirstColumnName(),shoppingListId,
+                    ProductsTable.getSecondColumnName());
 
             Cursor cursor = menuDataBase.downloadData(query);
             if (cursor.getCount() > 0){
@@ -191,7 +231,7 @@ public class ShowProductsInListManager {
                 showProductsInListActivity.setProducts(products);
                 showProductsInListActivity.makeAStatement("You can change quantity by clicking on it", Toast.LENGTH_LONG);
             }else{
-                showProductsInListActivity.loadingProductsFailed();
+                showProductsInListActivity.shoppingListIsEmpty();
             }
         }
     }

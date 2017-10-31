@@ -148,7 +148,7 @@ public class MenusManager {
 
                     if(result){
                         String whereClauseForAmountOfServings = String.format("%s IN (SELECT %s" +
-                                "FROM %s WHERE %s = ?)",
+                                " FROM %s WHERE %s = ?)",
                                 MealsTypesDailyMenusAmountOfPeopleTable.getSecondColumnName(),
                                 MenusDailyMenusTable.getSecondColumnName(),
                                 MenusDailyMenusTable.getTableName(),

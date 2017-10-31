@@ -18,9 +18,7 @@ import android.widget.Toast;
 
 import com.example.dell.menu.App;
 import com.example.dell.menu.R;
-import com.example.dell.menu.objects.virtualfridge.ProductsShelf;
-
-import java.util.List;
+import com.example.dell.menu.screens.menuplanning.meals.addOrEdit.AddedProductsAdapter;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -30,6 +28,7 @@ import butterknife.ButterKnife;
  */
 
 public class VirtualFridgeFragment extends Fragment {
+    public static final String ADD_TO_FRIDGE_KEY = "Add to fridge";
     @Bind(R.id.shelvesTabLayout)
     TabLayout shelvesTabLayout;
     @Bind(R.id.shelvesViewPager)
@@ -85,8 +84,9 @@ public class VirtualFridgeFragment extends Fragment {
     }
 
     private void addNewProduct() {
-        startActivity(new Intent(getActivity(), AddProductToFridgeActivity.class));
-
+        Intent intent = new Intent(getActivity(), AddProductActivity.class);
+        intent.putExtra(ADD_TO_FRIDGE_KEY, true);
+        startActivity(intent);
     }
 
 
@@ -95,7 +95,6 @@ public class VirtualFridgeFragment extends Fragment {
         super.onStart();
         manager.onAttach(this);
         manager.loadContent();
-        Log.i("vff", "onStart");
     }
 
     @Override

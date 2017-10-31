@@ -5,11 +5,15 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.example.dell.menu.App;
 import com.example.dell.menu.R;
 import com.example.dell.menu.objects.menuplanning.Product;
+import com.example.dell.menu.screens.virtualfridge.AddProductActivity;
 
 import java.util.List;
 
@@ -19,12 +23,16 @@ import butterknife.ButterKnife;
 public class ShowProductsInListActivity extends AppCompatActivity {
 
 
+    public static final String ADD_DO_LIST_KEY = "add do list";
+    public static final String SHOPPING_LIST_ID_KEY = "shoppingListId";
     @Bind(R.id.productsInShoppingListRecyclerView)
     RecyclerView productsInShoppingListRecyclerView;
 
     private ProductsAdapter adapter;
     private ShowProductsInListManager showProductsInListManager;
     private int shoppingListId;
+    private boolean create_mode = false;
+    private boolean show_mode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +46,13 @@ public class ShowProductsInListActivity extends AppCompatActivity {
         productsInShoppingListRecyclerView.setAdapter(adapter);
 
         Intent intent = getIntent();
+        create_mode = intent.getBooleanExtra(ShoppingListsFragment.CREATE_MODE_KEY, false);
+        show_mode = intent.getBooleanExtra(ShoppingListsFragment.SHOW_MODE_KEY, false);
         shoppingListId = intent.getIntExtra(ShoppingListsFragment.SHOPPING_LIST_ID_KEY, 0);
+        showProductsInListManager.setShoppingListId(shoppingListId);
+        getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
+
+        setTitle("Show list");
     }
 
     @Override
@@ -51,12 +65,11 @@ public class ShowProductsInListActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         showProductsInListManager.onAttach(this);
-        showProductsInListManager.setShoppingListId(shoppingListId);
         showProductsInListManager.loadProducts();
     }
 
-    public void loadingProductsFailed() {
-        Toast.makeText(this, "Error while trying to load products into shopping list", Toast.LENGTH_SHORT).show();
+    public void shoppingListIsEmpty() {
+        Toast.makeText(this, "Shopping list is empty. Add products", Toast.LENGTH_SHORT).show();
     }
 
     public void setProducts(List<Product> result){
@@ -78,7 +91,46 @@ public class ShowProductsInListActivity extends AppCompatActivity {
 
     public void productFromShoppingListDeletedSuccessfully() {
         makeAStatement("Successfully deleted product from shopping list", Toast.LENGTH_SHORT);
-        //adapter.notifyDataSetChanged();
         adapter.setProducts(showProductsInListManager.getProductsInShoppingList());
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_search, menu);
+        MenuItem item = menu.findItem(R.id.search_menu);
+
+        SearchView searchView = (SearchView) item.getActionView();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                showProductsInListManager.findProducts(newText);
+                return true;
+            }
+        });
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == R.id.action_add){
+            Intent intent = new Intent(this, AddProductActivity.class);
+            intent.putExtra(ADD_DO_LIST_KEY, true);
+            intent.putExtra(SHOPPING_LIST_ID_KEY, shoppingListId);
+            startActivity(intent);
+            return true;
+        }else if(item.getItemId() == android.R.id.home){
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
 }

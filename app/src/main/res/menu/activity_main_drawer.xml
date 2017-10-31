@@ -34,6 +34,7 @@
             <group android:checkableBehavior="single">
                 <item
                     android:id="@+id/nav_manage_fridge"
+                    android:icon="@drawable/ic_fridge"
                     android:title="Manage fridge" />
             </group>
         </menu>

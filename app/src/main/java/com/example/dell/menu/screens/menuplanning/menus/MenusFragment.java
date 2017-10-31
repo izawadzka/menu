@@ -106,6 +106,9 @@ public class MenusFragment extends Fragment implements MenusAdapter.MenuClickedL
         return super.onOptionsItemSelected(item);
     }
 
+
+
+
     private void addNewMenu() {
         final AlertDialog dialog = createAlertDialogForMenuName();
         dialog.show();

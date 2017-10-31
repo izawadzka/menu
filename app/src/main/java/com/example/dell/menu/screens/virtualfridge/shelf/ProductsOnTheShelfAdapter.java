@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import com.example.dell.menu.R;
 import com.example.dell.menu.StorageType;
-import com.example.dell.menu.events.virtualfridge.AddProductToFridgeClickedEvent;
+import com.example.dell.menu.events.AddProductClickedEvent;
 import com.example.dell.menu.events.virtualfridge.AmountOfProductChangedEvent;
 import com.example.dell.menu.events.virtualfridge.DeleteProductFromFridgeEvent;
 import com.example.dell.menu.objects.menuplanning.Product;
@@ -109,7 +109,7 @@ public class ProductsOnTheShelfAdapter extends RecyclerView.Adapter<ProductsOnTh
         public void onUpdateOrAddProductClicked() {
             if(currentMode == ADD_MODE){
                 if(quantityEditText.getText().length() > 0) {
-                    bus.post(new AddProductToFridgeClickedEvent(product.getProductId(),
+                    bus.post(new AddProductClickedEvent(product.getProductId(),
                             Double.parseDouble(quantityEditText.getText().toString()),
                             product.getName()));
                     quantityEditText.setText("");

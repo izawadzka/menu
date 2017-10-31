@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity
     private UserStorage userStorage;
     private DrawerLayout drawer;
     private Bus bus;
-
+    private NavigationView navigationView;
 
 
     @Override
@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
 
         navigationView.setNavigationItemSelectedListener(this);
 
@@ -109,7 +109,8 @@ public class MainActivity extends AppCompatActivity
 
     @Subscribe
     public void onShowShoppingList(ShowShoppingListEvent event){
-        showFragment(new ShoppingListsFragment());
+        navigationView.setCheckedItem(R.id.nav_shoppingList);
+        onNavigationItemSelected(navigationView.getMenu().findItem(R.id.nav_shoppingList));
     }
 
     @Override

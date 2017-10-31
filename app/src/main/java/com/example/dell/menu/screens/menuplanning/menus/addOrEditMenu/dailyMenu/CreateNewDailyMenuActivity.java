@@ -195,6 +195,7 @@ public class CreateNewDailyMenuActivity extends AppCompatActivity {
     }
 
     private void setState() {
+        Log.i("create", "setstate");
         manager.setDailyMenuDate(dateEditText.getText().toString());
         manager.setAmountOfServingsInBreakfast(Integer.parseInt(amountOfServingsInBreakfastEditText
                 .getText().toString()));
@@ -346,6 +347,7 @@ public class CreateNewDailyMenuActivity extends AppCompatActivity {
 
         amountOfServingsInBreakfastEditText.setText(String.format("%s", manager.getAmountOfServingsInBreakfast()));
         amountOfServingsInLunchEditText.setText(String.format("%s", manager.getAmountOfServingsInLunch()));
+        Log.i("getState", String.format("%s", manager.getAmountOfServingsInDinner()));
         amountOfServingsInDinnerEditText.setText(String.format("%s", manager.getAmountOfServingsInDinner()));
         amountOfServingsInTeatimeEditText.setText(String.format("%s", manager.getAmountOfServingsInTeatime()));
         amountOfServingsInSupperEditText.setText(String.format("%s", manager.getAmountOfServingsInSupper()));
@@ -385,11 +387,19 @@ public class CreateNewDailyMenuActivity extends AppCompatActivity {
         manager.setCurrentDailyMenuAndDetails(null);
         manager.setCumulativeNumberOfKcal(0);
 
+        amountOfServingsInBreakfastEditText.setText("1");
+        amountOfServingsInLunchEditText.setText("1");
+        amountOfServingsInDinnerEditText.setText("1");
+        amountOfServingsInTeatimeEditText.setText("1");
+        amountOfServingsInSupperEditText.setText("1");
+        /*
         manager.setAmountOfServingsInBreakfast(1);
         manager.setAmountOfServingsInLunch(1);
+
         manager.setAmountOfServingsInDinner(1);
         manager.setAmountOfServingsInTeatime(1);
-        manager.setAmountOfServingsInSupper(1);
+        manager.setAmountOfServingsInSupper(1);*/
+        Log.i("create", "finish");
         finish();
     }
 

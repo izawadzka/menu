@@ -18,8 +18,7 @@ import com.example.dell.menu.screens.register.RegisterManager;
 import com.example.dell.menu.screens.reports.ReportsManager;
 import com.example.dell.menu.screens.shoppingLists.ShoppingListsManager;
 import com.example.dell.menu.screens.shoppingLists.ShowProductsInListManager;
-import com.example.dell.menu.screens.virtualfridge.AddProductToFridgeActivity;
-import com.example.dell.menu.screens.virtualfridge.AddProductToFridgeManager;
+import com.example.dell.menu.screens.virtualfridge.AddProductManager;
 import com.example.dell.menu.screens.virtualfridge.VirtualFridgeManager;
 import com.squareup.otto.Bus;
 
@@ -48,7 +47,7 @@ public class App extends Application {
     private DailyMenusManager dailyMenusManager;
     private VirtualFridgeManager virtualFridgeManager;
     private boolean backupFlag = false;
-    private AddProductToFridgeManager addProductToFridgeManager;
+    private AddProductManager addProductManager;
 
     public boolean isBackupFlag() {
         return backupFlag;
@@ -89,11 +88,11 @@ public class App extends Application {
         dailyMenusManager = new DailyMenusManager(bus);
         reportsManager = new ReportsManager();
         virtualFridgeManager = new VirtualFridgeManager(bus);
-        addProductToFridgeManager = new AddProductToFridgeManager(bus);
+        addProductManager = new AddProductManager(bus);
     }
 
-    public AddProductToFridgeManager getAddProductToFridgeManager() {
-        return addProductToFridgeManager;
+    public AddProductManager getAddProductManager() {
+        return addProductManager;
     }
 
     public ReportsManager getReportsManager() {
