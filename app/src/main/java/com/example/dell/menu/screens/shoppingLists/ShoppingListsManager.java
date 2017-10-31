@@ -1,14 +1,18 @@
 package com.example.dell.menu.screens.shoppingLists;
 
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.dell.menu.MenuDataBase;
 import com.example.dell.menu.events.shoppinglists.DeleteShoppingListEvent;
 import com.example.dell.menu.events.shoppinglists.EditShoppingListNameEvent;
 import com.example.dell.menu.events.shoppinglists.GenerateShoppingListEvent;
+import com.example.dell.menu.events.shoppinglists.SynchronizeShoppingListWithFridgeButtonClickedEvent;
 import com.example.dell.menu.objects.menuplanning.Menu;
 import com.example.dell.menu.objects.menuplanning.Product;
 import com.example.dell.menu.objects.shoppinglist.ShoppingList;
@@ -20,6 +24,7 @@ import com.example.dell.menu.tables.ProductsTable;
 import com.example.dell.menu.tables.ShoppingListsProductsTable;
 import com.example.dell.menu.tables.ShoppingListsTable;
 import com.example.dell.menu.tables.UsersTable;
+import com.example.dell.menu.tables.VirtualFridgeTable;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -32,6 +37,9 @@ import java.util.List;
  */
 
 public class ShoppingListsManager {
+    public static final int RESULT_ERROR = -1;
+    public static final int RESULT_EMPTY = 1;
+    public static final int RESULT_OK = 0;
     private final Bus bus;
     private ShoppingListsFragment shoppingListsFragment;
     private Menu currentMenu;
@@ -48,7 +56,7 @@ public class ShoppingListsManager {
         waitingToGenerateNewShoppingList = false;
     }
 
-    public void setCreateShoppingList_mode(boolean createShoppingList_mode) {
+    void setCreateShoppingList_mode(boolean createShoppingList_mode) {
         this.createShoppingList_mode = createShoppingList_mode;
     }
 
@@ -74,6 +82,107 @@ public class ShoppingListsManager {
 
     public void onStop(){
         this.shoppingListsFragment = null;
+    }
+
+    @Subscribe
+    public void onSynchronizeShoppingListWithFridgeButtonClicked
+            (final SynchronizeShoppingListWithFridgeButtonClickedEvent event){
+        if(shoppingListsFragment != null) {
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog
+                    .Builder(shoppingListsFragment.getContext());
+
+            alertDialogBuilder.setTitle("Synchronize with the fridge");
+
+            alertDialogBuilder.setMessage("Are you sure you want to synchronize the " +
+                    "shopping list with the fridge?")
+                    .setCancelable(true)
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int d) {
+                            synchronizeWithFridge(event.shoppingListId);
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int d) {
+                            dialog.cancel();
+                        }
+                    });
+
+            AlertDialog alertDialog = alertDialogBuilder.create();
+
+            alertDialog.show();
+        }
+    }
+
+    private void synchronizeWithFridge(final int shoppingListId) {
+        if(shoppingListsFragment != null){
+            new AsyncTask<Void, Void, Integer>(){
+
+                @Override
+                protected Integer doInBackground(Void... params) {
+                    int result = RESULT_OK;
+                    MenuDataBase menuDataBase = MenuDataBase
+                            .getInstance(shoppingListsFragment.getActivity());
+                    String query = String.format("SELECT sp.%s, %s, %s FROM %s sp " +
+                            "JOIN %s vf ON sp.%s = vf.%s WHERE sp.%s = '%s'",
+                            ShoppingListsProductsTable.getSecondColumnName(),
+                            ShoppingListsProductsTable.getThirdColumnName(),
+                            VirtualFridgeTable.getSecondColumnName(),
+                            ShoppingListsProductsTable.getTableName(),
+                            VirtualFridgeTable.getTableName(),
+                            ShoppingListsProductsTable.getSecondColumnName(),
+                            VirtualFridgeTable.getFirstColumnName(),
+                            ShoppingListsProductsTable.getFirstColumnName(),
+                            shoppingListId);
+
+                    Cursor cursor = menuDataBase.downloadData(query);
+                    if(cursor.getCount() > 0){
+                        cursor.moveToPosition(-1);
+                        String whereClause = String.format("%s = ? AND %s = ?",
+                                ShoppingListsProductsTable.getFirstColumnName(),
+                                ShoppingListsProductsTable.getSecondColumnName());
+                        while (cursor.moveToNext()){
+                            String[] args = {String.valueOf(shoppingListId),
+                                    String.valueOf(cursor.getInt(0))};
+                            if(cursor.getDouble(1) > cursor.getDouble(2)) {
+                                ContentValues editContentValues = new ContentValues();
+
+                                editContentValues
+                                        .put(ShoppingListsProductsTable.getThirdColumnName(),
+                                                cursor.getDouble(1) - cursor.getDouble(2));
+
+                                if(menuDataBase.update(ShoppingListsProductsTable.getTableName(),
+                                        editContentValues, whereClause, args) == 0){
+                                    result = RESULT_ERROR;
+                                    break;
+                                }
+                            }else{
+                                if(menuDataBase.delete(ShoppingListsProductsTable.getTableName(),
+                                        whereClause, args) == 0){
+                                    result = RESULT_ERROR;
+                                    break;
+                                }
+                            }
+                        }
+                    }else result = RESULT_EMPTY;
+                    menuDataBase.close();
+                    return result;
+                }
+
+                @Override
+                protected void onPostExecute(Integer result) {
+                    if(shoppingListsFragment != null){
+                        if(result == RESULT_OK) shoppingListsFragment
+                                .makeAStatement("Synchronizing completed!", Toast.LENGTH_SHORT);
+                        else if(result == RESULT_EMPTY) shoppingListsFragment
+                                .makeAStatement("No product from the shopping list found in the " +
+                                        "fridge", Toast.LENGTH_LONG);
+                        else if(result == RESULT_ERROR) shoppingListsFragment
+                                .makeAStatement("An error occurred while an attempt to synchronize" +
+                                        " the shopping list with the fridge", Toast.LENGTH_LONG);
+                    }
+                }
+            }.execute();
+        }
     }
 
     @Subscribe
@@ -105,7 +214,7 @@ public class ShoppingListsManager {
         }
     }
 
-    public void findLists(final String newText) {
+    void findLists(final String newText) {
         if(shoppingListsFragment != null){
             new AsyncTask<Void, Void, List<ShoppingList>>(){
 
@@ -158,7 +267,7 @@ public class ShoppingListsManager {
         }
     }
 
-    public void addNewShoppingList(String shoppingListName, Long userId) {
+    void addNewShoppingList(String shoppingListName, Long userId) {
         shoppingListAuthorsId = userId;
         this.shoppingListName = shoppingListName;
         createShoppingList();
@@ -352,19 +461,7 @@ public class ShoppingListsManager {
                     ArrayList<Product> products = new ArrayList<Product>();
                     MenuDataBase menuDataBase = MenuDataBase
                             .getInstance(shoppingListsFragment.getActivity());
-                    /*
-                    String query = String.format("SELECT productId, quantity, name, storageType, " +
-                            "mt.mealsTypeId, amountOfPeople FROM Meals_Products mp JOIN Products p " +
-                            "ON mp.productId = p.productsId JOIN MealsTypesMealsDailyMenus mt ON " +
-                            "mt.mealsId = mp.mealId JOIN " +
-                            "MealsTypesDailyMenusAmountOfPeople am on am.dailyMenuId = mt.dailyMenuId " +
-                            "and am.mealsTypeId = mt.mealsTypeId WHERE mp.mealId IN " +
-                            "(SELECT mealsId FROM MealsTypesMealsDailyMenus WHERE dailyMenuId IN " +
-                            "(select MenusDailyMenus.dailyMenuId FROM MenusDailyMenus WHERE " +
-                            "MenusDailyMenus.menuId = '%s')) AND mt.dailyMenuId IN " +
-                            "(select MenusDailyMenus.dailyMenuId FROM MenusDailyMenus WHERE " +
-                            "MenusDailyMenus.menuId = '%s');",
-                            currentMenu.getMenuId(), currentMenu.getMenuId());*/
+
                     String query = String.format("SELECT productId, quantity, " +
                                     "mt.mealsTypeId, amountOfPeople FROM Meals_Products mp JOIN Products p " +
                                     "ON mp.productId = p.productsId JOIN MealsTypesMealsDailyMenus mt ON " +
@@ -377,7 +474,7 @@ public class ShoppingListsManager {
                                     "(select MenusDailyMenus.dailyMenuId FROM MenusDailyMenus WHERE " +
                                     "MenusDailyMenus.menuId = '%s');",
                             currentMenu.getMenuId(), currentMenu.getMenuId());
-                    // TODO: 30.10.2017  
+
                     Cursor queryCursor = menuDataBase.downloadData(query);
                     if(queryCursor.getCount() > 0){
                         queryCursor.moveToPosition(-1);

@@ -25,6 +25,15 @@
         android:layout_below="@+id/shoppingListNameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+        <ImageButton
+            android:id="@+id/synchronizeWithFridgeImageButton"
+            android:src="@drawable/ic_synchronize"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="@dimen/right_padding_for_buttons"
+            android:layout_marginEnd="@dimen/right_padding_for_buttons"
+            android:layout_toLeftOf="@+id/editShoppingListNameImageButton"
+            android:layout_toStartOf="@+id/editShoppingListNameImageButton"
+            style="@style/buttonStyle" />
     <ImageButton
         android:id="@+id/editShoppingListNameImageButton"
         android:src="@drawable/ic_edit"

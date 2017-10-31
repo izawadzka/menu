@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.example.dell.menu.R;
 import com.example.dell.menu.events.shoppinglists.DeleteShoppingListEvent;
 import com.example.dell.menu.events.shoppinglists.EditShoppingListNameEvent;
+import com.example.dell.menu.events.shoppinglists.SynchronizeShoppingListWithFridgeButtonClickedEvent;
 import com.example.dell.menu.objects.shoppinglist.ShoppingList;
 import com.squareup.otto.Bus;
 
@@ -30,7 +31,7 @@ public class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapte
     List<ShoppingList> shoppingLists = new ArrayList<>();
     private ShoppingListClickedListener shoppingListClickedListener;
 
-    public ShoppingListAdapter(Bus bus){
+    public ShoppingListAdapter(Bus bus) {
         this.bus = bus;
     }
 
@@ -50,7 +51,7 @@ public class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapte
         return shoppingLists.size();
     }
 
-    public void setShoppingLists(List<ShoppingList> result){
+    public void setShoppingLists(List<ShoppingList> result) {
         shoppingLists.clear();
         shoppingLists.addAll(result);
         notifyDataSetChanged();
@@ -62,11 +63,11 @@ public class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapte
 
     private void itemClicked(ShoppingList shoppingList) {
         if (shoppingListClickedListener != null) {
-           shoppingListClickedListener.shoppingListClicked(shoppingList);
+            shoppingListClickedListener.shoppingListClicked(shoppingList);
         }
     }
 
-    class ShoppingListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    class ShoppingListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         @Bind(R.id.shoppingListNameTextView)
         TextView shoppingListNameTextView;
@@ -76,6 +77,8 @@ public class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapte
         ImageButton editShoppingListNameImageButton;
         @Bind(R.id.deleteShoppingListImageButton)
         ImageButton deleteShoppingListImageButton;
+        @Bind(R.id.synchronizeWithFridgeImageButton)
+        ImageButton synchronizeWithFridgeImageButton;
 
         private ShoppingList shoppingList;
 
@@ -86,19 +89,26 @@ public class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapte
             itemView.setOnClickListener(this);
         }
 
-        public void setShoppingList(ShoppingList shoppingList) {
+        void setShoppingList(ShoppingList shoppingList) {
             this.shoppingList = shoppingList;
             shoppingListNameTextView.setText(shoppingList.getName());
             authorsNameTextView.setText("Author: " + shoppingList.getAuthorsName());
         }
+
         @OnClick(R.id.deleteShoppingListImageButton)
-        public void onDeleteShoppingListImageButtonClicked(){
+        void onDeleteShoppingListImageButtonClicked() {
             bus.post(new DeleteShoppingListEvent(shoppingList));
         }
 
         @OnClick(R.id.editShoppingListNameImageButton)
-        public void onEditShoppingListNameImageButtonClicked(){
+        void onEditShoppingListNameImageButtonClicked() {
             bus.post(new EditShoppingListNameEvent(shoppingList.getShoppingListId(), shoppingList.getName()));
+        }
+
+        @OnClick(R.id.synchronizeWithFridgeImageButton)
+        void onSynchronizeListWithFridgeImageButtonClicked(){
+            bus.post(new SynchronizeShoppingListWithFridgeButtonClickedEvent(shoppingList
+                            .getShoppingListId()));
         }
 
         @Override

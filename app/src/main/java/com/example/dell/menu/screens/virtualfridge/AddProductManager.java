@@ -125,9 +125,12 @@ public class AddProductManager {
                 @Override
                 protected void onPostExecute(Boolean result) {
                     if(addProductActivity != null){
-                        if (result) addProductActivity
+                        if (result){
+                            addProductActivity
                                 .makeAStatement(String.format("%s successfully added", event.name),
                                         Toast.LENGTH_SHORT);
+                            loadProducts();
+                        }
                         else addProductActivity
                                 .makeAStatement(String.format("Adding %s failed", event.name),
                                         Toast.LENGTH_LONG);

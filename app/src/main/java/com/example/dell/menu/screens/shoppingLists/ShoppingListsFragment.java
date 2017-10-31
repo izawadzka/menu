@@ -246,4 +246,8 @@ public class ShoppingListsFragment extends Fragment implements ShoppingListAdapt
         intent.putExtra(SHOPPING_LIST_ID_KEY, shoppingListId);
         startActivity(intent);
     }
+
+    public void makeAStatement(String statement, int duration) {
+        Toast.makeText(getContext(), statement, duration).show();
+    }
 }
