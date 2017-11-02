@@ -61,7 +61,7 @@ public class RegisterActivity extends AppCompatActivity {
     @OnClick(R.id.registerButton)
     public void onRegisterClicked() {
         boolean hasErrors  = false;
-
+        registerButton.setEnabled(false);
         if(registerUsernameEditText.length() < 3){
             hasErrors = true;
             registerUsernameEditText.setError("Username must have at least 3 characters");
@@ -73,7 +73,10 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         if(!hasErrors)
-        registerManager.register(registerUsernameEditText.getText().toString(), registerPasswordEditText.getText().toString());
+            registerManager.register(registerUsernameEditText.getText().toString(),
+                    registerPasswordEditText.getText().toString());
+
+        else registerButton.setEnabled(true);
     }
 
     public void registerSuccess() {
@@ -85,6 +88,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     public void registerFailed(String message) {
         Toast.makeText(this, "Register failed " + message, Toast.LENGTH_SHORT).show();
+        registerButton.setEnabled(true);
     }
 
     @Override

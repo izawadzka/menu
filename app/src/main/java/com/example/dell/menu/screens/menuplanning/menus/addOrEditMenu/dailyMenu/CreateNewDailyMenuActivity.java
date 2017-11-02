@@ -195,7 +195,6 @@ public class CreateNewDailyMenuActivity extends AppCompatActivity {
     }
 
     private void setState() {
-        Log.i("create", "setstate");
         manager.setDailyMenuDate(dateEditText.getText().toString());
         manager.setAmountOfServingsInBreakfast(Integer.parseInt(amountOfServingsInBreakfastEditText
                 .getText().toString()));
@@ -238,10 +237,11 @@ public class CreateNewDailyMenuActivity extends AppCompatActivity {
     }
 
     private void updateDailyMenu() {
+        saveDailyMenuButton.setEnabled(false);
         if (validateUsersInput()) {
             setState();
             manager.updateDailyMenu();
-        }
+        }else saveDailyMenuButton.setEnabled(true);
     }
 
     private void cancel() {
@@ -305,10 +305,11 @@ public class CreateNewDailyMenuActivity extends AppCompatActivity {
     }
 
     private void save() {
+        saveDailyMenuButton.setEnabled(false);
         if (validateUsersInput()) {
             setState();
             manager.saveDailyMenu();
-        }
+        }else saveDailyMenuButton.setEnabled(true);
     }
 
     @OnClick({R.id.addMealForBreakfastImageButton, R.id.addMealForLunchImageButton, R.id.addMealForDinnerImageButton, R.id.addMealForTeatimeImageButton, R.id.addMealForSupperImageButton})
@@ -392,14 +393,7 @@ public class CreateNewDailyMenuActivity extends AppCompatActivity {
         amountOfServingsInDinnerEditText.setText("1");
         amountOfServingsInTeatimeEditText.setText("1");
         amountOfServingsInSupperEditText.setText("1");
-        /*
-        manager.setAmountOfServingsInBreakfast(1);
-        manager.setAmountOfServingsInLunch(1);
 
-        manager.setAmountOfServingsInDinner(1);
-        manager.setAmountOfServingsInTeatime(1);
-        manager.setAmountOfServingsInSupper(1);*/
-        Log.i("create", "finish");
         finish();
     }
 

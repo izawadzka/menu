@@ -8,6 +8,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.example.dell.menu.R;
+import com.example.dell.menu.StorageType;
 import com.example.dell.menu.events.products.DeleteProductEvent;
 import com.example.dell.menu.events.products.UpdateProductEvent;
 import com.example.dell.menu.objects.menuplanning.Product;
@@ -24,12 +25,12 @@ import butterknife.OnClick;
  * Created by Dell on 26.05.2017.
  */
 
-public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ProductViewHolder> {
+class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ProductViewHolder> {
     private final Bus bus;
     private ProductClickedListener productClickedListener;
     private List<Product> products = new ArrayList<>();
 
-    public ProductsAdapter(Bus bus) {
+    ProductsAdapter(Bus bus) {
         this.bus = bus;
     }
 
@@ -55,11 +56,11 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
         return products.size();
     }
 
-    public void setProductClickedListener(ProductClickedListener productClickedListener) {
+    void setProductClickedListener(ProductClickedListener productClickedListener) {
         this.productClickedListener = productClickedListener;
     }
 
-    void itemClicked(Product product) {
+    private void itemClicked(Product product) {
         if (productClickedListener != null) {
             productClickedListener.productClicked(product);
         }
@@ -81,12 +82,14 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
         TextView carbonsTextView;
         @Bind(R.id.fatTextView)
         TextView fatTextView;
+        @Bind(R.id.unitLabel)
+        TextView unitLabel;
 
         private final Bus bus;
         private Product product;
 
 
-        public ProductViewHolder(View itemView, Bus bus) {
+        ProductViewHolder(View itemView, Bus bus) {
             super(itemView);
             this.bus = bus;
             ButterKnife.bind(this, itemView);
@@ -96,19 +99,23 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
         public void setProduct(Product product) {
             this.product = product;
             productNameTextView.setText(product.getName());
-            caloriesTextView.setText(String.format("%s kcal", product.getNumberOfKcalPer100g()));
-            proteinsTextView.setText(String.format("P: %s g", product.getAmountOfProteinsPer100g()));
-            carbonsTextView.setText(String.format("C: %s g", product.getAmountOfCarbosPer100g()));
-            fatTextView.setText(String.format("F: %s g", product.getAmountOfFatPer100g()));
+            caloriesTextView.setText(String.format("%s kcal", product.getKcalPer100g_mlOr1Unit()));
+            proteinsTextView.setText(String.format("P: %s g", product.getProteinsPer100g_mlOr1Unit()));
+            carbonsTextView.setText(String.format("C: %s g", product.getCarbohydratesPer100g_mlOr1Unit()));
+            fatTextView.setText(String.format("F: %s g", product.getFatPer100g_mlOr1Unit()));
+
+            if(product.getStorageType().equals(StorageType.ITEM))
+                unitLabel.setText("/1"+StorageType.getUnit(product.getStorageType()));
+            else unitLabel.setText("/100"+StorageType.getUnit(product.getStorageType()));
         }
 
         @OnClick(R.id.deleteProductImageButton)
-        public void onDeleteProductButtonClicked() {
+        void onDeleteProductButtonClicked() {
             bus.post(new DeleteProductEvent(product.getProductId()));
         }
 
         @OnClick(R.id.updateOrAddProductImageButton)
-        public void onUpdateProductImageButtonClicked() {
+        void onUpdateProductImageButtonClicked() {
             bus.post(new UpdateProductEvent(product.getProductId()));
         }
 
@@ -118,7 +125,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
         }
     }
 
-    public interface ProductClickedListener {
+    interface ProductClickedListener {
         void productClicked(Product product);
     }
 }

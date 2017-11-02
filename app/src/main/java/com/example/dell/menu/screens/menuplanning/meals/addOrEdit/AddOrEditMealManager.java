@@ -35,10 +35,10 @@ public class AddOrEditMealManager {
     private Product productToDelete;
     private String stateName;
     private String stateRecipe;
-    private int amountOfKcal;
-    private int amountOfProteins;
-    private int amountOfCarbons;
-    private int amountOfFat;
+    private double amountOfKcal;
+    private double amountOfProteins;
+    private double amountOfCarbons;
+    private double amountOfFat;
 
     private boolean editMode;
     private boolean showMode;
@@ -81,21 +81,21 @@ public class AddOrEditMealManager {
         this.mealsTypesStates = mealsTypesStates;
     }
 
-    int getAmountOfKcal() {
+    double getAmountOfKcal() {
         return amountOfKcal;
     }
 
-    int getAmountOfProteins() {
+    double getAmountOfProteins() {
         return amountOfProteins;
     }
 
 
-    int getAmountOfCarbons() {
+    double getAmountOfCarbons() {
         return amountOfCarbons;
     }
 
 
-    int getAmountOfFat() {
+    double getAmountOfFat() {
         return amountOfFat;
     }
 
@@ -113,10 +113,10 @@ public class AddOrEditMealManager {
 
         if(!found) listOfProducts.add(event.product);
 
-        amountOfKcal += (event.product.getNumberOfKcalPer100g() * quantity)/ HUNDRED_GRAMS;
-        amountOfProteins += (event.product.getAmountOfProteinsPer100g() * quantity)/ HUNDRED_GRAMS;
-        amountOfCarbons += (event.product.getAmountOfCarbosPer100g() * quantity)/ HUNDRED_GRAMS;
-        amountOfFat += (event.product.getAmountOfFatPer100g()*quantity)/ HUNDRED_GRAMS;
+        amountOfKcal += event.product.countCalories(quantity);
+        amountOfProteins += event.product.countProteins(quantity);
+        amountOfCarbons += event.product.countCarbons(quantity);
+        amountOfFat += event.product.countFat(quantity);
 
         bus.post(new ProductAddedSuccessfullyToIngredientsEvent(event.product.getName()));
     }
@@ -144,10 +144,10 @@ public class AddOrEditMealManager {
 
         if(indx != -1){
             listOfProducts.remove(indx);
-            amountOfKcal -= productToDelete.getNumberOfKcalPer100g();
-            amountOfProteins -= productToDelete.getAmountOfProteinsPer100g();
-            amountOfCarbons -= productToDelete.getAmountOfCarbosPer100g();
-            amountOfFat -= productToDelete.getAmountOfFatPer100g();
+            amountOfKcal -= productToDelete.getKcalPer100g_mlOr1Unit();
+            amountOfProteins -= productToDelete.getProteinsPer100g_mlOr1Unit();
+            amountOfCarbons -= productToDelete.getCarbohydratesPer100g_mlOr1Unit();
+            amountOfFat -= productToDelete.getFatPer100g_mlOr1Unit();
         }
         else{
             if(addOrEditMealActivity != null) addOrEditMealActivity.productDeleteFailed(productToDelete.getName());
@@ -210,8 +210,8 @@ public class AddOrEditMealManager {
                     try {
                         MenuDataBase menuDataBase = MenuDataBase.getInstance(addOrEditMealActivity);
                         ContentValues contentValues = MealsTable.getContentValues(new Meal(mealsName,
-                                amountOfKcal, Integer.parseInt(String.valueOf(mealAuthorId)), mealsRecipe, amountOfProteins,
-                                amountOfCarbons, amountOfFat));
+                                (int)amountOfKcal, Integer.parseInt(String.valueOf(mealAuthorId)), mealsRecipe, (int)amountOfProteins,
+                                (int)amountOfCarbons, (int)amountOfFat));
                         long index = menuDataBase.insert(MealsTable.getTableName(), contentValues);
                         menuDataBase.close();
                         return index;

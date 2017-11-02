@@ -60,6 +60,13 @@
             android:paddingEnd="@dimen/text_padding_in_recyclerView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/unitLabel"
+            android:paddingLeft="20dp"
+            tools:text="/100g"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
     </LinearLayout>
 
 

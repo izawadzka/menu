@@ -40,7 +40,7 @@ public class ProductFragmentManager {
         productsFragment = null;
     }
 
-    public void loadProducts(){
+    void loadProducts(){
 
         if(productsFragment != null) {
             new LoadProducts().execute();
@@ -72,7 +72,7 @@ public class ProductFragmentManager {
         }
     }
 
-    public void findProducts(String textToFind) {
+    void findProducts(String textToFind) {
         if(productsFragment != null){
             new FindProducts().execute(textToFind);
         }
@@ -115,12 +115,12 @@ public class ProductFragmentManager {
         protected List<Product> doInBackground(Void... params) {
             MenuDataBase menuDataBase = MenuDataBase.getInstance(productsFragment.getActivity());
 
-            String query = String.format("SELECT %s, %s, %s, %s, %s, %s FROM %s ORDER BY %s",
+            String query = String.format("SELECT %s, %s, %s, %s, %s, %s, %s FROM %s ORDER BY %s",
                     ProductsTable.getFirstColumnName(),
                     ProductsTable.getSecondColumnName(), ProductsTable.getThirdColumnName(),
                     ProductsTable.getSixthColumnName(), ProductsTable.getSeventhColumnName(),
-                    ProductsTable.getEighthColumnName(), ProductsTable.getTableName(),
-                    ProductsTable.getSecondColumnName());
+                    ProductsTable.getEighthColumnName(), ProductsTable.getFifthColumnName(),
+                    ProductsTable.getTableName(), ProductsTable.getSecondColumnName());
             Cursor cursor = menuDataBase.downloadData(query);
             List<Product> results =  new ArrayList<>();
 
@@ -137,6 +137,7 @@ public class ProductFragmentManager {
                     amountOfFat = cursor.getInt(5);
                     results.add(new Product(productsId, name, numberOfKcalPer100g,
                             amountOfProteins, amountOfCarbos, amountOfFat));
+                    results.get(results.size()-1).setStorageType(cursor.getString(6));
                 }
             }
             menuDataBase.close();

@@ -1,5 +1,7 @@
 package com.example.dell.menu.objects.menuplanning;
 
+import com.example.dell.menu.StorageType;
+
 import java.io.Serializable;
 
 /**
@@ -7,38 +9,39 @@ import java.io.Serializable;
  */
 
 public class Product implements Serializable{
+    public static final int DEFAULT_AMOUNT_FOR_VOLUME_OR_WEIGHT = 100;
     private int productId;
     private String name;
-    private int numberOfKcalPer100g;
+    private int kcalPer100g_mlOr1Unit;
     private String type;
     private String storageType;
     private double quantity;
-    private int amountOfProteinsPer100g;
-    private int amountOfCarbosPer100g;
-    private int amountOfFatPer100g;
+    private int proteinsPer100g_mlOr1Unit;
+    private int carbohydratesPer100g_mlOr1Unit;
+    private int fatPer100g_mlOr1Unit;
     private double blockedAmount = 0; //used in virtual fridge, amount blocked by shopping lists
 
-    public Product(int productId, String name, int numberOfKcalPer100g, String type,
-                   String storageType, int amountOfProteinsPer100g, int amountOfCarbosPer100g,
-                   int amountOfFatPer100g){
+    public Product(int productId, String name, int kcalPer100g_mlOr1Unit, String type,
+                   String storageType, int proteinsPer100g_mlOr1Unit, int carbohydratesPer100g_mlOr1Unit,
+                   int fatPer100g_mlOr1Unit){
         this.productId = productId;
         this.name = name;
-        this.numberOfKcalPer100g = numberOfKcalPer100g;
+        this.kcalPer100g_mlOr1Unit = kcalPer100g_mlOr1Unit;
         this.type = type;
         this.storageType =storageType;
-        this.amountOfProteinsPer100g = amountOfProteinsPer100g;
-        this.amountOfCarbosPer100g = amountOfCarbosPer100g;
-        this.amountOfFatPer100g = amountOfFatPer100g;
+        this.proteinsPer100g_mlOr1Unit = proteinsPer100g_mlOr1Unit;
+        this.carbohydratesPer100g_mlOr1Unit = carbohydratesPer100g_mlOr1Unit;
+        this.fatPer100g_mlOr1Unit = fatPer100g_mlOr1Unit;
     }
 
-    public Product(int productsId, String name, int numberOfKcalPer100g,
+    public Product(int productsId, String name, int kcalPer100g_mlOr1Unit,
                    int amountOfProteins, int amountOfCarbos, int amountOfFat){
         this.productId = productsId;
         this.name = name;
-        this.numberOfKcalPer100g = numberOfKcalPer100g;
-        this.amountOfProteinsPer100g = amountOfProteins;
-        this.amountOfCarbosPer100g = amountOfCarbos;
-        this.amountOfFatPer100g = amountOfFat;
+        this.kcalPer100g_mlOr1Unit = kcalPer100g_mlOr1Unit;
+        this.proteinsPer100g_mlOr1Unit = amountOfProteins;
+        this.carbohydratesPer100g_mlOr1Unit = amountOfCarbos;
+        this.fatPer100g_mlOr1Unit = amountOfFat;
     }
 
 
@@ -115,8 +118,8 @@ public class Product implements Serializable{
         return name;
     }
 
-    public int getNumberOfKcalPer100g() {
-        return numberOfKcalPer100g;
+    public int getKcalPer100g_mlOr1Unit() {
+        return kcalPer100g_mlOr1Unit;
     }
 
     public String getType() {
@@ -127,15 +130,39 @@ public class Product implements Serializable{
         return storageType;
     }
 
-    public int getAmountOfProteinsPer100g() {
-        return amountOfProteinsPer100g;
+    public int getProteinsPer100g_mlOr1Unit() {
+        return proteinsPer100g_mlOr1Unit;
     }
 
-    public int getAmountOfCarbosPer100g() {
-        return amountOfCarbosPer100g;
+    public int getCarbohydratesPer100g_mlOr1Unit() {
+        return carbohydratesPer100g_mlOr1Unit;
     }
 
-    public int getAmountOfFatPer100g() {
-        return amountOfFatPer100g;
+    public int getFatPer100g_mlOr1Unit() {
+        return fatPer100g_mlOr1Unit;
+    }
+
+    public double countCalories(double amount){
+        if(storageType.equals(StorageType.ITEM)) return amount * kcalPer100g_mlOr1Unit;
+        else return amount*kcalPer100g_mlOr1Unit/ DEFAULT_AMOUNT_FOR_VOLUME_OR_WEIGHT;
+    }
+
+    public double countProteins(double amount){
+        if(storageType.equals(StorageType.ITEM)) return amount*proteinsPer100g_mlOr1Unit;
+        else return amount * proteinsPer100g_mlOr1Unit / DEFAULT_AMOUNT_FOR_VOLUME_OR_WEIGHT;
+    }
+
+    public double countCarbons(double amount){
+        if(storageType.equals(StorageType.ITEM)) return amount*carbohydratesPer100g_mlOr1Unit;
+        else return amount*carbohydratesPer100g_mlOr1Unit/DEFAULT_AMOUNT_FOR_VOLUME_OR_WEIGHT;
+    }
+
+    public double countFat(double amount){
+        if(storageType.equals(StorageType.ITEM)) return amount*fatPer100g_mlOr1Unit;
+        else return amount*fatPer100g_mlOr1Unit/DEFAULT_AMOUNT_FOR_VOLUME_OR_WEIGHT;
+    }
+
+    public void setStorageType(String storageType) {
+        this.storageType = storageType;
     }
 }

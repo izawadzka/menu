@@ -76,6 +76,7 @@ public class AddOrEditMealActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_or_edit_meal);
         ButterKnife.bind(this);
+        setTitle("Create meal");
 
         addOrEditMealManager = ((App) getApplication()).getAddOrEditMealManager();
         if (getIntent().getStringExtra(MealsFragment.EDIT_MODE_KEY) != null) edit_mode = true;
@@ -182,6 +183,7 @@ public class AddOrEditMealActivity extends AppCompatActivity {
     private void saveMeal() {
         boolean hasErrors = false;
         boolean typeNotChosen = true;
+        saveMealButton.setEnabled(false);
 
         if (addedMealNameEditText.length() < 5) {
             addedMealNameEditText.setError("Meal name has to have at least 5 characters");
@@ -204,7 +206,7 @@ public class AddOrEditMealActivity extends AppCompatActivity {
 
 
         if (!hasErrors) {
-            //addOrEditMealManager.resetState();
+
             if (addOrEditMealManager.isEditMode()) {
                 addOrEditMealManager.edit(addedMealNameEditText.getText().toString(),
                         addedMealRecipeEditText.getText().toString(), mealsTypesStates);
@@ -212,7 +214,7 @@ public class AddOrEditMealActivity extends AppCompatActivity {
                 addOrEditMealManager.addMeal(addedMealNameEditText.getText().toString(),
                         ((App) getApplication()).getUserStorage().getUserId(), addedMealRecipeEditText.getText().toString(), mealsTypesStates);
             }
-        }
+        }else saveMealButton.setEnabled(true);
     }
 
     private void addProducts() {

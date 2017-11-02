@@ -116,16 +116,16 @@ public class AddOrEditProductManager {
 
 
                     int amountOfKcal = Integer.parseInt(params[1]);
-                    if(amountOfKcal != productToEdit.getNumberOfKcalPer100g()) editContentValue.put(ProductsTable.getThirdColumnName(), amountOfKcal);
+                    if(amountOfKcal != productToEdit.getKcalPer100g_mlOr1Unit()) editContentValue.put(ProductsTable.getThirdColumnName(), amountOfKcal);
 
                     int amountOfProteins = Integer.parseInt(params[4]);
-                    if(amountOfProteins != productToEdit.getAmountOfProteinsPer100g()) editContentValue.put(ProductsTable.getSixthColumnName(), amountOfProteins);
+                    if(amountOfProteins != productToEdit.getProteinsPer100g_mlOr1Unit()) editContentValue.put(ProductsTable.getSixthColumnName(), amountOfProteins);
 
                     int amountOfCarbos = Integer.parseInt(params[5]);
-                    if(amountOfCarbos != productToEdit.getAmountOfCarbosPer100g()) editContentValue.put(ProductsTable.getSeventhColumnName(), amountOfCarbos);
+                    if(amountOfCarbos != productToEdit.getCarbohydratesPer100g_mlOr1Unit()) editContentValue.put(ProductsTable.getSeventhColumnName(), amountOfCarbos);
 
                     int amountOfFat = Integer.parseInt(params[6]);
-                    if(amountOfFat != productToEdit.getAmountOfFatPer100g()) editContentValue.put(ProductsTable.getEighthColumnName(), amountOfFat);
+                    if(amountOfFat != productToEdit.getFatPer100g_mlOr1Unit()) editContentValue.put(ProductsTable.getEighthColumnName(), amountOfFat);
 
                     if(!productToEdit.getType().equals(params[2])) editContentValue.put(ProductsTable.getFourthColumnName(), params[2]);
 

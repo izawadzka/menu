@@ -41,8 +41,8 @@
     <string name="dinnerCheckbox">dinner</string>
     <string name="teatimeCheckbox">teatime</string>
     <string name="supperCheckbox">supper</string>
-    <string name="kcal_100g">kcal/100g</string>
-    <string name="g_100g">g/100g</string>
+    <string name="kcal">kcal</string>
+    <string name="g">g</string>
     <string name="protein_label_text">Proteins [p]:</string>
     <string name="carbos_label">Carbos [c]:</string>
     <string name="fat_label">Fat [f]:</string>
@@ -60,4 +60,6 @@
     <string name="empty_fridge_alert">Your fridge is empty!</string>
     <string name="delete_product_from_fridge">delete_product_from_fridge</string>
     <string name="edit_quantity_of_product">edit_quantity_of_product</string>
+    <string name="kcal_100g">kcal/100g</string>
+    <string name="g_100g">g/100g</string>
 </resources>

@@ -54,7 +54,21 @@ public class LoginActivity extends AppCompatActivity {
 
     @OnClick(R.id.loginButton)
     public void onLoginClicked() {
-        loginManager.login(loginEditText.getText().toString(),passwordEditText.getText().toString());
+        boolean hasErrors = false;
+        loginButton.setEnabled(false);
+        if(loginEditText.getText().length() < 3){
+            hasErrors = true;
+            loginEditText.setError("Login has at least 3 characters!");
+        }
+
+        if(passwordEditText.getText().length() < 6){
+            hasErrors = true;
+            passwordEditText.setError("Password is at least 6 character long");
+        }
+        if(!hasErrors)
+            loginManager.login(loginEditText.getText().toString(),
+                    passwordEditText.getText().toString());
+        else loginButton.setEnabled(true);
     }
 
     @OnClick(R.id.registerButton)
@@ -72,5 +86,6 @@ public class LoginActivity extends AppCompatActivity {
 
     public void loginFailed() {
         Toast.makeText(this, "Wrong password or username", Toast.LENGTH_SHORT).show();
+        loginButton.setEnabled(true);
     }
 }

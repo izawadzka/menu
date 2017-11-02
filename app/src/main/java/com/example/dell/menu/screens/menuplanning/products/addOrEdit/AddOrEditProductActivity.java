@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.example.dell.menu.App;
 import com.example.dell.menu.R;
+import com.example.dell.menu.StorageType;
 import com.example.dell.menu.objects.menuplanning.Product;
 import com.example.dell.menu.screens.menuplanning.products.ProductsFragment;
 
@@ -57,6 +58,14 @@ public class AddOrEditProductActivity extends AppCompatActivity {
     RelativeLayout kcalRelativeLayout;
     @Bind(R.id.carbonsRelativeLayout)
     RelativeLayout carbonsRelativeLayout;
+    @Bind(R.id.kcalUnitTextView)
+    TextView kcalUnitTextView;
+    @Bind(R.id.proteinUnitTextView)
+    TextView proteinUnitTextView;
+    @Bind(R.id.carbonsUnitTextView)
+    TextView carbonsUnitTextView;
+    @Bind(R.id.fatUnitTextView)
+    TextView fatUnitTextView;
 
 
     private ArrayAdapter<CharSequence> productTypesaAdapter;
@@ -102,6 +111,16 @@ public class AddOrEditProductActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 storageType = (String) parent.getItemAtPosition(position);
+
+                int defaultAmount;
+                if (storageType.equals(StorageType.ITEM)) defaultAmount = 1;
+                else defaultAmount = 100;
+
+                kcalUnitTextView.setText("kcal/" + defaultAmount + StorageType.getUnit(storageType));
+                String unitValue = String.format("g/" + defaultAmount + StorageType.getUnit(storageType));
+                proteinUnitTextView.setText(unitValue);
+                carbonsUnitTextView.setText(unitValue);
+                fatUnitTextView.setText(unitValue);
             }
 
             @Override
@@ -186,9 +205,10 @@ public class AddOrEditProductActivity extends AppCompatActivity {
     }
 
     private void saveProduct() {
+        saveProductButton.setEnabled(false);
         if (addedProductName.length() < 5) {
             Toast.makeText(this, "Name hast to have at least 5 characters", Toast.LENGTH_SHORT).show();
-            return;
+            saveProductButton.setEnabled(true);
         } else {
             String productName = addedProductName.getText().toString();
 
@@ -205,6 +225,7 @@ public class AddOrEditProductActivity extends AppCompatActivity {
 
             if (addedProductAmountOfFat.length() == 0) amountOfFat = 0;
             else amountOfFat = Integer.parseInt(addedProductAmountOfFat.getText().toString());
+
 
             if (edit_mode)
                 addOrEditProductManager.editProduct(productName, amountOfKcal, addedProductType,
@@ -234,23 +255,32 @@ public class AddOrEditProductActivity extends AppCompatActivity {
     public void loadingProductSuccess(Product product) {
         if (show_mode) {
             setTitle(product.getName());
-            addedProductNumberOfKcalTextView.setText(String.valueOf(product.getNumberOfKcalPer100g()));
+            addedProductNumberOfKcalTextView.setText(String.valueOf(product.getKcalPer100g_mlOr1Unit()));
             addedProductNumberOfProteinTextView.setText(String.
-                    valueOf(product.getAmountOfProteinsPer100g()));
+                    valueOf(product.getProteinsPer100g_mlOr1Unit()));
             addedProductAmountOfCarbosTextView.setText(String
-                    .valueOf(product.getAmountOfCarbosPer100g()));
-            addedProductAmountOfFatTextView.setText(String.valueOf(product.getAmountOfFatPer100g()));
+                    .valueOf(product.getCarbohydratesPer100g_mlOr1Unit()));
+            addedProductAmountOfFatTextView.setText(String.valueOf(product.getFatPer100g_mlOr1Unit()));
         } else {
             addedProductName.setText(product.getName());
-            addedProductNumbOfKcal.setText(String.valueOf(product.getNumberOfKcalPer100g()));
-            addedProductNumberOfProtein.setText(String.valueOf(product.getAmountOfProteinsPer100g()));
-            addedProductAmountOfCarbos.setText(String.valueOf(product.getAmountOfCarbosPer100g()));
-            addedProductAmountOfFat.setText(String.valueOf(product.getAmountOfFatPer100g()));
+            addedProductNumbOfKcal.setText(String.valueOf(product.getKcalPer100g_mlOr1Unit()));
+            addedProductNumberOfProtein.setText(String.valueOf(product.getProteinsPer100g_mlOr1Unit()));
+            addedProductAmountOfCarbos.setText(String.valueOf(product.getCarbohydratesPer100g_mlOr1Unit()));
+            addedProductAmountOfFat.setText(String.valueOf(product.getFatPer100g_mlOr1Unit()));
         }
 
         addedProductTypes.setSelection(productTypesaAdapter.getPosition(product.getType()));
         addedProductStorageTypes.setSelection(storageTypesAdapter.getPosition(product.getStorageType()));
 
+        int defaultAmount;
+        if (product.getStorageType().equals(StorageType.ITEM)) defaultAmount = 1;
+        else defaultAmount = 100;
+
+        kcalUnitTextView.setText("kcal/" + defaultAmount + StorageType.getUnit(product.getStorageType()));
+        String unitValue = String.format("g/" + defaultAmount + StorageType.getUnit(product.getStorageType()));
+        proteinUnitTextView.setText(unitValue);
+        carbonsUnitTextView.setText(unitValue);
+        fatUnitTextView.setText(unitValue);
     }
 
     public void editingSuccess() {
@@ -262,6 +292,5 @@ public class AddOrEditProductActivity extends AppCompatActivity {
         setResult(ProductsFragment.RESULT_ERROR);
         finish();
     }
-
 
 }

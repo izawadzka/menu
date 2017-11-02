@@ -4,6 +4,8 @@
     android:id="@+id/activity_create_new_daily_menu"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     android:background="@color/appBackgroundColor"
     tools:context=".screens.menuplanning.menus.addOrEditMenu.dailyMenu.CreateNewDailyMenuActivity">
 <ScrollView
@@ -18,11 +20,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
          <EditText
-        android:id="@+id/dateEditText"
-        android:hint="@string/date_hint"
-        android:inputType="datetime"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+             android:id="@+id/dateEditText"
+             android:hint="@string/date_hint"
+             android:inputType="datetime"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content" />
 
         <LinearLayout
             android:orientation="horizontal"

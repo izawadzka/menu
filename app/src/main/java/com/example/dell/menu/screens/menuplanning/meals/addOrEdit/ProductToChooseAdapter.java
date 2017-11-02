@@ -95,10 +95,10 @@ class ProductsToChooseViewHolder extends RecyclerView.ViewHolder {
         this.product = product;
         productName.setText(product.getName());
         quantityUnitTextView.setText(StorageType.getUnit(product.getStorageType()));
-        caloriesTextView.setText(String.format("%s kcal", product.getNumberOfKcalPer100g()));
-        proteinsTextView.setText(String.format("P: %s g", product.getAmountOfProteinsPer100g()));
-        carbonsTextView.setText(String.format("C: %s g", product.getAmountOfCarbosPer100g()));
-        fatTextView.setText(String.format("F: %s g", product.getAmountOfFatPer100g()));
+        caloriesTextView.setText(String.format("%s kcal", product.getKcalPer100g_mlOr1Unit()));
+        proteinsTextView.setText(String.format("P: %s g", product.getProteinsPer100g_mlOr1Unit()));
+        carbonsTextView.setText(String.format("C: %s g", product.getCarbohydratesPer100g_mlOr1Unit()));
+        fatTextView.setText(String.format("F: %s g", product.getFatPer100g_mlOr1Unit()));
 
         alreadyAddedAmount.setText("("+String.valueOf(alreadyAdded(alreadyAddedProducts))+
                 StorageType.getUnit(product.getStorageType())+ ")");
