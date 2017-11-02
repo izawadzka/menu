@@ -24,7 +24,7 @@ public class AddProductActivity extends AppCompatActivity {
     AddProductManager manager;
     private boolean shopping_list_mode = false;
     private boolean fridge_mode = false;
-    private int shoppingListId;
+    private long shoppingListId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,7 +45,7 @@ public class AddProductActivity extends AppCompatActivity {
         shopping_list_mode = getIntent()
                 .getBooleanExtra(ShowProductsInListActivity.ADD_DO_LIST_KEY, false);
         if(shopping_list_mode) shoppingListId = getIntent()
-                .getIntExtra(ShowProductsInListActivity.SHOPPING_LIST_ID_KEY, -1);
+                .getLongExtra(ShowProductsInListActivity.SHOPPING_LIST_ID_KEY, -1);
         fridge_mode = getIntent()
                 .getBooleanExtra(VirtualFridgeFragment.ADD_TO_FRIDGE_KEY, fridge_mode);
     }

@@ -37,4 +37,5 @@ public class ShoppingListsProductsTable {
     public static String getThirdColumnName() {
         return thirdColumnName;
     }
+
 }

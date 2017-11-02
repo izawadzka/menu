@@ -5,9 +5,9 @@ package com.example.dell.menu.events.shoppinglists;
  */
 
 public class SynchronizeShoppingListWithFridgeButtonClickedEvent {
-    public int shoppingListId;
+    public long shoppingListId;
 
-    public SynchronizeShoppingListWithFridgeButtonClickedEvent(int shoppingListId){
+    public SynchronizeShoppingListWithFridgeButtonClickedEvent(long shoppingListId){
         this.shoppingListId = shoppingListId;
     }
 }

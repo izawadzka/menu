@@ -129,10 +129,11 @@ public class VirtualFridgeManager {
                     MenuDataBase menuDataBase = MenuDataBase
                             .getInstance(virtualFridgeFragment.getActivity());
 
-                    String query = String.format("SELECT %s, %s, %s,%s, %s FROM %s vf JOIN %s pt ON " +
+                    String query = String.format("SELECT %s, %s, %s, %s,%s, %s FROM %s vf JOIN %s pt ON " +
                             "vf.%s = pt.%s ORDER BY %s",
                             VirtualFridgeTable.getFirstColumnName(),
                             VirtualFridgeTable.getSecondColumnName(),
+                            VirtualFridgeTable.getThirdColumnName(),
                             ProductsTable.getSecondColumnName(),
                             ProductsTable.getFourthColumnName(),
                             ProductsTable.getFifthColumnName(),
@@ -146,14 +147,18 @@ public class VirtualFridgeManager {
                     if(cursor.getCount() > 0){
                         cursor.moveToPosition(-1);
                         while (cursor.moveToNext()){
-                            int shelfIndx = shelfExists(cursor.getString(3));
-                            if(shelfIndx != -1) productShelves.get(shelfIndx)
-                                    .addProduct(new Product(cursor.getInt(0), cursor.getString(2),
-                                            cursor.getString(3), cursor.getString(4), cursor.getDouble(1)));
+                            int shelfIndx = shelfExists(cursor.getString(4));
+                            if(shelfIndx != -1) {
+                                productShelves.get(shelfIndx).addProduct(new Product(cursor.getInt(0),
+                                        cursor.getString(3), cursor.getString(4),
+                                        cursor.getString(5), cursor.getDouble(1), cursor.getDouble(2)));
+                            }
                             else{
-                                productShelves.add(new ProductsShelf(cursor.getString(3)));
-                                productShelves.get(productShelves.size()-1).addProduct(new Product(cursor.getInt(0), cursor.getString(2),
-                                        cursor.getString(3), cursor.getString(4), cursor.getDouble(1)));
+                                productShelves.add(new ProductsShelf(cursor.getString(4)));
+                                productShelves.get(productShelves.size()-1)
+                                        .addProduct(new Product(cursor.getInt(0), cursor.getString(3),
+                                        cursor.getString(4), cursor.getString(5), cursor.getDouble(1),
+                                                cursor.getDouble(2)));
                             }
                         }
                     }else result = RESULT_EMPTY;

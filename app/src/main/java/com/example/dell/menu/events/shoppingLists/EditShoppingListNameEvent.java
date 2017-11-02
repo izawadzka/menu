@@ -5,10 +5,10 @@ package com.example.dell.menu.events.shoppinglists;
  */
 
 public class EditShoppingListNameEvent {
-    public int shoppingListId;
+    public long shoppingListId;
     public String shoppingListName;
 
-    public EditShoppingListNameEvent(int shoppingListId, String shoppingListName){
+    public EditShoppingListNameEvent(long shoppingListId, String shoppingListName){
         this.shoppingListId = shoppingListId;
         this.shoppingListName = shoppingListName;
     }

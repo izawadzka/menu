@@ -8,16 +8,26 @@ import java.sql.Date;
  */
 
 public class ShoppingList {
-    private int shoppingListId;
+    private long shoppingListId;
     private String name;
     private Date creationDate;
     private long authorsId;
     private String authorsName;
+    private boolean alreadySynchronized;
 
     public ShoppingList(String name, Date creationDate, long authorsId){
         this.name = name;
         this.creationDate = creationDate;
         this.authorsId = authorsId;
+        alreadySynchronized = false;
+    }
+
+    public void setAlreadySynchronized(boolean alreadySynchronized){
+        this.alreadySynchronized = alreadySynchronized;
+    }
+
+    public boolean isAlreadySynchronized(){
+        return alreadySynchronized;
     }
 
     public String getAuthorsName() {
@@ -28,7 +38,7 @@ public class ShoppingList {
         this.authorsName = authorsName;
     }
 
-    public int getShoppingListId() {
+    public long getShoppingListId() {
         return shoppingListId;
     }
 

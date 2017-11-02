@@ -25,7 +25,7 @@ import java.util.List;
 public class ShowProductsInListManager {
     private Bus bus;
     private ShowProductsInListActivity showProductsInListActivity;
-    private int shoppingListId;
+    private long shoppingListId;
     private int productToChangeId;
     private ProductsAdapter.ProductsInListViewHolder holder;
     private int idOfProductToDelete;
@@ -51,7 +51,7 @@ public class ShowProductsInListManager {
         }
     }
 
-    public int getShoppingListId() {
+    public long getShoppingListId() {
         return shoppingListId;
     }
 
@@ -195,7 +195,7 @@ public class ShowProductsInListManager {
         }
     }
 
-    public void setShoppingListId(int shoppingListId) {
+    public void setShoppingListId(long shoppingListId) {
         this.shoppingListId = shoppingListId;
     }
 

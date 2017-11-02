@@ -79,6 +79,8 @@ public class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapte
         ImageButton deleteShoppingListImageButton;
         @Bind(R.id.synchronizeWithFridgeImageButton)
         ImageButton synchronizeWithFridgeImageButton;
+        @Bind(R.id.synchronizedLabel)
+        TextView synchronizedLabel;
 
         private ShoppingList shoppingList;
 
@@ -93,6 +95,10 @@ public class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapte
             this.shoppingList = shoppingList;
             shoppingListNameTextView.setText(shoppingList.getName());
             authorsNameTextView.setText("Author: " + shoppingList.getAuthorsName());
+            if(shoppingList.isAlreadySynchronized()){
+                synchronizedLabel.setVisibility(View.VISIBLE);
+                synchronizeWithFridgeImageButton.setVisibility(View.GONE);
+            }
         }
 
         @OnClick(R.id.deleteShoppingListImageButton)
@@ -106,9 +112,9 @@ public class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapte
         }
 
         @OnClick(R.id.synchronizeWithFridgeImageButton)
-        void onSynchronizeListWithFridgeImageButtonClicked(){
+        void onSynchronizeListWithFridgeImageButtonClicked() {
             bus.post(new SynchronizeShoppingListWithFridgeButtonClickedEvent(shoppingList
-                            .getShoppingListId()));
+                    .getShoppingListId()));
         }
 
         @Override

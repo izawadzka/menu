@@ -26,7 +26,7 @@ public class AddProductManager {
     private List<Product> products = new ArrayList<>();
     private boolean shopping_list_mode = false;
     private boolean fridge_mode = false;
-    private int shoppingListId;
+    private long shoppingListId;
 
     public AddProductManager(Bus bus) {
         this.bus = bus;
@@ -66,11 +66,15 @@ public class AddProductManager {
                             VirtualFridgeTable.getFirstColumnName(),
                             VirtualFridgeTable.getTableName(),
                             ProductsTable.getSecondColumnName());
-                    else if(shopping_list_mode) query = String.format("SELECT %s, %s, %s FROM %s ORDER BY %s",
+                    else if(shopping_list_mode) query = String.format("SELECT %s, %s, %s FROM %s " +
+                            "WHERE NOT %s IN (SELECT %s FROM %s) ORDER BY %s",
                             ProductsTable.getFirstColumnName(),
                             ProductsTable.getSecondColumnName(),
                             ProductsTable.getFifthColumnName(),
                             ProductsTable.getTableName(),
+                            ProductsTable.getFirstColumnName(),
+                            ShoppingListsProductsTable.getSecondColumnName(),
+                            ShoppingListsProductsTable.getTableName(),
                             ProductsTable.getSecondColumnName());
                     else query = "";
 
@@ -141,7 +145,7 @@ public class AddProductManager {
     }
 
 
-    public void setShoppingListMode(boolean shopping_list_mode, int shoppingListId) {
+    public void setShoppingListMode(boolean shopping_list_mode, long shoppingListId) {
         this.shopping_list_mode = shopping_list_mode;
         this.shoppingListId = shoppingListId;
     }

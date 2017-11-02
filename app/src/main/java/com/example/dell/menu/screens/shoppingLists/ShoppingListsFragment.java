@@ -10,6 +10,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,8 +37,6 @@ public class ShoppingListsFragment extends Fragment implements ShoppingListAdapt
 
 
     public static final String SHOPPING_LIST_ID_KEY = "shoppingListId";
-    public static final String CREATE_MODE_KEY = "create_mode";
-    public static final String SHOW_MODE_KEY = "show mode";
     @Bind(R.id.shoppingListRecyclerView)
     RecyclerView shoppingListRecyclerView;
     EditText menuNameEditText;
@@ -187,7 +186,6 @@ public class ShoppingListsFragment extends Fragment implements ShoppingListAdapt
     @Override
     public void shoppingListClicked(ShoppingList shoppingList) {
         Intent intent = new Intent(getActivity(), ShowProductsInListActivity.class);
-        intent.putExtra(SHOW_MODE_KEY, true);
         intent.putExtra(SHOPPING_LIST_ID_KEY, shoppingList.getShoppingListId());
         startActivity(intent);
     }
@@ -242,7 +240,6 @@ public class ShoppingListsFragment extends Fragment implements ShoppingListAdapt
 
     public void goToShoppingList(Long shoppingListId) {
         Intent intent = new Intent(getActivity(), ShowProductsInListActivity.class);
-        intent.putExtra(CREATE_MODE_KEY, true);
         intent.putExtra(SHOPPING_LIST_ID_KEY, shoppingListId);
         startActivity(intent);
     }

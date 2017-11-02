@@ -16,6 +16,7 @@ public class Product implements Serializable{
     private int amountOfProteinsPer100g;
     private int amountOfCarbosPer100g;
     private int amountOfFatPer100g;
+    private double blockedAmount = 0; //used in virtual fridge, amount blocked by shopping lists
 
     public Product(int productId, String name, int numberOfKcalPer100g, String type,
                    String storageType, int amountOfProteinsPer100g, int amountOfCarbosPer100g,
@@ -60,18 +61,28 @@ public class Product implements Serializable{
         this.quantity = quantity;
     }
 
-    public Product(int productId, String name, String type, String storageType, double quantity) {
+    public Product(int productId, String name, String type, String storageType, double quantity,
+                   double blockedAmount) {
         this.productId = productId;
         this.name = name;
         this.type = type;
         this.quantity = quantity;
         this.storageType = storageType;
+        this.blockedAmount = blockedAmount;
     }
 
     public Product(int productId, String name, String storageType) {
         this.productId = productId;
         this.name = name;
         this.storageType = storageType;
+    }
+
+    public double getBlockedAmount() {
+        return blockedAmount;
+    }
+
+    public void setBlockedAmount(double blockedAmount) {
+        this.blockedAmount = blockedAmount;
     }
 
     public void setQuantity(double quantity) {

@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -30,9 +31,8 @@ public class ShowProductsInListActivity extends AppCompatActivity {
 
     private ProductsAdapter adapter;
     private ShowProductsInListManager showProductsInListManager;
-    private int shoppingListId;
-    private boolean create_mode = false;
-    private boolean show_mode = false;
+    private long shoppingListId;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,9 +46,7 @@ public class ShowProductsInListActivity extends AppCompatActivity {
         productsInShoppingListRecyclerView.setAdapter(adapter);
 
         Intent intent = getIntent();
-        create_mode = intent.getBooleanExtra(ShoppingListsFragment.CREATE_MODE_KEY, false);
-        show_mode = intent.getBooleanExtra(ShoppingListsFragment.SHOW_MODE_KEY, false);
-        shoppingListId = intent.getIntExtra(ShoppingListsFragment.SHOPPING_LIST_ID_KEY, 0);
+        shoppingListId = intent.getLongExtra(ShoppingListsFragment.SHOPPING_LIST_ID_KEY, (long) 0);
         showProductsInListManager.setShoppingListId(shoppingListId);
         getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
 

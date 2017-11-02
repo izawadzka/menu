@@ -14,6 +14,7 @@ public class ShoppingListsTable {
     private final static String secondColumnName = "name";
     private final static String thirdColumnName = "creationDate";
     private final static String fourthColumnName = "authorsId";
+    private final static String fifthColumnName = "synchronized";
 
 
     public static ContentValues getContentValues(ShoppingList shoppingList){
@@ -21,6 +22,7 @@ public class ShoppingListsTable {
         contentValues.put(secondColumnName, shoppingList.getName());
         contentValues.put(thirdColumnName, shoppingList.getCreationDate());
         contentValues.put(fourthColumnName, shoppingList.getAuthorsId());
+        contentValues.put(fifthColumnName, shoppingList.isAlreadySynchronized());
         return contentValues;
     }
 
@@ -43,5 +45,9 @@ public class ShoppingListsTable {
 
     public static String getFourthColumnName() {
         return fourthColumnName;
+    }
+
+    public static String getFifthColumnName() {
+        return fifthColumnName;
     }
 }

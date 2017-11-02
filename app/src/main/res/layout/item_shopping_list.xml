@@ -25,6 +25,15 @@
         android:layout_below="@+id/shoppingListNameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/synchronizedLabel"
+            android:layout_below="@+id/authorsNameTextView"
+            android:text="synchronized"
+            android:visibility="gone"
+            android:textColor="@color/colorAccent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
         <ImageButton
             android:id="@+id/synchronizeWithFridgeImageButton"
             android:src="@drawable/ic_synchronize"

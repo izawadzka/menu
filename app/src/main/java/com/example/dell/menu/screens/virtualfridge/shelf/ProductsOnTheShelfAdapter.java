@@ -32,6 +32,7 @@ public class ProductsOnTheShelfAdapter extends RecyclerView.Adapter<ProductsOnTh
     public final static int ADD_MODE = 2;
     public static final int EDIT_MODE = 3;
 
+
     private List<Product> products = new ArrayList<>();
     private final Bus bus;
     private int currentMode;
@@ -77,6 +78,8 @@ public class ProductsOnTheShelfAdapter extends RecyclerView.Adapter<ProductsOnTh
         ImageButton updateProductImageButton;
         @Bind(R.id.deleteProductImageButton)
         ImageButton deleteProductImageButton;
+        @Bind(R.id.blockedAmountLabel)
+        TextView blockedAmountLabel;
 
         private Product product;
 
@@ -88,34 +91,37 @@ public class ProductsOnTheShelfAdapter extends RecyclerView.Adapter<ProductsOnTh
         public void setProduct(Product product, int currentMode) {
             this.product = product;
             productNameTextView.setText(product.getName());
+            quantityUnitTextView.setText(StorageType.getUnit(product.getStorageType()));
+
             if (currentMode == SHOW_MODE) {
                 quantityTextView.setText(String.format("%s", product.getQuantity()));
+                blockedAmountLabel.setText(String.format("(including %s %s blocked)",
+                        product.getBlockedAmount(), StorageType.getUnit(product.getStorageType())));
             } else if (currentMode == ADD_MODE) {
                 quantityTextView.setVisibility(View.GONE);
                 quantityEditText.setVisibility(View.VISIBLE);
                 deleteProductImageButton.setVisibility(View.INVISIBLE);
+                blockedAmountLabel.setVisibility(View.GONE);
                 updateProductImageButton.setImageResource(R.drawable.ic_add);
             }
-            quantityUnitTextView.setText(StorageType.getUnit(product.getStorageType()));
         }
 
 
         @OnClick(R.id.deleteProductImageButton)
-        public void onDeleteProductClicked(){
+        public void onDeleteProductClicked() {
             bus.post(new DeleteProductFromFridgeEvent(product.getProductId()));
         }
 
         @OnClick(R.id.updateOrAddProductImageButton)
         public void onUpdateOrAddProductClicked() {
-            if(currentMode == ADD_MODE){
-                if(quantityEditText.getText().length() > 0) {
+            if (currentMode == ADD_MODE) {
+                if (quantityEditText.getText().length() > 0) {
                     bus.post(new AddProductClickedEvent(product.getProductId(),
                             Double.parseDouble(quantityEditText.getText().toString()),
                             product.getName()));
                     quantityEditText.setText("");
-                }
-                else quantityEditText.setError("You must type quantity");
-            }else if(currentMode == SHOW_MODE){
+                } else quantityEditText.setError("You must type quantity");
+            } else if (currentMode == SHOW_MODE) {
                 currentMode = EDIT_MODE;
                 quantityTextView.setVisibility(View.GONE);
 
@@ -123,20 +129,19 @@ public class ProductsOnTheShelfAdapter extends RecyclerView.Adapter<ProductsOnTh
                 quantityEditText.setText(String.valueOf(product.getQuantity()));
 
                 updateProductImageButton.setImageResource(R.drawable.ic_save);
-            }else if(currentMode == EDIT_MODE){
-                if(quantityEditText.getText().length() > 0){
+            } else if (currentMode == EDIT_MODE) {
+                if (quantityEditText.getText().length() > 0) {
                     currentMode = SHOW_MODE;
 
-                    if(Double.parseDouble(quantityEditText.getText().toString()) != product.getQuantity())
-                    bus.post(new AmountOfProductChangedEvent(product.getProductId(),
-                            Double.parseDouble(quantityEditText.getText().toString())));
+                    if (Double.parseDouble(quantityEditText.getText().toString()) != product.getQuantity())
+                        bus.post(new AmountOfProductChangedEvent(product.getProductId(),
+                                Double.parseDouble(quantityEditText.getText().toString())));
 
                     updateProductImageButton.setImageResource(R.drawable.ic_edit);
                     quantityTextView.setText(quantityEditText.getText().toString());
                     quantityTextView.setVisibility(View.VISIBLE);
                     quantityEditText.setVisibility(View.GONE);
-                }
-                else quantityEditText.setError("You must type quantity");
+                } else quantityEditText.setError("You must type quantity");
             }
         }
     }

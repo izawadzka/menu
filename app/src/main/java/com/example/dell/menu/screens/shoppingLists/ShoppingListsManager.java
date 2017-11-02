@@ -21,6 +21,7 @@ import com.example.dell.menu.tables.MealsTypesDailyMenusAmountOfPeopleTable;
 import com.example.dell.menu.tables.MealsTypesMealsDailyMenusTable;
 import com.example.dell.menu.tables.MenusDailyMenusTable;
 import com.example.dell.menu.tables.ProductsTable;
+import com.example.dell.menu.tables.ShoppingListsBlockedProductsTable;
 import com.example.dell.menu.tables.ShoppingListsProductsTable;
 import com.example.dell.menu.tables.ShoppingListsTable;
 import com.example.dell.menu.tables.UsersTable;
@@ -48,7 +49,7 @@ public class ShoppingListsManager {
     private boolean waitingToGenerateNewShoppingList;
     private boolean createShoppingList_mode = false;
     private List<ShoppingList> shoppingLists = new ArrayList<>();
-    private int idOfShoppingListToEdit;
+    private long idOfShoppingListToEdit;
 
     public ShoppingListsManager(Bus bus) {
         this.bus = bus;
@@ -113,7 +114,7 @@ public class ShoppingListsManager {
         }
     }
 
-    private void synchronizeWithFridge(final int shoppingListId) {
+    private void synchronizeWithFridge(final long shoppingListId) {
         if(shoppingListsFragment != null){
             new AsyncTask<Void, Void, Integer>(){
 
@@ -122,11 +123,12 @@ public class ShoppingListsManager {
                     int result = RESULT_OK;
                     MenuDataBase menuDataBase = MenuDataBase
                             .getInstance(shoppingListsFragment.getActivity());
-                    String query = String.format("SELECT sp.%s, %s, %s FROM %s sp " +
+                    String query = String.format("SELECT sp.%s, %s, %s, %s FROM %s sp " +
                             "JOIN %s vf ON sp.%s = vf.%s WHERE sp.%s = '%s'",
                             ShoppingListsProductsTable.getSecondColumnName(),
                             ShoppingListsProductsTable.getThirdColumnName(),
                             VirtualFridgeTable.getSecondColumnName(),
+                            VirtualFridgeTable.getThirdColumnName(),
                             ShoppingListsProductsTable.getTableName(),
                             VirtualFridgeTable.getTableName(),
                             ShoppingListsProductsTable.getSecondColumnName(),
@@ -137,30 +139,59 @@ public class ShoppingListsManager {
                     Cursor cursor = menuDataBase.downloadData(query);
                     if(cursor.getCount() > 0){
                         cursor.moveToPosition(-1);
-                        String whereClause = String.format("%s = ? AND %s = ?",
+                        String shoppingListWhereClause = String.format("%s = ? AND %s = ?",
                                 ShoppingListsProductsTable.getFirstColumnName(),
                                 ShoppingListsProductsTable.getSecondColumnName());
+                        String fridgeWhereClause = String.format("%s = ?",
+                                VirtualFridgeTable.getFirstColumnName());
                         while (cursor.moveToNext()){
-                            String[] args = {String.valueOf(shoppingListId),
+                            ContentValues shoppingListContentValues = new ContentValues();
+                            ContentValues fridgeContentValues = new ContentValues();
+
+                            String[] shoppingListArgs = {String.valueOf(shoppingListId),
                                     String.valueOf(cursor.getInt(0))};
-                            if(cursor.getDouble(1) > cursor.getDouble(2)) {
-                                ContentValues editContentValues = new ContentValues();
+                            String[] fridgeArgs = {String.valueOf(cursor.getInt(0))};
 
-                                editContentValues
-                                        .put(ShoppingListsProductsTable.getThirdColumnName(),
-                                                cursor.getDouble(1) - cursor.getDouble(2));
+                            double amount;
 
-                                if(menuDataBase.update(ShoppingListsProductsTable.getTableName(),
-                                        editContentValues, whereClause, args) == 0){
-                                    result = RESULT_ERROR;
-                                    break;
+                            if(cursor.getDouble(2) - cursor.getDouble(3) > 0) {
+                                if (cursor.getDouble(1) > cursor.getDouble(2) - cursor.getDouble(3)) {
+                                    shoppingListContentValues
+                                            .put(ShoppingListsProductsTable.getThirdColumnName(),
+                                                    cursor.getDouble(1) - cursor.getDouble(2)
+                                            + cursor.getDouble(3));
+
+
+                                    fridgeContentValues.put(VirtualFridgeTable.getThirdColumnName(),
+                                            cursor.getDouble(2));
+
+
+                                    amount = cursor.getDouble(2) - cursor.getDouble(3);
+
+                                    if (menuDataBase.update(ShoppingListsProductsTable.getTableName(),
+                                            shoppingListContentValues, shoppingListWhereClause, shoppingListArgs) == 0
+                                            || menuDataBase.update(VirtualFridgeTable.getTableName(),
+                                            fridgeContentValues, fridgeWhereClause, fridgeArgs) == 0) {
+                                        result = RESULT_ERROR;
+                                        break;
+                                    }
+                                } else {
+                                    amount = cursor.getDouble(1);
+                                    fridgeContentValues.put(VirtualFridgeTable.getThirdColumnName(),
+                                            cursor.getDouble(1) + cursor.getDouble(3));
+                                    if (menuDataBase.delete(ShoppingListsProductsTable.getTableName(),
+                                            shoppingListWhereClause, shoppingListArgs) == 0
+                                            || menuDataBase.update(VirtualFridgeTable.getTableName(),
+                                            fridgeContentValues, fridgeWhereClause, fridgeArgs) == 0) {
+                                        result = RESULT_ERROR;
+                                        break;
+                                    }
                                 }
-                            }else{
-                                if(menuDataBase.delete(ShoppingListsProductsTable.getTableName(),
-                                        whereClause, args) == 0){
-                                    result = RESULT_ERROR;
-                                    break;
-                                }
+                                menuDataBase.insert(ShoppingListsBlockedProductsTable.getTableName(),
+                                        ShoppingListsBlockedProductsTable
+                                                .getContentValues(shoppingListId, cursor.getInt(0),
+                                                        amount));
+
                             }
                         }
                     }else result = RESULT_EMPTY;
@@ -170,15 +201,54 @@ public class ShoppingListsManager {
 
                 @Override
                 protected void onPostExecute(Integer result) {
+                    if(result == RESULT_OK) setShoppingListWasSynchronized(shoppingListId);
                     if(shoppingListsFragment != null){
-                        if(result == RESULT_OK) shoppingListsFragment
-                                .makeAStatement("Synchronizing completed!", Toast.LENGTH_SHORT);
-                        else if(result == RESULT_EMPTY) shoppingListsFragment
+                        if(result == RESULT_EMPTY) shoppingListsFragment
                                 .makeAStatement("No product from the shopping list found in the " +
                                         "fridge", Toast.LENGTH_LONG);
                         else if(result == RESULT_ERROR) shoppingListsFragment
                                 .makeAStatement("An error occurred while an attempt to synchronize" +
                                         " the shopping list with the fridge", Toast.LENGTH_LONG);
+                    }
+                }
+            }.execute();
+        }
+    }
+
+    private void setShoppingListWasSynchronized(final long shoppingListId) {
+        if(shoppingListsFragment != null){
+            new AsyncTask<Void, Void, Boolean>(){
+
+                @Override
+                protected Boolean doInBackground(Void... params) {
+                    boolean result;
+                    MenuDataBase menuDataBase = MenuDataBase
+                            .getInstance(shoppingListsFragment.getActivity());
+                    ContentValues editContentValues = new ContentValues();
+                    editContentValues.put(ShoppingListsTable.getFifthColumnName(),1);
+
+                    String whereClause = String.format("%s = ?",
+                            ShoppingListsTable.getFirstColumnName());
+
+                    String[] args = {String.valueOf(shoppingListId)};
+
+                    result = menuDataBase.update(ShoppingListsTable.getTableName(),
+                            editContentValues, whereClause, args) == 1;
+                    menuDataBase.close();
+                    return result;
+                }
+
+                @Override
+                protected void onPostExecute(Boolean result) {
+                    if(shoppingListsFragment != null){
+                        if (result){
+                            shoppingListsFragment
+                                .makeAStatement("Synchronizing completed!", Toast.LENGTH_SHORT);
+                            loadShoppingLists();
+                        }
+                        else shoppingListsFragment
+                                .makeAStatement("An error occured while an attempt to mark the list" +
+                                        " as synchronized", Toast.LENGTH_LONG);
                     }
                 }
             }.execute();
@@ -202,13 +272,119 @@ public class ShoppingListsManager {
     }
 
     @Subscribe
-    public void onDeleteShoppingListEvent(DeleteShoppingListEvent event){
+    public void onDeleteShoppingListEvent(final DeleteShoppingListEvent event){
         if(shoppingListsFragment != null){
-            new DeleteShoppingList().execute(event.shoppingList);
+            //new DeleteShoppingList().execute(event.shoppingList);
+            new AsyncTask<Void, Void, Boolean>(){
+                @Override
+                protected Boolean doInBackground(Void... params) {
+                    boolean result = true;
+                    MenuDataBase menuDataBase = MenuDataBase.getInstance(shoppingListsFragment.getActivity());
+
+                    String[] shoppingListsId = {String.valueOf(event.shoppingList.getShoppingListId())};
+
+                    result = menuDataBase.delete(ShoppingListsTable.getTableName(), String.format("%s = ?",
+                            ShoppingListsTable.getFirstColumnName()), shoppingListsId) > 0;
+
+
+                    if(result){
+                        menuDataBase.delete(ShoppingListsProductsTable.getTableName(),
+                                String.format("%s = ?",
+                                        ShoppingListsProductsTable.getFirstColumnName()),
+                                shoppingListsId);
+
+
+                        int indx = -1;
+                        for (int i = 0; i < shoppingLists.size(); i++) {
+                            if (shoppingLists.get(i).getShoppingListId() == event.shoppingList.getShoppingListId()) {
+                                indx = i;
+                                break;
+                            }
+                        }
+
+                        if (indx != -1) {
+                            shoppingLists.remove(indx);
+                            result = true;
+                        } else result = false;
+                    }
+                    menuDataBase.close();
+                    return result;
+                }
+
+                @Override
+                protected void onPostExecute(Boolean result) {
+                    if(shoppingListsFragment != null){
+                        if(result) {
+                            putTheProductsBackToTheFridge(event.shoppingList.getShoppingListId());
+                        }
+                        else shoppingListsFragment.shoppingListDeleteFailed();
+                    }
+                }
+            }.execute();
         }
     }
 
-   void updateShoppingListName(String shoppingListName) {
+    private void putTheProductsBackToTheFridge(final long shoppingListId) {
+        if(shoppingListsFragment != null){
+            new AsyncTask<Void, Void, Boolean>(){
+
+                @Override
+                protected Boolean doInBackground(Void... params) {
+                    boolean result = true;
+                    MenuDataBase menuDataBase = MenuDataBase
+                            .getInstance(shoppingListsFragment.getActivity());
+                    String query = String.format("SELECT bp.%s, bp.%s, vf.%s FROM %s bp" +
+                            " JOIN %s vf ON bp.%s = vf.%s WHERE bp.%s = '%s' ",
+                            ShoppingListsBlockedProductsTable.getSecondColumnName(),
+                            ShoppingListsBlockedProductsTable.getThirdColumnName(),
+                            VirtualFridgeTable.getThirdColumnName(),
+                            ShoppingListsBlockedProductsTable.getTableName(),
+                            VirtualFridgeTable.getTableName(),
+                            ShoppingListsBlockedProductsTable.getSecondColumnName(),
+                            VirtualFridgeTable.getFirstColumnName(),
+                            ShoppingListsBlockedProductsTable.getFirstColumnName(),
+                            shoppingListId);
+
+                    Cursor cursor = menuDataBase.downloadData(query);
+
+                    if(cursor.getCount() > 0){
+                        cursor.moveToPosition(-1);
+                        String whereClause = String.format("%s = ?",
+                                VirtualFridgeTable.getFirstColumnName());
+                        while (cursor.moveToNext()){
+                            String[] args = {String.valueOf(cursor.getInt(0))};
+                            ContentValues editContentValues = new ContentValues();
+                            editContentValues.put(VirtualFridgeTable.getThirdColumnName(),
+                                    cursor.getDouble(1) - cursor.getDouble(2));
+                            result = menuDataBase.update(VirtualFridgeTable.getTableName(),
+                                    editContentValues, whereClause, args) == 1;
+                            if(!result) break;
+                        }
+
+                        if (result){
+                            String clause = String.format("%s = ?",
+                                    ShoppingListsBlockedProductsTable.getFirstColumnName());
+                            String[] whereArgs = {String.valueOf(shoppingListId)};
+                            menuDataBase.delete(ShoppingListsBlockedProductsTable.getTableName(),
+                                    clause, whereArgs);
+                        }
+                    }
+                    menuDataBase.close();
+                    return result;
+                }
+
+                @Override
+                protected void onPostExecute(Boolean result) {
+                    if(result){
+                        shoppingListsFragment.shoppingListDeleteSuccess();
+                        shoppingListsFragment.showShoppingLists(shoppingLists);
+                    }else shoppingListsFragment.shoppingListDeleteFailed();
+                }
+            }.execute();
+        }
+    }
+
+    void updateShoppingListName(String shoppingListName) {
         if(shoppingListsFragment != null){
             new UpdateShoppingListName().execute(shoppingListName);
         }
@@ -310,59 +486,6 @@ public class ShoppingListsManager {
 
     }
 
-    class DeleteShoppingList extends AsyncTask<ShoppingList, Void, Boolean>{
-
-        @Override
-        protected Boolean doInBackground(ShoppingList... params) {
-            boolean result = true;
-            MenuDataBase menuDataBase = MenuDataBase.getInstance(shoppingListsFragment.getActivity());
-
-            String[] shoppingListsId = {String.valueOf(params[0].getShoppingListId())};
-            try {
-                menuDataBase.delete(ShoppingListsTable.getTableName(), String.format("%s = ?",
-                        ShoppingListsTable.getFirstColumnName()), shoppingListsId);
-            }catch (Exception e){
-                menuDataBase.close();
-                return false;
-            }
-
-            try {
-                menuDataBase.delete(ShoppingListsProductsTable.getTableName(),
-                        String.format("%s = ?",ShoppingListsProductsTable.getFirstColumnName()), shoppingListsId);
-            }catch (Exception e){
-                result = false;
-            }
-
-            if(result) {
-                int indx = -1;
-                for (int i = 0; i < shoppingLists.size(); i++) {
-                    if (shoppingLists.get(i).getShoppingListId() == params[0].getShoppingListId()) {
-                        indx = i;
-                        break;
-                    }
-                }
-
-                if (indx != -1) {
-                    shoppingLists.remove(indx);
-                    result = true;
-                } else result = false;
-            }
-            menuDataBase.close();
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(Boolean result) {
-            if(shoppingListsFragment != null){
-                if(result) {
-
-                    shoppingListsFragment.shoppingListDeleteSuccess();
-                    shoppingListsFragment.showShoppingLists(shoppingLists);}
-                else shoppingListsFragment.shoppingListDeleteFailed();
-            }
-        }
-    }
-
     public void createShoppingList() {
         if(shoppingListsFragment != null){
 
@@ -410,12 +533,13 @@ public class ShoppingListsManager {
                             .getInstance(shoppingListsFragment.getActivity());
 
 
-                    String query = String.format("SELECT %s, %s, %s, %s, %s FROM %s  sl JOIN " +
+                    String query = String.format("SELECT %s, %s, %s, %s, %s, %s FROM %s  sl JOIN " +
                                     " %s u ON sl.%s = u.%s ORDER BY %s",
                             ShoppingListsTable.getFirstColumnName(),
                             ShoppingListsTable.getSecondColumnName(),
                             ShoppingListsTable.getThirdColumnName(),
                             ShoppingListsTable.getFourthColumnName(),
+                            ShoppingListsTable.getFifthColumnName(),
                             UsersTable.getSecondColumnName(),
                             ShoppingListsTable.getTableName(),
                             UsersTable.getTableName(),
@@ -429,7 +553,8 @@ public class ShoppingListsManager {
                             Date creationDate = Date.valueOf(cursor.getString(2));
                             shoppingLists.add(new ShoppingList(cursor.getString(1), creationDate, cursor.getInt(3)));
                             shoppingLists.get(shoppingLists.size()-1).setShoppingListId(cursor.getInt(0));
-                            shoppingLists.get(shoppingLists.size()-1).setAuthorsName(cursor.getString(4));
+                            shoppingLists.get(shoppingLists.size()-1).setAuthorsName(cursor.getString(5));
+                            shoppingLists.get(shoppingLists.size()-1).setAlreadySynchronized(cursor.getInt(4) != 0);
                         }
                     }
 
