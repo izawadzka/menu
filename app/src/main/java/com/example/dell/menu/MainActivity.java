@@ -17,16 +17,17 @@ import android.view.MenuItem;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
-import com.example.dell.menu.backup.Backup;
-import com.example.dell.menu.backup.BackupService;
-import com.example.dell.menu.events.shoppinglists.ShowShoppingListEvent;
-import com.example.dell.menu.screens.login.LoginActivity;
-import com.example.dell.menu.screens.menuplanning.meals.MealsFragment;
-import com.example.dell.menu.screens.menuplanning.menus.MenusFragment;
-import com.example.dell.menu.screens.menuplanning.products.ProductsFragment;
-import com.example.dell.menu.screens.reports.ReportsFragment;
-import com.example.dell.menu.screens.shoppingLists.ShoppingListsFragment;
-import com.example.dell.menu.screens.virtualfridge.VirtualFridgeFragment;
+import com.example.dell.menu.data.backup.Backup;
+import com.example.dell.menu.data.backup.BackupService;
+import com.example.dell.menu.data.backup.screens.RestoreBackupActivity;
+import com.example.dell.menu.shoppinglist.events.ShowShoppingListEvent;
+import com.example.dell.menu.user.screens.login.LoginActivity;
+import com.example.dell.menu.menuplanning.screens.meals.MealsFragment;
+import com.example.dell.menu.menuplanning.screens.menus.MenusFragment;
+import com.example.dell.menu.menuplanning.screens.products.ProductsFragment;
+import com.example.dell.menu.shoppinglist.screens.ShoppingListsFragment;
+import com.example.dell.menu.virtualfridge.screens.VirtualFridgeFragment;
+import com.example.dell.menu.user.UserStorage;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -73,12 +74,16 @@ public class MainActivity extends AppCompatActivity
 
         bus = ((App)getApplication()).getBus();
 
+        if(((App)getApplication()).getBackupFlagStorage().checkFlag()){
+            Backup backup = new Backup((App)getApplication());
+            backup.doBackup();
+        }
+
         ImageView backgroundImageView = (ImageView) navigationView.getHeaderView(0).findViewById(R.id.backgroundImageView);
         String backgroundImageName = "food.jpg";
         Glide.with(backgroundImageView.getContext())
                 .load("file:///android_asset/" + backgroundImageName)
                 .into(backgroundImageView);
-
     }
 
     @Override
@@ -148,32 +153,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void restoreBackup() {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-
-        alertDialogBuilder.setTitle("Restore backup");
-
-        alertDialogBuilder.setMessage("The last backup version will be restored.\n" +
-                "The last backup was done either when the app was closed the last time or, " +
-                "if there was no Internet connection, just right when the connection was available " +
-                "after app was opened again.\n\n" +
-                "Are you sure you want to restore backup?\n\n" +
-                "*Internet connection is needed")
-                .setCancelable(true)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener(){
-                    public void onClick(DialogInterface dialog, int d){
-                        Backup backup = new Backup(MainActivity.this, (App)getApplication());
-                        backup.restoreBackup();
-                    }
-                })
-                .setNegativeButton("No", new DialogInterface.OnClickListener(){
-                    public void onClick(DialogInterface dialog, int d){
-                        dialog.cancel();
-                    }
-                });
-
-        AlertDialog alertDialog = alertDialogBuilder.create();
-
-        alertDialog.show();
+        startActivity(new Intent(this, RestoreBackupActivity.class));
     }
 
     private void logout() {
@@ -198,8 +178,6 @@ public class MainActivity extends AppCompatActivity
             showFragment(new MenusFragment());
         } else if (id == R.id.nav_shoppingList) {
             showFragment(new ShoppingListsFragment());
-        } else if (id == R.id.nav_reports) {
-            showFragment(new ReportsFragment());
         } else if(id == R.id.nav_manage_fridge){
             showFragment(new VirtualFridgeFragment());
         }

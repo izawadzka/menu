@@ -14,7 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <service
-            android:name=".backup.BackupService"
+            android:name=".data.backup.BackupService"
             android:stopWithTask="false" />
 
         <receiver
@@ -36,53 +36,58 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".screens.login.LoginActivity"
+            android:name=".user.screens.login.LoginActivity"
             android:label="Log in" />
         <activity
-            android:name=".screens.register.RegisterActivity"
+            android:name=".user.screens.register.RegisterActivity"
             android:label="Register"
-            android:parentActivityName=".screens.login.LoginActivity">
+            android:parentActivityName=".user.screens.login.LoginActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.dell.menu.screens.login.LoginActivity" />
+                android:value=".user.screens.login.LoginActivity" />
         </activity>
-        <activity android:name=".screens.menuplanning.products.addOrEdit.AddOrEditProductActivity" />
-        <activity android:name=".screens.menuplanning.meals.addOrEdit.AddOrEditMealActivity" />
+        <activity android:name=".menuplanning.screens.products.addOrEdit.AddOrEditProductActivity" />
+        <activity android:name=".menuplanning.screens.meals.addOrEdit.AddOrEditMealActivity" />
         <activity
-            android:name=".screens.menuplanning.meals.addOrEdit.ChooseFromProductsActivity"
-            android:parentActivityName=".screens.menuplanning.meals.addOrEdit.AddOrEditMealActivity">
+            android:name=".menuplanning.screens.meals.addOrEdit.ChooseFromProductsActivity"
+            android:parentActivityName=".menuplanning.screens.meals.addOrEdit.AddOrEditMealActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".screens.menuplanning.meals.addOrEdit.AddOrEditMealActivity" />
+                android:value=".menuplanning.screens.meals.addOrEdit.AddOrEditMealActivity" />
         </activity>
         <activity
-            android:name=".screens.menuplanning.menus.addOrEditMenu.dailyMenu.chooseMeals.ChooseFromMealsActivity"
-            android:parentActivityName=".screens.menuplanning.menus.addOrEditMenu.dailyMenu.CreateNewDailyMenuActivity">
+            android:name=".menuplanning.screens.menus.addOrEditMenu.dailyMenu.chooseMeals.ChooseFromMealsActivity"
+            android:parentActivityName=".menuplanning.screens.menus.addOrEditMenu.dailyMenu.CreateNewDailyMenuActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".screens.menuplanning.menus.addOrEditMenu.dailyMenu.CreateNewDailyMenuActivity" />
+                android:value=".menuplanning.screens.menus.addOrEditMenu.dailyMenu.CreateNewDailyMenuActivity" />
         </activity>
-        <activity android:name=".screens.shoppingLists.ShowProductsInListActivity"
-            android:parentActivityName=".MainActivity"/>
+        <activity
+            android:name=".shoppinglist.screens.ShowProductsInListActivity"
+            android:parentActivityName=".MainActivity" />
+
         <meta-data
             android:name="android.support.PARENT_ACTIVITY"
-            android:value=".MainActivity"/>
+            android:value=".MainActivity" />
+
         <activity
-            android:name=".screens.menuplanning.menus.addOrEditMenu.DailyMenusActivity"
+            android:name=".menuplanning.screens.menus.addOrEditMenu.DailyMenusActivity"
             android:label="Daily menus">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.dell.menu.MainActivity" />
         </activity>
         <activity
-            android:name=".screens.menuplanning.menus.addOrEditMenu.dailyMenu.CreateNewDailyMenuActivity"
-            android:label="Create new daily menu"></activity>
-        <activity android:name=".screens.virtualfridge.AddProductActivity"
+            android:name=".menuplanning.screens.menus.addOrEditMenu.dailyMenu.CreateNewDailyMenuActivity"
+            android:label="Create new daily menu" />
+        <activity
+            android:name=".virtualfridge.screens.AddProductActivity"
             android:parentActivityName=".MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
+        <activity android:name=".data.backup.screens.RestoreBackupActivity"></activity>
     </application>
 
 </manifest>

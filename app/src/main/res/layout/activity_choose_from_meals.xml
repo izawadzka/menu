@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/appBackgroundColor"
-    tools:context=".screens.menuplanning.menus.addOrEditMenu.dailyMenu.chooseMeals.ChooseFromMealsActivity">
+    tools:context=".menuplanning.screens.menus.addOrEditMenu.dailyMenu.chooseMeals.ChooseFromMealsActivity">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/mealsToChooseRecyclerView"

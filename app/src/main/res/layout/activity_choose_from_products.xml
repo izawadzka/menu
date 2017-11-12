@@ -10,7 +10,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="16dp"
     android:background="@color/appBackgroundColor"
-    tools:context=".screens.menuplanning.meals.addOrEdit.ChooseFromProductsActivity">
+    tools:context=".menuplanning.screens.meals.addOrEdit.ChooseFromProductsActivity">
 
 
     <android.support.v7.widget.RecyclerView

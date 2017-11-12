@@ -2,23 +2,24 @@ package com.example.dell.menu;
 
 import android.app.Application;
 
-import com.example.dell.menu.backup.BackupFlagStorage;
-import com.example.dell.menu.screens.login.LoginManager;
-import com.example.dell.menu.screens.menuplanning.meals.addOrEdit.AddOrEditMealManager;
-import com.example.dell.menu.screens.menuplanning.meals.addOrEdit.ChooseFromProductsManager;
-import com.example.dell.menu.screens.menuplanning.meals.MealsFragmentManager;
-import com.example.dell.menu.screens.menuplanning.menus.MenusManager;
-import com.example.dell.menu.screens.menuplanning.menus.addOrEditMenu.DailyMenusManager;
-import com.example.dell.menu.screens.menuplanning.menus.addOrEditMenu.dailyMenu.chooseMeals.ChooseFromMealsManager;
-import com.example.dell.menu.screens.menuplanning.menus.addOrEditMenu.dailyMenu.CreateNewDailyMenuManager;
-import com.example.dell.menu.screens.menuplanning.products.ProductFragmentManager;
-import com.example.dell.menu.screens.menuplanning.products.addOrEdit.AddOrEditProductManager;
-import com.example.dell.menu.screens.register.RegisterManager;
-import com.example.dell.menu.screens.reports.ReportsManager;
-import com.example.dell.menu.screens.shoppingLists.ShoppingListsManager;
-import com.example.dell.menu.screens.shoppingLists.ShowProductsInListManager;
-import com.example.dell.menu.screens.virtualfridge.AddProductManager;
-import com.example.dell.menu.screens.virtualfridge.VirtualFridgeManager;
+import com.example.dell.menu.data.backup.BackupFlagStorage;
+import com.example.dell.menu.user.screens.login.LoginManager;
+import com.example.dell.menu.menuplanning.screens.meals.addOrEdit.AddOrEditMealManager;
+import com.example.dell.menu.menuplanning.screens.meals.addOrEdit.ChooseFromProductsManager;
+import com.example.dell.menu.menuplanning.screens.meals.MealsFragmentManager;
+import com.example.dell.menu.menuplanning.screens.menus.MenusManager;
+import com.example.dell.menu.menuplanning.screens.menus.addOrEditMenu.DailyMenusManager;
+import com.example.dell.menu.menuplanning.screens.menus.addOrEditMenu.dailyMenu.chooseMeals.ChooseFromMealsManager;
+import com.example.dell.menu.menuplanning.screens.menus.addOrEditMenu.dailyMenu.CreateNewDailyMenuManager;
+import com.example.dell.menu.menuplanning.screens.products.ProductFragmentManager;
+import com.example.dell.menu.menuplanning.screens.products.addOrEdit.AddOrEditProductManager;
+import com.example.dell.menu.user.screens.register.RegisterManager;
+import com.example.dell.menu.reports.screens.ReportsManager;
+import com.example.dell.menu.shoppinglist.screens.ShoppingListsManager;
+import com.example.dell.menu.shoppinglist.screens.ShowProductsInListManager;
+import com.example.dell.menu.virtualfridge.screens.AddProductManager;
+import com.example.dell.menu.virtualfridge.screens.VirtualFridgeManager;
+import com.example.dell.menu.user.UserStorage;
 import com.squareup.otto.Bus;
 
 /**
@@ -44,16 +45,8 @@ public class App extends Application {
     private ReportsManager reportsManager;
     private DailyMenusManager dailyMenusManager;
     private VirtualFridgeManager virtualFridgeManager;
-    private boolean backupFlag = false;
     private AddProductManager addProductManager;
 
-    public boolean isBackupFlag() {
-        return backupFlag;
-    }
-
-    public void setBackupFlag(boolean backupFlag) {
-        this.backupFlag = backupFlag;
-    }
 
     public DailyMenusManager getDailyMenusManager() {
         return dailyMenusManager;
@@ -68,10 +61,9 @@ public class App extends Application {
         super.onCreate();
         bus = new Bus();
         loginManager = new LoginManager();
-        registerManager = new RegisterManager();
+        registerManager = new RegisterManager(bus);
         userStorage =  new UserStorage(getSharedPreferences("userStorage", MODE_PRIVATE));
         backupFlagStorage = new BackupFlagStorage(getSharedPreferences("backupFlagStorage", MODE_PRIVATE));
-        backupFlag = backupFlagStorage.checkFlag();
         productFragmentManager = new ProductFragmentManager(bus);
         mealsFragmentManager = new MealsFragmentManager(bus);
         menusManager = new MenusManager(bus, userStorage);

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/appBackgroundColor"
-    tools:context="com.example.dell.menu.screens.shoppingLists.ShowProductsInListActivity">
+    tools:context="com.example.dell.menu.shoppinglist.screens.ShowProductsInListActivity">
     <android.support.v7.widget.RecyclerView
         android:id="@+id/productsInShoppingListRecyclerView"
         android:layout_width="match_parent"

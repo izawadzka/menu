@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/appBackgroundColor"
-    tools:context="com.example.dell.menu.screens.reports.ReportsFragment">
+    tools:context="com.example.dell.menu.reports.screens.ReportsFragment">
 
     <TextView
         android:id="@+id/titleTextView"
