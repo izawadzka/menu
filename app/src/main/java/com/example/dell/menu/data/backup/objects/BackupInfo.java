@@ -1,5 +1,8 @@
 package com.example.dell.menu.data.backup.objects;
 
+import android.util.Log;
+import android.util.TimeFormatException;
+
 import com.example.dell.menu.data.MenuDataBase;
 
 /**
@@ -12,12 +15,10 @@ public class BackupInfo {
     private String name, date, time;
 
     public BackupInfo(String name,String date){
-        int indexOfG = date.indexOf("GMT");
         String firstPart = date.substring(4, 10);
-        String secondPart = date.substring(indexOfG+10, date.length());
-
+        String secondPart = date.substring(date.length()-4, date.length());
         this.date = secondPart + " " + firstPart;
-        this.time = date.substring(11, indexOfG);
+        this.time = date.substring(11, 19);
         this.name = name;
     }
 

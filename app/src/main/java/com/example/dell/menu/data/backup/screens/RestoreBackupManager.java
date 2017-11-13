@@ -18,7 +18,6 @@ public class RestoreBackupManager {
     private RestoreBackupActivity restoreBackupActivity;
     public RestoreBackupManager(Bus bus){
         this.bus = bus;
-        this.bus.register(this);
     }
 
     @Subscribe
@@ -39,10 +38,12 @@ public class RestoreBackupManager {
 
     public void onAttach(RestoreBackupActivity restoreBackupActivity){
         this.restoreBackupActivity = restoreBackupActivity;
+        this.bus.register(this);
     }
 
     public void onStop(){
         this.restoreBackupActivity = null;
+        this.bus.unregister(this);
     }
 
     public void getAvailableBackups() {

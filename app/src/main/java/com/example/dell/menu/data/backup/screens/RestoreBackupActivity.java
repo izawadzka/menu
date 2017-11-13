@@ -175,15 +175,17 @@ public class RestoreBackupActivity extends AppCompatActivity {
     }
 
     public void showResult(boolean success) {
-        if (success) restoreResultTextView.setText("Successfully restored backup!");
-        else restoreResultTextView.setText("An error occurred while an attempt to restore backup!");
+        restoreBackupProgressbar.setVisibility(View.GONE);
+        restoreResultTextView.setVisibility(View.VISIBLE);
+        String restoreSuccess = "Successfully restored backup!";
+        String restoreFailed = "An error occurred while an attempt to restore backup!";
+        if (success) restoreResultTextView.setText(restoreSuccess);
+        else restoreResultTextView.setText(restoreFailed);
 
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         alertDialog.cancel();
+
+        if(success) Toast.makeText(this, restoreSuccess, Toast.LENGTH_LONG).show();
+        else Toast.makeText(this, restoreFailed, Toast.LENGTH_LONG).show();
 
         startActivity(new Intent(this, MainActivity.class));
         finish();

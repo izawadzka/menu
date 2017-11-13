@@ -9,6 +9,7 @@ import com.example.dell.menu.data.MD5Hash;
 import com.example.dell.menu.data.MenuDataBase;
 import com.example.dell.menu.data.backup.events.AvailableBackupsGotEvent;
 import com.example.dell.menu.data.backup.events.RestoringBackupResultEvent;
+import com.example.dell.menu.data.backup.events.SearchingForUserResultEvent;
 import com.example.dell.menu.data.backup.objects.BackupInfo;
 import com.example.dell.menu.internetconnection.InternetConnection;
 import com.example.dell.menu.user.events.RegisterResultEvent;
@@ -219,6 +220,20 @@ public class Backup {
 
     }
 
+    public void restoreBackup(String backupVersion, String login, String password){
+        try {
+            USER_SPECIFICATION = login+"_"
+                    + MD5Hash.getHash(password);
+            SFTPWORKINGDIR = SFTPBASEWORKINGDIR + "/" + USER_SPECIFICATION;
+            Log.i(TAG, "path: " + SFTPWORKINGDIR);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        restoreBackup(backupVersion);
+    }
+
     public void restoreBackup(final String backupVersion) {
         if(internetConnection.checkConnection(context)){
             new AsyncTask<Void, Void, Boolean>(){
@@ -310,14 +325,22 @@ public class Backup {
                 protected Integer doInBackground(Void... params) {
                     try {
                         if (checkIfUserAlreadyExists(login, password)) return RESULT_ALREADY_EXISTS;
-                        else return RESULT_USER_REGISTER;
                     } catch (JSchException e) {
-                        e.printStackTrace();
+                        Log.e(TAG, e.getLocalizedMessage());
+                        channel.disconnect();
+                        session.disconnect();
                         return RESULT_FAILED_TO_CREATE_DIRECTORY;
                     } catch (SftpException e) {
-                        e.printStackTrace();
-                        return RESULT_FAILED_TO_CREATE_DIRECTORY;
+                        try {
+                            if(addNewUser(login, password)) return RESULT_USER_REGISTER;
+                        } catch (SftpException e1) {
+                            Log.e(TAG, e1.getLocalizedMessage());
+                            channel.disconnect();
+                            session.disconnect();
+                            return RESULT_FAILED_TO_CREATE_DIRECTORY;
+                        }
                     }
+                    return RESULT_FAILED_TO_CREATE_DIRECTORY;
                 }
 
                 @Override
@@ -327,7 +350,14 @@ public class Backup {
                     app.getBus().unregister(this);
                 }
             }.execute();
-        }
+        }else Log.e(TAG, "There's no internet connection");
+    }
+
+    private boolean addNewUser(String login, String password) throws SftpException {
+        channelSftp.cd(SFTPBASEWORKINGDIR);
+        channelSftp.mkdir(USER_SPECIFICATION);
+        channelSftp.cd(USER_SPECIFICATION);
+        return true;
     }
 
     private boolean checkIfUserAlreadyExists(String login, String password) throws JSchException, SftpException {
@@ -336,15 +366,48 @@ public class Backup {
         channelSftp = null;
 
         connectToServer();
-        try {
-            channelSftp.cd(SFTPWORKINGDIR); //if it works, then the dictionary already exists -
+        channelSftp.cd(SFTPWORKINGDIR); //if it works, then the dictionary already exists -
             // login has to be changed
-            return true;
-        } catch (SftpException e) {
-            channelSftp.cd(SFTPBASEWORKINGDIR);
-            channelSftp.mkdir(USER_SPECIFICATION);
-            channelSftp.cd(USER_SPECIFICATION);
-            return false;
+
+        channel.disconnect();
+        session.disconnect();
+        return true;
+    }
+
+    public void findUser(final String login, final String password) {
+        try {
+            USER_SPECIFICATION = login+"_"
+                    + MD5Hash.getHash(password);
+            SFTPWORKINGDIR = SFTPBASEWORKINGDIR + "/" + USER_SPECIFICATION;
+            Log.i(TAG, "path: " + SFTPWORKINGDIR);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return;
         }
+        if(internetConnection.checkConnection(context)){
+            new AsyncTask<Void, Void, Boolean>(){
+
+                @Override
+                protected Boolean doInBackground(Void... params) {
+                    try {
+                        return checkIfUserAlreadyExists(login, password);
+                    } catch (JSchException e) {
+                        Log.e(TAG, e.getLocalizedMessage());
+                        return false;
+                    } catch (SftpException e) {
+                        Log.e(TAG, e.getLocalizedMessage());
+                        return false;
+                    }
+                }
+
+                @Override
+                protected void onPostExecute(Boolean result) {
+                    Bus bus = app.getBus();
+                    bus.register(this);
+                    bus.post(new SearchingForUserResultEvent(result, login, password));
+                    bus.unregister(this);
+                }
+            }.execute();
+        }else Log.e(TAG, "There's no internet connection");
     }
 }

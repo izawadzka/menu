@@ -1,7 +1,9 @@
 package com.example.dell.menu.user.screens.login;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Button;
 import android.widget.EditText;
@@ -10,6 +12,7 @@ import android.widget.Toast;
 import com.example.dell.menu.App;
 import com.example.dell.menu.MainActivity;
 import com.example.dell.menu.R;
+import com.example.dell.menu.internetconnection.InternetConnection;
 import com.example.dell.menu.user.objects.User;
 import com.example.dell.menu.user.UserStorage;
 import com.example.dell.menu.user.screens.register.RegisterActivity;
@@ -30,6 +33,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private LoginManager loginManager;
     private UserStorage userStorage;
+    private InternetConnection internetConnection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +42,31 @@ public class LoginActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         userStorage = ((App) getApplication()).getUserStorage();
         loginManager = ((App) getApplication()).getLoginManager();
+
+        internetConnection = new InternetConnection();
+        if(!internetConnection.checkConnection(this))
+            showInternetConnectionAlertDialog();
+    }
+
+    private void showInternetConnectionAlertDialog() {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+
+        alertDialogBuilder.setTitle("Internet connection needed");
+
+        alertDialogBuilder.setMessage("In order to login the Internet connection is needed. " +
+                "Please, turn it on. \n\n" +
+                "*After being logged in, you can turn it off")
+                .setCancelable(true)
+                .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+        AlertDialog alertDialog = alertDialogBuilder.create();
+
+        alertDialog.show();
     }
 
     @Override
@@ -56,6 +85,7 @@ public class LoginActivity extends AppCompatActivity {
     public void onLoginClicked() {
         boolean hasErrors = false;
         loginButton.setEnabled(false);
+        registerButton.setEnabled(false);
         if(loginEditText.getText().length() < 3){
             hasErrors = true;
             loginEditText.setError("Login has at least 3 characters!");
@@ -65,10 +95,19 @@ public class LoginActivity extends AppCompatActivity {
             hasErrors = true;
             passwordEditText.setError("Password is at least 6 character long");
         }
+
+        if(!internetConnection.checkConnection(this)){
+            hasErrors = true;
+            Toast.makeText(this, "Internet connection needed!", Toast.LENGTH_LONG).show();
+        }
+
         if(!hasErrors)
             loginManager.login(loginEditText.getText().toString(),
                     passwordEditText.getText().toString());
-        else loginButton.setEnabled(true);
+        else{
+            loginButton.setEnabled(true);
+            registerButton.setEnabled(true);
+        }
     }
 
     @OnClick(R.id.registerButton)
@@ -88,5 +127,15 @@ public class LoginActivity extends AppCompatActivity {
     public void loginFailed() {
         Toast.makeText(this, "Wrong password or username", Toast.LENGTH_SHORT).show();
         loginButton.setEnabled(true);
+    }
+
+    public void loginSuccess() {
+        Toast.makeText(this, "Login success", Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(this, MainActivity.class));
+        finish();
+    }
+
+    public void makeAStatement(String statement, int duration) {
+        Toast.makeText(this, statement, duration).show();
     }
 }

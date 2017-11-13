@@ -62,7 +62,7 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         bus = new Bus();
-        loginManager = new LoginManager();
+        loginManager = new LoginManager(bus);
         registerManager = new RegisterManager(bus);
         userStorage =  new UserStorage(getSharedPreferences("userStorage", MODE_PRIVATE));
         backupFlagStorage = new BackupFlagStorage(getSharedPreferences("backupFlagStorage", MODE_PRIVATE));
