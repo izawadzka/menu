@@ -11,7 +11,7 @@ import com.example.dell.menu.App;
 
 public class BackupTimer {
 
-    private static final int TIMER_DURATION = 120000;
+    private static final int TIMER_DURATION = 30000;
     private static final int TICK_DURATION = 1000;
     public static App app;
     private static  CountDownTimer timer;

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_backup_on_demand"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/appBackgroundColor"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.example.dell.menu.data.backup.screens.backupondemand.BackupOnDemandActivity">
+    <RelativeLayout
+        android:id="@+id/availableBackupsRelativeLayout"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <TextView
+            android:id="@+id/infoTextView"
+            android:textSize="15sp"
+            tools:text="In order to do backup, choose one of those listed below.\n
+            By default you can store two files with database on our server."
+            android:layout_centerHorizontal="true"
+            android:paddingBottom="70dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        
+        <RelativeLayout
+            android:id="@+id/filesToOverrideRelativeLayout"
+            android:layout_below="@+id/infoTextView"
+            android:paddingBottom="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:text="Files to override: "
+                android:textSize="15sp"
+                android:layout_centerVertical="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TableLayout
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <CheckBox
+                    android:visibility="gone"
+                    android:id="@+id/firstUsersBackupToOverrideCheckBox"
+                    android:text="first User's backup"/>
+                <CheckBox
+                    android:visibility="gone"
+                    android:id="@+id/secondUsersBackupToOverrideCheckBox"
+                    android:text="second User's backup"/>
+            </TableLayout>
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/filesToCreateRelativeLayout"
+            android:layout_below="@+id/filesToOverrideRelativeLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:text="Files to create"
+                android:textSize="15sp"
+                android:layout_centerVertical="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TableLayout
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <CheckBox
+                    android:visibility="gone"
+                    android:id="@+id/firstUsersBackupToCreateCheckBox"
+                    android:text="first User's backup"/>
+                <CheckBox
+                    android:visibility="gone"
+                    android:id="@+id/secondUsersBackupToCreateCheckBox"
+                    android:text="second User's backup"/>
+            </TableLayout>
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/doBackupButton"
+                android:text="@string/backup"
+                style="@style/Base.Widget.AppCompat.Button.Borderless"
+                android:background="@color/colorAccent"
+                android:layout_marginRight="50dp"
+                android:layout_marginEnd="50dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <Button
+                android:id="@+id/cancelButton"
+                android:text="@string/cancel_button_text"
+                style="@style/Base.Widget.AppCompat.Button.Borderless"
+                android:background="@color/colorAccent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+    </RelativeLayout>
+    <ProgressBar
+        android:id="@+id/findRestoreBackupProgressBar"
+        android:layout_gravity="center"
+        android:layout_width="100dp"
+        android:layout_height="100dp" />
+
+</FrameLayout>

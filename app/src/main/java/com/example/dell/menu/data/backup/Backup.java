@@ -54,6 +54,7 @@ public class Backup {
     private final static String SFTPPASS = "d7KtueiNV3^I";
     private final static String SFTPBASEWORKINGDIR = "public_html/menu_backup";
     private String USER_SPECIFICATION;
+    private String fileName;
     private String SFTPWORKINGDIR;
     private String fileToTransfer;
     private Session session;
@@ -69,6 +70,7 @@ public class Backup {
 
         String storagePath = "data/data/" + context.getPackageName() + "/databases/";
         fileToTransfer = storagePath + MenuDataBase.DATABASE_NAME;
+        fileName = MenuDataBase.DATABASE_NAME;
 
         try {
             USER_SPECIFICATION = app.getUserStorage().getLogin()+"_"
@@ -155,7 +157,7 @@ public class Backup {
         try {
             channelSftp.cd(SFTPWORKINGDIR);
             File f = new File(fileToTransfer);
-            channelSftp.put(new FileInputStream(f), f.getName());
+            channelSftp.put(new FileInputStream(f), fileName);
         }catch (Exception e){
             Log.e(TAG, e.getLocalizedMessage());
         }
@@ -211,6 +213,11 @@ public class Backup {
 
                         else Log.e(TAG, "Error");
                         if(backupService != null) backupService.stopSelf();
+
+                        Bus bus = app.getBus();
+                        bus.register(this);
+                        bus.post(new RestoringBackupResultEvent(result));
+                        bus.unregister(this);
                     }
                 }.execute();
             } else {
@@ -409,5 +416,10 @@ public class Backup {
                 }
             }.execute();
         }else Log.e(TAG, "There's no internet connection");
+    }
+
+    public void doBackup(String backupName) {
+        fileName = backupName;
+        doBackup();
     }
 }

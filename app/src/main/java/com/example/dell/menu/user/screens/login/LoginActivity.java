@@ -127,6 +127,7 @@ public class LoginActivity extends AppCompatActivity {
     public void loginFailed() {
         Toast.makeText(this, "Wrong password or username", Toast.LENGTH_SHORT).show();
         loginButton.setEnabled(true);
+        registerButton.setEnabled(true);
     }
 
     public void loginSuccess() {

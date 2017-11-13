@@ -3,7 +3,8 @@ package com.example.dell.menu;
 import android.app.Application;
 
 import com.example.dell.menu.data.backup.BackupFlagStorage;
-import com.example.dell.menu.data.backup.screens.RestoreBackupManager;
+import com.example.dell.menu.data.backup.screens.backupondemand.BackupOnDemandManager;
+import com.example.dell.menu.data.backup.screens.restore.RestoreBackupManager;
 import com.example.dell.menu.user.screens.login.LoginManager;
 import com.example.dell.menu.menuplanning.screens.meals.addOrEdit.AddOrEditMealManager;
 import com.example.dell.menu.menuplanning.screens.meals.addOrEdit.ChooseFromProductsManager;
@@ -48,6 +49,7 @@ public class App extends Application {
     private VirtualFridgeManager virtualFridgeManager;
     private AddProductManager addProductManager;
     private RestoreBackupManager restoreBackupManager;
+    private BackupOnDemandManager backupOnDemandManager;
 
 
     public DailyMenusManager getDailyMenusManager() {
@@ -81,6 +83,11 @@ public class App extends Application {
         virtualFridgeManager = new VirtualFridgeManager(bus);
         addProductManager = new AddProductManager(bus);
         restoreBackupManager = new RestoreBackupManager(bus);
+        backupOnDemandManager = new BackupOnDemandManager(bus);
+    }
+
+    public BackupOnDemandManager getBackupOnDemandManager() {
+        return backupOnDemandManager;
     }
 
     public RestoreBackupManager getRestoreBackupManager() {

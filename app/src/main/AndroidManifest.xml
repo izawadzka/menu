@@ -87,7 +87,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
         </activity>
-        <activity android:name=".data.backup.screens.RestoreBackupActivity"></activity>
+        <activity android:name=".data.backup.screens.restore.RestoreBackupActivity" />
+        <activity android:name=".data.backup.screens.backupondemand.BackupOnDemandActivity"></activity>
     </application>
 
 </manifest>

@@ -19,7 +19,8 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.example.dell.menu.data.backup.Backup;
 import com.example.dell.menu.data.backup.BackupService;
-import com.example.dell.menu.data.backup.screens.RestoreBackupActivity;
+import com.example.dell.menu.data.backup.screens.backupondemand.BackupOnDemandActivity;
+import com.example.dell.menu.data.backup.screens.restore.RestoreBackupActivity;
 import com.example.dell.menu.internetconnection.InternetConnection;
 import com.example.dell.menu.shoppinglist.events.ShowShoppingListEvent;
 import com.example.dell.menu.user.screens.login.LoginActivity;
@@ -143,14 +144,27 @@ public class MainActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-
-        if (id == R.id.action_logout) {
-            logout();
-        }else if(id == R.id.action_restore_backup){
-            restoreBackup();
+        switch (item.getItemId()){
+            case R.id.action_logout: logout(); break;
+            case R.id.action_restore_backup: restoreBackup(); break;
+            case R.id.action_do_backup: doBackup(); break;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void doBackup() {
+        InternetConnection internetConnection = new InternetConnection();
+        if(internetConnection.checkConnection(this)){
+            startActivity(new Intent(this, BackupOnDemandActivity.class));
+            finish();
+        }else{
+            String message = "In order to check the options of saving backup, " +
+                    "the Internet connection is needed. " +
+                    "Please, turn it on and press the \"Backup\" button again.";
+            showInformationDialog(message);
+        }
+
     }
 
     private void restoreBackup() {
@@ -159,17 +173,20 @@ public class MainActivity extends AppCompatActivity
             startActivity(new Intent(this, RestoreBackupActivity.class));
             finish();
         }
-        else showInformationDialog();
+        else{
+            String message = "In order to check the options of restoring backup, " +
+                    "the Internet connection is needed. " +
+                    "Please, turn it on and press the \"Restore backup\" button again.";
+            showInformationDialog(message);
+        }
     }
 
-    private void showInformationDialog() {
+    private void showInformationDialog(String message) {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
 
         alertDialogBuilder.setTitle("Internet connection needed");
 
-        alertDialogBuilder.setMessage("In order to check the options of restoring backup, " +
-                "the Internet connection is needed. " +
-                "Please, turn it on and press the \"Restore backup\" button again.")
+        alertDialogBuilder.setMessage(message)
                 .setCancelable(true)
                 .setNeutralButton("OK", new DialogInterface.OnClickListener() {
                     @Override

@@ -1,4 +1,4 @@
-package com.example.dell.menu.data.backup.screens;
+package com.example.dell.menu.data.backup.screens.restore;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -135,7 +135,7 @@ public class RestoreBackupActivity extends AppCompatActivity {
     public AlertDialog createRestoreBackupProgressDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View view = getLayoutInflater()
-                .inflate(R.layout.restore_backup_prograss_dialog_layout, null);
+                .inflate(R.layout.backup_progress_dialog_layout, null);
         builder.setView(view);
         restoreBackupProgressbar = (ProgressBar) view.findViewById(R.id.restoreBackupProgressbar);
         restoreResultTextView = (TextView) view.findViewById(R.id.restoreResultTextView);
