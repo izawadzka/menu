@@ -44,7 +44,11 @@ Log.i("timer", "start");
         }.start();
     }
 
-    public static boolean isTimerCounting(){
+    static boolean isTimerCounting(){
         return timer != null;
+    }
+    static void stopCounting(){
+        timer.cancel();
+        timer = null;
     }
 }

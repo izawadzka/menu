@@ -62,4 +62,6 @@
     <string name="edit_quantity_of_product">edit_quantity_of_product</string>
     <string name="kcal_100g">kcal/100g</string>
     <string name="g_100g">g/100g</string>
+    <string name="restore">Restore</string>
+    <string name="sure_to_restore">Are you sure you want to restore backup?</string>
 </resources>

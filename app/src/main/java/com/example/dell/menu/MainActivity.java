@@ -20,6 +20,7 @@ import com.bumptech.glide.Glide;
 import com.example.dell.menu.data.backup.Backup;
 import com.example.dell.menu.data.backup.BackupService;
 import com.example.dell.menu.data.backup.screens.RestoreBackupActivity;
+import com.example.dell.menu.internetconnection.InternetConnection;
 import com.example.dell.menu.shoppinglist.events.ShowShoppingListEvent;
 import com.example.dell.menu.user.screens.login.LoginActivity;
 import com.example.dell.menu.menuplanning.screens.meals.MealsFragment;
@@ -153,7 +154,33 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void restoreBackup() {
-        startActivity(new Intent(this, RestoreBackupActivity.class));
+        InternetConnection internetConnection = new InternetConnection();
+        if(internetConnection.checkConnection(this)) {
+            startActivity(new Intent(this, RestoreBackupActivity.class));
+            finish();
+        }
+        else showInformationDialog();
+    }
+
+    private void showInformationDialog() {
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+
+        alertDialogBuilder.setTitle("Internet connection needed");
+
+        alertDialogBuilder.setMessage("In order to check the options of restoring backup, " +
+                "the Internet connection is needed. " +
+                "Please, turn it on and press the \"Restore backup\" button again.")
+                .setCancelable(true)
+                .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+        AlertDialog alertDialog = alertDialogBuilder.create();
+
+        alertDialog.show();
     }
 
     private void logout() {
