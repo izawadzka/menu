@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.dell.menu.App;
+import com.example.dell.menu.data.backup.BackupTimer;
 import com.example.dell.menu.menuplanning.types.MealsType;
 import com.example.dell.menu.R;
 import com.example.dell.menu.menuplanning.objects.Meal;
@@ -231,6 +232,8 @@ public class AddOrEditMealActivity extends AppCompatActivity {
     public void saveSuccess() {
         clearValues();
         setResult(MealsFragment.RESULT_OK);
+        BackupTimer backupTimer = new BackupTimer((App)getApplication());
+        backupTimer.start();
         finish();
     }
 
@@ -302,6 +305,8 @@ public class AddOrEditMealActivity extends AppCompatActivity {
     public void updateSuccess() {
         clearValues();
         setResult(MealsFragment.RESULT_OK);
+        BackupTimer backupTimer = new BackupTimer((App)getApplication());
+        backupTimer.start();
         finish();
     }
 

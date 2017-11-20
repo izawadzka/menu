@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.example.dell.menu.App;
+import com.example.dell.menu.data.backup.BackupTimer;
 
 /**
  * Created by Dell on 24.05.2017.
@@ -25,15 +26,6 @@ public class MenuDataBase{
     private MenuDataBase(Context context) {
         this.openHelper = new DatabaseOpenHelper(context);
     }
-
-    //public static MenuDataBase getInstance(Context context) {
-      //  if (instance == null) {
-        //    instance = new MenuDataBase(context);
-        //}
-
-
-        //return instance;
-    //}
 
     public static MenuDataBase getInstance(Activity activity){
         if(instance == null){
@@ -56,9 +48,9 @@ public class MenuDataBase{
     }
 
     public long insert(String tableName, ContentValues contentValues){
+        if(BackupTimer.isTimerCounting()) BackupTimer.stopCounting();
         open();
         long callback = database.insert(tableName, null, contentValues);
-        //close();
         return callback;
     }
 
@@ -68,11 +60,14 @@ public class MenuDataBase{
     }
 
     public int delete(String tableName, String whereClause, String[] whereArgs){
+        if(BackupTimer.isTimerCounting()) BackupTimer.stopCounting();
         open();
         return database.delete(tableName, whereClause, whereArgs);
     }
 
-    public int update(String tableName, ContentValues newContentValues, String whereClause, String[] whereArgs){
+    public int update(String tableName, ContentValues newContentValues, String whereClause,
+                      String[] whereArgs){
+        if(BackupTimer.isTimerCounting()) BackupTimer.stopCounting();
         open();
         return database.update(tableName, newContentValues, whereClause, whereArgs);
     }

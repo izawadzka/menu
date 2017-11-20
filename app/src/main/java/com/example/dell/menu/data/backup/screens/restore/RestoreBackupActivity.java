@@ -86,6 +86,8 @@ public class RestoreBackupActivity extends AppCompatActivity {
                 firstUsersBackupCheckBox.setChecked(false);
             }
         });
+
+        setTitle("Restore backup");
     }
 
     @Override

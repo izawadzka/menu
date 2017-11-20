@@ -26,6 +26,7 @@ public class DailyMenusActivity extends AppCompatActivity {
 
     public static final String MENU_ID_KEY = "menuId";
     public static final int REQUEST_CODE_ADD = 1;
+    private boolean blockOtherActions;
     @Bind(R.id.dailyMenusViewPager)
     ViewPager dailyMenusViewPager;
     @Bind(R.id.dailyMenusTabLayout)
@@ -43,6 +44,8 @@ public class DailyMenusActivity extends AppCompatActivity {
         ActionBar supportActionBar = getSupportActionBar();
         supportActionBar.setDefaultDisplayHomeAsUpEnabled(true);
 
+        blockOtherActions = false;
+
         dailyMenusManager = ((App) getApplication()).getDailyMenusManager();
         //download id of current menu
         Intent intent = getIntent();
@@ -59,11 +62,18 @@ public class DailyMenusActivity extends AppCompatActivity {
         dailyMenusManager.onAttach(this);
         dailyMenusManager.setMenuId(menuId);
 
-        if(dailyMenusManager.isWaitingToAddNewDailyMenu()) dailyMenusManager.addNewDailyMenu();
-        else if(dailyMenusManager.isWaitingToEditDailyMenu()) dailyMenusManager.updateDailyMenu();
+        if(dailyMenusManager.isWaitingToAddNewDailyMenu()) {
+            dailyMenusManager.addNewDailyMenu();
+            blockOtherActions = true;
+        }
+        else if(dailyMenusManager.isWaitingToEditDailyMenu()){
+            dailyMenusManager.updateDailyMenu();
+            blockOtherActions = true;
+        }
 
         else dailyMenusManager.loadDailyMenus();
     }
+
 
     public void setAdapter() {
         List<DailyMenu> dailyMenuList = dailyMenusManager.getDailyMenus();
@@ -87,12 +97,14 @@ public class DailyMenusActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if(item.getItemId() == android.R.id.home){
-            NavUtils.navigateUpFromSameTask(this);
-            return true;
-        }else if(item.getItemId() == R.id.action_add_menu){
-            Intent intent = new Intent(this, CreateNewDailyMenuActivity.class);
-            startActivityForResult(intent, REQUEST_CODE_ADD);
+        if(!blockOtherActions) {
+            if (item.getItemId() == android.R.id.home) {
+                finish();
+                return true;
+            } else if (item.getItemId() == R.id.action_add_menu) {
+                Intent intent = new Intent(this, CreateNewDailyMenuActivity.class);
+                startActivityForResult(intent, REQUEST_CODE_ADD);
+            }
         }
 
         return super.onOptionsItemSelected(item);
@@ -104,12 +116,16 @@ public class DailyMenusActivity extends AppCompatActivity {
 
     public void downloadingDailyMenusFailed() {
         makeAStatement("An error occurred while an attempt to download daily menus", Toast.LENGTH_LONG);
+        blockOtherActions = false;
         NavUtils.navigateUpFromSameTask(this);
     }
 
     public void dailyMenuDeleteSuccess() {
         makeAStatement("Daily menu was deleted successfully", Toast.LENGTH_SHORT);
+        blockOtherActions = false;
         dailyMenusManager.loadDailyMenus();
+        BackupTimer backupTimer = new BackupTimer((App)getApplication());
+        backupTimer.start();
     }
 
     public void dailyMenuDeleteFailed() {
@@ -117,12 +133,25 @@ public class DailyMenusActivity extends AppCompatActivity {
     }
 
     public void deleteDailyMenu(DailyMenu dailyMenu) {
+        blockOtherActions = true;
         dailyMenusManager.deleteDailyMenu(dailyMenu);
     }
 
     public void updateCumulativeAmountOfKcalSuccess() {
+        blockOtherActions = false;
         makeAStatement("Successfully updated cumulative amount of kcal", Toast.LENGTH_LONG);
         BackupTimer backupTimer = new BackupTimer((App)getApplication());
         backupTimer.start();
+    }
+
+    public void updateCumulativeAmountOfKcalFailed() {
+        makeAStatement("An error occurred while an attempt to update " +
+                "menus cumulative number of kcal", Toast.LENGTH_LONG);
+        blockOtherActions = false;
+    }
+
+    public void addingDailyMenuFailed(String message, int duration) {
+        makeAStatement(message, duration);
+        blockOtherActions = false;
     }
 }

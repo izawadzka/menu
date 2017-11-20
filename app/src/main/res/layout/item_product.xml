@@ -13,80 +13,83 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/productNameTextView"
-        tools:text="Cucumber"
-        android:textSize="20sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_below="@+id/productNameTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
         <TextView
-            android:id="@+id/caloriesTextView"
-            tools:text="120 kcal"
-            android:paddingRight="5dp"
-            android:paddingEnd="5dp"
-            android:paddingLeft="0dp"
-            android:paddingStart="0dp"
+            android:id="@+id/productNameTextView"
+            tools:text="Cucumber"
+            android:textSize="20sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
-        <TextView
-            android:id="@+id/proteinsTextView"
-            tools:text="P: 10g"
-            android:paddingLeft="@dimen/text_padding_in_recyclerView"
-            android:paddingStart="@dimen/text_padding_in_recyclerView"
-            android:paddingRight="@dimen/text_padding_in_recyclerView"
-            android:paddingEnd="@dimen/text_padding_in_recyclerView"
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_below="@+id/productNameTextView"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-        <TextView
-            android:id="@+id/carbonsTextView"
-            tools:text="C: 10g"
-            android:paddingLeft="@dimen/text_padding_in_recyclerView"
-            android:paddingStart="@dimen/text_padding_in_recyclerView"
-            android:paddingRight="@dimen/text_padding_in_recyclerView"
-            android:paddingEnd="@dimen/text_padding_in_recyclerView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-        <TextView
-            android:id="@+id/fatTextView"
-            tools:text="F: 10g"
-            android:paddingLeft="@dimen/text_padding_in_recyclerView"
-            android:paddingStart="@dimen/text_padding_in_recyclerView"
-            android:paddingRight="@dimen/text_padding_in_recyclerView"
-            android:paddingEnd="@dimen/text_padding_in_recyclerView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/caloriesTextView"
+                tools:text="120 kcal"
+                android:paddingRight="5dp"
+                android:paddingEnd="5dp"
+                android:paddingLeft="0dp"
+                android:paddingStart="0dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/proteinsTextView"
+                tools:text="P: 10g"
+                android:paddingLeft="@dimen/text_padding_in_recyclerView"
+                android:paddingStart="@dimen/text_padding_in_recyclerView"
+                android:paddingRight="@dimen/text_padding_in_recyclerView"
+                android:paddingEnd="@dimen/text_padding_in_recyclerView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/carbonsTextView"
+                tools:text="C: 10g"
+                android:paddingLeft="@dimen/text_padding_in_recyclerView"
+                android:paddingStart="@dimen/text_padding_in_recyclerView"
+                android:paddingRight="@dimen/text_padding_in_recyclerView"
+                android:paddingEnd="@dimen/text_padding_in_recyclerView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/fatTextView"
+                tools:text="F: 10g"
+                android:paddingLeft="@dimen/text_padding_in_recyclerView"
+                android:paddingStart="@dimen/text_padding_in_recyclerView"
+                android:paddingRight="@dimen/text_padding_in_recyclerView"
+                android:paddingEnd="@dimen/text_padding_in_recyclerView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
-        <TextView
-            android:id="@+id/unitLabel"
-            android:paddingLeft="20dp"
-            tools:text="/100g"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-    </LinearLayout>
+            <TextView
+                android:id="@+id/unitLabel"
+                android:paddingLeft="20dp"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:paddingRight="20dp"
+                tools:text="/100g"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
 
 
-    <ImageButton
-        android:id="@+id/updateOrAddProductImageButton"
-        android:layout_centerVertical="true"
-        android:layout_toLeftOf="@+id/deleteProductImageButton"
-        android:layout_toStartOf="@+id/deleteProductImageButton"
-        android:src="@drawable/ic_edit"
-        style="@style/buttonStyle"
-        android:layout_marginRight="@dimen/right_padding_for_buttons"
-        android:layout_marginEnd="@dimen/right_padding_for_buttons"/>
+        <ImageButton
+            android:id="@+id/updateOrAddProductImageButton"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/deleteProductImageButton"
+            android:layout_toStartOf="@+id/deleteProductImageButton"
+            android:src="@drawable/ic_edit"
+            style="@style/buttonStyle"
+            android:layout_marginRight="@dimen/right_padding_for_buttons"
+            android:layout_marginEnd="@dimen/right_padding_for_buttons"/>
 
-    <ImageButton
-        android:id="@+id/deleteProductImageButton"
-        android:layout_centerVertical="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:src="@drawable/ic_delete_button_without_bckgrnd"
-        style="@style/buttonStyle" />
+        <ImageButton
+            android:id="@+id/deleteProductImageButton"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:src="@drawable/ic_delete_button_without_bckgrnd"
+            style="@style/buttonStyle" />
     </RelativeLayout>
 
     <View
@@ -97,3 +100,5 @@
         android:layout_height="1px"/>
 
 </RelativeLayout>
+
+

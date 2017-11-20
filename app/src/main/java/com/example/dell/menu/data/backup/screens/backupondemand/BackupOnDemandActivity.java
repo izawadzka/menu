@@ -96,6 +96,8 @@ public class BackupOnDemandActivity extends AppCompatActivity {
                 secondUsersBackupToCreateCheckBox.setChecked(false);
             }
         });
+
+        setTitle("Backup");
     }
 
     @Override

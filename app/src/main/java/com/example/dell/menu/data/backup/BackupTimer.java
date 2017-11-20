@@ -11,7 +11,7 @@ import com.example.dell.menu.App;
 
 public class BackupTimer {
 
-    private static final int TIMER_DURATION = 30000;
+    private static final int TIMER_DURATION = 120000;
     private static final int TICK_DURATION = 1000;
     public static App app;
     private static  CountDownTimer timer;
@@ -44,11 +44,12 @@ Log.i("timer", "start");
         }.start();
     }
 
-    static boolean isTimerCounting(){
+    public static boolean isTimerCounting(){
         return timer != null;
     }
-    static void stopCounting(){
+    public static void stopCounting(){
         timer.cancel();
         timer = null;
+        Log.i("timer", "stoped");
     }
 }

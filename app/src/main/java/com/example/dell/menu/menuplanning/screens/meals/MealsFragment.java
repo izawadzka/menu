@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.example.dell.menu.App;
 import com.example.dell.menu.R;
+import com.example.dell.menu.data.backup.BackupTimer;
 import com.example.dell.menu.menuplanning.events.meals.EditMealEvent;
 import com.example.dell.menu.menuplanning.objects.Meal;
 import com.example.dell.menu.menuplanning.screens.meals.addOrEdit.AddOrEditMealActivity;
@@ -43,10 +44,6 @@ public class MealsFragment extends Fragment implements MealsAdapter.MealClickedL
     public static final int RESULT_OK = 0;
     public static final int RESULT_CANCEL = 11;
 
-    public static final String MEAL_NAME_KEY = "mealName";
-    public static final String MEAL_NUMBER_OF_KCAL_KEY = "mealNumberOfKcal";
-    public static final String MEALS_AUTHOR_NAME_KEY = "mealsAuthorName";
-    public static final String MEALS_RECIPE_KEY = "mealsRecipe";
     public static final String MEALS_ID_KEY = "mealsId";
 
     public static final String EDIT_MODE_KEY = "edit_mode";
@@ -174,6 +171,8 @@ public class MealsFragment extends Fragment implements MealsAdapter.MealClickedL
 
     public void deleteSuccess() {
         getFragmentManager().beginTransaction().detach(this).attach(this).commit();
+        BackupTimer backupTimer = new BackupTimer((App)getActivity().getApplication());
+        backupTimer.start();
     }
 
     public void deleteFailed() {

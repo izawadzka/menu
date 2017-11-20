@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.example.dell.menu.App;
 import com.example.dell.menu.R;
+import com.example.dell.menu.data.backup.BackupTimer;
 import com.example.dell.menu.menuplanning.types.StorageType;
 import com.example.dell.menu.menuplanning.objects.Product;
 import com.example.dell.menu.menuplanning.screens.products.ProductsFragment;
@@ -238,6 +239,8 @@ public class AddOrEditProductActivity extends AppCompatActivity {
 
     public void addSuccessful() {
         setResult(ProductsFragment.RESULT_OK);
+        BackupTimer backupTimer = new BackupTimer((App)getApplication());
+        backupTimer.start();
         finish();
     }
 
@@ -285,6 +288,8 @@ public class AddOrEditProductActivity extends AppCompatActivity {
 
     public void editingSuccess() {
         setResult(ProductsFragment.RESULT_OK);
+        BackupTimer backupTimer = new BackupTimer((App)getApplication());
+        backupTimer.start();
         finish();
     }
 

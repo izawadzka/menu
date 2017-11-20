@@ -221,6 +221,7 @@ public class Backup {
                     }
                 }.execute();
             } else {
+                Log.i(TAG, "No Internet connection");
                 app.getBackupFlagStorage().setFlag(true);
                 if(backupService != null) backupService.stopSelf();
             }
@@ -419,6 +420,7 @@ public class Backup {
     }
 
     public void doBackup(String backupName) {
+        if(BackupTimer.isTimerCounting()) BackupTimer.stopCounting();
         fileName = backupName;
         doBackup();
     }

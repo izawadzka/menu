@@ -8,8 +8,9 @@
         android:title="@string/add"/>
 
     <item android:id="@+id/search_menu"
-    android:title="Search products"
+    android:title="@string/search_products"
     android:icon="@android:drawable/ic_menu_search"
     app:actionViewClass="android.support.v7.widget.SearchView"
-    app:showAsAction="always"></item>
+    app:showAsAction="always"/>
 </menu>
+

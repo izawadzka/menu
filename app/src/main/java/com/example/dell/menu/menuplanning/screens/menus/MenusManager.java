@@ -3,6 +3,7 @@ package com.example.dell.menu.menuplanning.screens.menus;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.example.dell.menu.data.MenuDataBase;
@@ -114,6 +115,7 @@ public class MenusManager {
         @Override
         protected void onPostExecute(Menu menu) {
             if(menu == null){
+                Log.i("man", "puste menu");
                 if(delete_mode) deleteMenu();
                 else menusFragment.makeAStatement("It's impossible to create a shopping list. Menu is empty", Toast.LENGTH_LONG);
             }else{
@@ -172,7 +174,7 @@ public class MenusManager {
                             if(result){
                                 result = menuDataBase.delete(MenusDailyMenusTable.getTableName(),
                                         String.format("%s = ?",
-                                                MenusDailyMenusTable.getSecondColumnName()),
+                                                MenusDailyMenusTable.getFirstColumnName()),
                                                 menusId) > 0;
                             }
                         }

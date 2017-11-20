@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.example.dell.menu.App;
 import com.example.dell.menu.R;
+import com.example.dell.menu.data.backup.BackupTimer;
 import com.example.dell.menu.menuplanning.objects.Product;
 import com.example.dell.menu.menuplanning.screens.products.addOrEdit.AddOrEditProductActivity;
 
@@ -30,21 +31,23 @@ import butterknife.ButterKnife;
  */
 
 public class ProductsFragment extends Fragment implements ProductsAdapter.ProductClickedListener{
-    public static final int REQUEST_CODE_ADD = 1;
     public static final int RESULT_OK = 0;
     public static final int RESULT_ERROR = -1;
     public static final int RESULT_CANCEL = 1;
-    public static final String EDIT_MODE_KEY = "edit_mode";
+
+    public static final int REQUEST_CODE_ADD = 1;
     public static final int REQUEST_CODE_EDIT = 2;
+    public static final int REQUEST_CODE_SHOW = 3;
+
+    public static final String EDIT_MODE_KEY = "edit_mode";
     public static final String PRODUCT_ID_KEY = "productId";
     public static final String SHOW_MODE_KEY = "show_mode";
-    public static final int REQUEST_CODE_SHOW = 3;
-    @Bind(R.id.productRecyclerView)
-    RecyclerView productRecyclerView;
 
     private ProductFragmentManager productFragmentManager;
     private ProductsAdapter adapter;
 
+    @Bind(R.id.productRecyclerView)
+    RecyclerView productRecyclerView;
 
     @Override
     public void onStart() {
@@ -58,6 +61,16 @@ public class ProductsFragment extends Fragment implements ProductsAdapter.Produc
         super.onStop();
         productFragmentManager.onStop();
     }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_products, container, false);
+        ButterKnife.bind(this, view);
+        return view;
+    }
+
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
@@ -126,13 +139,6 @@ public class ProductsFragment extends Fragment implements ProductsAdapter.Produc
         }
     }
 
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_products, container, false);
-        ButterKnife.bind(this, view);
-        return view;
-    }
 
     @Override
     public void onDestroyView() {
@@ -147,6 +153,8 @@ public class ProductsFragment extends Fragment implements ProductsAdapter.Produc
 
     public void deleteSuccess() {
         getFragmentManager().beginTransaction().detach(this).attach(this).commit();
+        BackupTimer backupTimer = new BackupTimer((App)getActivity().getApplication());
+        backupTimer.start();
     }
 
     public void editProduct(int productId) {

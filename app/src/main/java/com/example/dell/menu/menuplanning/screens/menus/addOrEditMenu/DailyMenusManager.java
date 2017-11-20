@@ -491,8 +491,8 @@ public class DailyMenusManager {
                         loadDailyMenus();
                     }else{
                         if(dailyMenusActivity != null)
-                            dailyMenusActivity.makeAStatement("An error occurred while an attempt to " +
-                                    "insert amount of serving", Toast.LENGTH_LONG);
+                            dailyMenusActivity.addingDailyMenuFailed("An error occurred while an attempt to " +
+                                "insert amount of serving", Toast.LENGTH_LONG);
                     }
                 }
             }.execute();
@@ -543,9 +543,7 @@ public class DailyMenusManager {
                         if(result){
                             dailyMenusActivity.updateCumulativeAmountOfKcalSuccess();
                         }
-                        else dailyMenusActivity
-                                .makeAStatement("An error occurred while an attempt to update " +
-                                        "menus cumulative number of kcal", Toast.LENGTH_LONG);
+                        else dailyMenusActivity.updateCumulativeAmountOfKcalFailed();
                     }
                 }
             }.execute();

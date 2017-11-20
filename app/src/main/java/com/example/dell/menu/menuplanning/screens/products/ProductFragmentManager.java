@@ -23,12 +23,10 @@ import java.util.List;
  */
 
 public class ProductFragmentManager {
-    protected ProductsFragment productsFragment;
-    private final Bus bus;
+    private ProductsFragment productsFragment;
     private int idOfProductToDelete;
 
     public ProductFragmentManager(Bus bus) {
-        this.bus = bus;
         bus.register(this);
     }
 
@@ -43,7 +41,48 @@ public class ProductFragmentManager {
     void loadProducts(){
 
         if(productsFragment != null) {
-            new LoadProducts().execute();
+            new AsyncTask<Void, Void, List<Product>>(){
+
+                @Override
+                protected List<Product> doInBackground(Void... params) {
+                    MenuDataBase menuDataBase = MenuDataBase.getInstance(productsFragment.getActivity());
+
+                    String query = String.format("SELECT %s, %s, %s, %s, %s, %s, %s FROM %s ORDER BY %s",
+                            ProductsTable.getFirstColumnName(),
+                            ProductsTable.getSecondColumnName(), ProductsTable.getThirdColumnName(),
+                            ProductsTable.getSixthColumnName(), ProductsTable.getSeventhColumnName(),
+                            ProductsTable.getEighthColumnName(), ProductsTable.getFifthColumnName(),
+                            ProductsTable.getTableName(), ProductsTable.getSecondColumnName());
+                    Cursor cursor = menuDataBase.downloadData(query);
+                    List<Product> results =  new ArrayList<>();
+
+                    if (cursor.getCount() > 0) {
+                        int productsId, numberOfKcalPer100g, amountOfProteins, amountOfCarbos, amountOfFat;
+                        String name;
+                        cursor.moveToPosition(-1);
+                        while (cursor.moveToNext()) {
+                            productsId = cursor.getInt(0);
+                            name = cursor.getString(1);
+                            numberOfKcalPer100g = cursor.getInt(2);
+                            amountOfProteins = cursor.getInt(3);
+                            amountOfCarbos = cursor.getInt(4);
+                            amountOfFat = cursor.getInt(5);
+                            results.add(new Product(productsId, name, numberOfKcalPer100g,
+                                    amountOfProteins, amountOfCarbos, amountOfFat));
+                            results.get(results.size()-1).setStorageType(cursor.getString(6));
+                        }
+                    }
+                    menuDataBase.close();
+                    return results;
+                }
+
+                @Override
+                protected void onPostExecute(List<Product> results) {
+                    if(productsFragment != null) {
+                        productsFragment.showProducts(results);
+                    }
+                }
+            }.execute();
         }
     }
 
@@ -72,85 +111,40 @@ public class ProductFragmentManager {
         }
     }
 
-    void findProducts(String textToFind) {
+    void findProducts(final String textToFind) {
         if(productsFragment != null){
-            new FindProducts().execute(textToFind);
-        }
-    }
+            new AsyncTask<Void, Void, List<Product>>(){
 
-    class FindProducts extends AsyncTask<String, Void, List<Product>>{
-
-        @Override
-        protected List<Product> doInBackground(String... params) {
-            List<Product> result = new ArrayList<>();
-            MenuDataBase menuDataBase = MenuDataBase.getInstance(productsFragment.getActivity());
-            String query = String.format("SELECT * FROM %s WHERE %s LIKE '%%%s%%' ORDER BY %s",
-                    ProductsTable.getTableName(), ProductsTable.getSecondColumnName(), params[0],
-                    ProductsTable.getSecondColumnName());
-            Cursor cursor = menuDataBase.downloadData(query);
-            if(cursor.getCount() > 0){
-                cursor.moveToPosition(-1);
-                while (cursor.moveToNext()){
-                    result.add(new Product(cursor.getInt(0), cursor.getString(1), cursor.getInt(2),
-                            cursor.getString(3), cursor.getString(4), cursor.getInt(5),
-                            cursor.getInt(6), cursor.getInt(7)));
+                @Override
+                protected List<Product> doInBackground(Void... params) {
+                    List<Product> result = new ArrayList<>();
+                    MenuDataBase menuDataBase = MenuDataBase.getInstance(productsFragment.getActivity());
+                    String query = String.format("SELECT * FROM %s WHERE %s LIKE '%%%s%%' ORDER BY %s",
+                            ProductsTable.getTableName(), ProductsTable.getSecondColumnName(), textToFind,
+                            ProductsTable.getSecondColumnName());
+                    Cursor cursor = menuDataBase.downloadData(query);
+                    if(cursor.getCount() > 0){
+                        cursor.moveToPosition(-1);
+                        while (cursor.moveToNext()){
+                            result.add(new Product(cursor.getInt(0), cursor.getString(1), cursor.getInt(2),
+                                    cursor.getString(3), cursor.getString(4), cursor.getInt(5),
+                                    cursor.getInt(6), cursor.getInt(7)));
+                        }
+                    }
+                    menuDataBase.close();
+                    return result;
                 }
-            }
-            menuDataBase.close();
-            return result;
-        }
 
-        @Override
-        protected void onPostExecute(List<Product> products) {
-            if(products.size() > 0){
-                productsFragment.showProducts(products);
-            }
-        }
-    }
-
-
-    class LoadProducts extends AsyncTask<Void, Void, List<Product>>{
-
-        @Override
-        protected List<Product> doInBackground(Void... params) {
-            MenuDataBase menuDataBase = MenuDataBase.getInstance(productsFragment.getActivity());
-
-            String query = String.format("SELECT %s, %s, %s, %s, %s, %s, %s FROM %s ORDER BY %s",
-                    ProductsTable.getFirstColumnName(),
-                    ProductsTable.getSecondColumnName(), ProductsTable.getThirdColumnName(),
-                    ProductsTable.getSixthColumnName(), ProductsTable.getSeventhColumnName(),
-                    ProductsTable.getEighthColumnName(), ProductsTable.getFifthColumnName(),
-                    ProductsTable.getTableName(), ProductsTable.getSecondColumnName());
-            Cursor cursor = menuDataBase.downloadData(query);
-            List<Product> results =  new ArrayList<>();
-
-            if (cursor.getCount() > 0) {
-                int productsId, numberOfKcalPer100g, amountOfProteins, amountOfCarbos, amountOfFat;
-                String name;
-                cursor.moveToPosition(-1);
-                while (cursor.moveToNext()) {
-                    productsId = cursor.getInt(0);
-                    name = cursor.getString(1);
-                    numberOfKcalPer100g = cursor.getInt(2);
-                    amountOfProteins = cursor.getInt(3);
-                    amountOfCarbos = cursor.getInt(4);
-                    amountOfFat = cursor.getInt(5);
-                    results.add(new Product(productsId, name, numberOfKcalPer100g,
-                            amountOfProteins, amountOfCarbos, amountOfFat));
-                    results.get(results.size()-1).setStorageType(cursor.getString(6));
+                @Override
+                protected void onPostExecute(List<Product> products) {
+                    if(products.size() > 0){
+                        productsFragment.showProducts(products);
+                    }
                 }
-            }
-            menuDataBase.close();
-            return results;
-        }
-
-        @Override
-        protected void onPostExecute(List<Product> results) {
-            if(productsFragment != null) {
-                productsFragment.showProducts(results);
-            }
+            }.execute();
         }
     }
+
 
     class DeleteProduct extends AsyncTask<Void, Integer, Boolean> {
 
