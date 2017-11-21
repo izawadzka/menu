@@ -83,4 +83,12 @@
         android:layout_width="match_parent"
         android:layout_height="1px"/>
 
+    <View
+        android:id="@+id/strikeThroughBorder"
+        android:visibility="gone"
+        android:background="@color/contrastAdapterColor"
+        android:layout_centerVertical="true"
+        android:layout_width="match_parent"
+        android:layout_height="5px"/>
+
 </RelativeLayout>

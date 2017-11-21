@@ -11,6 +11,7 @@ public class ShoppingListsProductsTable {
     private final static String firstColumnName = "shoppingListId";
     private final static String secondColumnName = "productId";
     private final static String thirdColumnName = "totalQuantity";
+    private final static String fourthColumnName = "wasBought";
 
 
     public static ContentValues getContentValues(long shoppingListId, long productId, double quantity){
@@ -18,6 +19,7 @@ public class ShoppingListsProductsTable {
         contentValues.put(firstColumnName, shoppingListId);
         contentValues.put(secondColumnName, productId);
         contentValues.put(thirdColumnName, quantity);
+        contentValues.put(fourthColumnName, 0);
         return contentValues;
     }
 
@@ -38,4 +40,7 @@ public class ShoppingListsProductsTable {
         return thirdColumnName;
     }
 
+    public static String getFourthColumnName() {
+        return fourthColumnName;
+    }
 }

@@ -1,6 +1,7 @@
 package com.example.dell.menu.shoppinglist.screens;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,10 +11,10 @@ import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
 import com.example.dell.menu.R;
+import com.example.dell.menu.menuplanning.objects.Product;
 import com.example.dell.menu.menuplanning.types.StorageType;
 import com.example.dell.menu.shoppinglist.events.DeleteProductFromShoppingListEvent;
 import com.example.dell.menu.shoppinglist.events.QuantityOfProductChangedEvent;
-import com.example.dell.menu.menuplanning.objects.Product;
 import com.squareup.otto.Bus;
 
 import java.util.ArrayList;
@@ -30,13 +31,14 @@ import butterknife.OnClick;
 public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ProductsInListViewHolder> {
     private final Bus bus;
     List<Product> products = new ArrayList<>();
+    private ProductInListClickedListener productClickedListener;
 
     public ProductsAdapter(Bus bus) {
         this.bus = bus;
         this.bus.register(this);
     }
 
-    public void quantityUpdatedSuccessfully(ProductsInListViewHolder holder){
+    public void quantityUpdatedSuccessfully(ProductsInListViewHolder holder) {
         holder.updateSuccess();
     }
 
@@ -62,7 +64,19 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
         notifyDataSetChanged();
     }
 
-    public class ProductsInListViewHolder extends RecyclerView.ViewHolder {
+    void setProductInListClickedListener(ProductInListClickedListener productClickedListener) {
+        this.productClickedListener = productClickedListener;
+    }
+
+    private void itemClicked(Product product) {
+        if (productClickedListener != null) {
+            productClickedListener.productClicked(product);
+        }
+    }
+
+
+    public class ProductsInListViewHolder extends RecyclerView.ViewHolder
+            implements View.OnClickListener {
         @Bind(R.id.productNameTextView)
         TextView productNameTextView;
         @Bind(R.id.clickableQuantityTextView)
@@ -77,11 +91,14 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
         ImageButton updateQuantityImageButton;
         @Bind(R.id.deleteProductImageButton)
         ImageButton deleteProductImageButton;
+        @Bind(R.id.strikeThroughBorder)
+        View strikeThroughBorder;
         private Product product;
 
         public ProductsInListViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+            itemView.setOnClickListener(this);
         }
 
         public void setProduct(Product product) {
@@ -94,6 +111,8 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
             unitTextView.setText(StorageType.getUnit(product.getStorageType()));
 
             updateQuantityImageButton.setVisibility(View.INVISIBLE);
+
+            setStrikeThrough();
         }
 
         @OnClick(R.id.clickableQuantityTextView)
@@ -103,16 +122,16 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
         }
 
         @OnClick(R.id.updateOrAddProductImageButton)
-        public void onUpdateQuantityImageButtonClicked(){
+        public void onUpdateQuantityImageButtonClicked() {
             try {
                 double newQuantity = Double.valueOf(quantityEditText.getText().toString());
-                if(newQuantity >= 0) {
+                if (newQuantity >= 0) {
 
                     clickableQuantityTextView.setText(String.valueOf(newQuantity));
 
                     bus.post(new QuantityOfProductChangedEvent(newQuantity, product.getProductId(), this));
-                }else quantityEditText.setError("Quantity can't be lower than 0");
-            }catch (Exception e){
+                } else quantityEditText.setError("Quantity can't be lower than 0");
+            } catch (Exception e) {
                 quantityEditText.setError("Invalid format");
             }
         }
@@ -126,5 +145,29 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.Produc
             textViewEditTextSwitcher.showPrevious();
             updateQuantityImageButton.setVisibility(View.INVISIBLE);
         }
+
+
+        @Override
+        public void onClick(View v) {
+            product.setBought(!product.isBought());
+
+            setStrikeThrough();
+
+            itemClicked(product);
+        }
+
+        private void setStrikeThrough() {
+            if (product.isBought())
+                strikeThroughBorder.setVisibility(View.VISIBLE);
+            else
+                strikeThroughBorder.setVisibility(View.GONE);
+
+            deleteProductImageButton.setEnabled(!product.isBought());
+            updateQuantityImageButton.setEnabled(!product.isBought());
+        }
+    }
+
+    interface ProductInListClickedListener {
+        void productClicked(Product product);
     }
 }

@@ -22,6 +22,7 @@ public class Product implements Serializable{
     private int carbohydratesPer100g_mlOr1Unit;
     private int fatPer100g_mlOr1Unit;
     private double blockedAmount = 0; //used in virtual fridge, amount blocked by shopping lists
+    private boolean bought = false;
 
     public Product(int productId, String name, int kcalPer100g_mlOr1Unit, String type,
                    String storageType, int proteinsPer100g_mlOr1Unit, int carbohydratesPer100g_mlOr1Unit,
@@ -46,6 +47,13 @@ public class Product implements Serializable{
         this.fatPer100g_mlOr1Unit = amountOfFat;
     }
 
+    public boolean isBought() {
+        return bought;
+    }
+
+    public void setBought(boolean bought) {
+        this.bought = bought;
+    }
 
     public Product(int productId, String name, double quantity, String storageType){
         this.productId = productId;

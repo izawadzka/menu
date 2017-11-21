@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -20,7 +21,8 @@ import java.util.List;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
-public class ShowProductsInListActivity extends AppCompatActivity {
+public class ShowProductsInListActivity extends AppCompatActivity
+        implements ProductsAdapter.ProductInListClickedListener{
 
 
     public static final String ADD_DO_LIST_KEY = "add do list";
@@ -42,6 +44,7 @@ public class ShowProductsInListActivity extends AppCompatActivity {
         showProductsInListManager = ((App)getApplication()).getShowProductsInListManager();
         productsInShoppingListRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ProductsAdapter(((App)getApplication()).getBus());
+        adapter.setProductInListClickedListener(this);
         productsInShoppingListRecyclerView.setAdapter(adapter);
 
         Intent intent = getIntent();
@@ -93,7 +96,7 @@ public class ShowProductsInListActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_search, menu);
+        getMenuInflater().inflate(R.menu.shopping_list_menu, menu);
         MenuItem item = menu.findItem(R.id.search_menu);
 
         SearchView searchView = (SearchView) item.getActionView();
@@ -125,9 +128,30 @@ public class ShowProductsInListActivity extends AppCompatActivity {
         }else if(item.getItemId() == android.R.id.home){
             finish();
             return true;
+        }else if(item.getItemId() == R.id.action_set_all_products_as_bought){
+            showProductsInListManager.crossAllProducts();
+            return true;
+        }else if(item.getItemId() == R.id.action_move_crossed_products_to_virtual_fridge){
+            showProductsInListManager.moveCrossedProductsToVirtualFridge();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void productClicked(Product product) {
+        showProductsInListManager.setProductWasBought(product, shoppingListId);
+    }
 
+    public void movingProductsSuccess() {
+        Toast.makeText(this, "Crossed products moved successfully", Toast.LENGTH_SHORT).show();
+    }
+
+    public void movingProductsFailed() {
+        Toast.makeText(this, "Crossed products moved failed", Toast.LENGTH_LONG).show();
+    }
+
+    public void noProductsWereCrossed() {
+        Toast.makeText(this, "No products were crossed", Toast.LENGTH_LONG).show();
+    }
 }
