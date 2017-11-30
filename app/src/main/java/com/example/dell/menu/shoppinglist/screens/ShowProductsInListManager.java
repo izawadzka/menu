@@ -359,9 +359,12 @@ public class ShowProductsInListManager {
         protected void onPostExecute(List<Product> products) {
             if(products.size() > 0){
                 showProductsInListActivity.setProducts(products);
-                showProductsInListActivity.makeAStatement("You can change quantity by clicking on it", Toast.LENGTH_LONG);
+                showProductsInListActivity
+                        .makeAStatement("You can change quantity by clicking on it",
+                                Toast.LENGTH_LONG);
             }else{
                 showProductsInListActivity.shoppingListIsEmpty();
+                showProductsInListActivity.setProducts(products);
             }
         }
     }

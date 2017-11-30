@@ -10,9 +10,12 @@ import android.widget.Toast;
 
 import com.example.dell.menu.App;
 import com.example.dell.menu.data.MenuDataBase;
+import com.example.dell.menu.data.tables.ProductsTable;
+import com.example.dell.menu.menuplanning.types.StorageType;
 import com.example.dell.menu.shoppinglist.events.DeleteShoppingListEvent;
 import com.example.dell.menu.shoppinglist.events.EditShoppingListNameEvent;
 import com.example.dell.menu.shoppinglist.events.GenerateShoppingListEvent;
+import com.example.dell.menu.shoppinglist.events.SendShoppingListInSmsButtonClickedEvent;
 import com.example.dell.menu.shoppinglist.events.SynchronizeShoppingListWithFridgeButtonClickedEvent;
 import com.example.dell.menu.menuplanning.objects.Menu;
 import com.example.dell.menu.menuplanning.objects.Product;
@@ -80,6 +83,46 @@ public class ShoppingListsManager {
 
     public void onStop(){
         this.shoppingListsFragment = null;
+    }
+
+    @Subscribe
+    public void onSendShoppingListInSmsButtonClicked(final SendShoppingListInSmsButtonClickedEvent event){
+        if(shoppingListsFragment != null){
+            new AsyncTask<Void, Void, String>(){
+
+                @Override
+                protected String doInBackground(Void... params) {
+                    String message = "";
+                    MenuDataBase menuDataBase = MenuDataBase
+                            .getInstance(shoppingListsFragment.getActivity());
+
+                    String query = String.format("SELECT productsId, name, storageType, totalQuantity, " +
+                                    "wasBought FROM %s p JOIN %s slp ON p.productsId = slp.productId WHERE " +
+                                    "%s = '%s' ORDER BY %s ",
+                            ProductsTable.getTableName(), ShoppingListsProductsTable.getTableName(),
+                            ShoppingListsProductsTable.getFirstColumnName(),event.shoppingListId,
+                            ProductsTable.getSecondColumnName());
+
+                    Cursor cursor = menuDataBase.downloadData(query);
+                    if (cursor.getCount() > 0){
+                        cursor.moveToPosition(-1);
+                        while (cursor.moveToNext()){
+                            message += cursor.getString(1) + " " + cursor.getDouble(3) +
+                                    StorageType.getUnit(cursor.getString(2)) + ",\n";
+                        }
+                    }
+                    menuDataBase.close();
+                    return message;
+                }
+
+                @Override
+                protected void onPostExecute(String s) {
+                    if(s.length() != 0){
+                        Log.i("slm", "message: " + s);
+                    }else Log.i("slm", "niby puste ale: " + s);
+                }
+            }.execute();
+        }
     }
 
     @Subscribe
@@ -358,14 +401,15 @@ public class ShoppingListsManager {
                             if(!result) break;
                         }
 
-                        if (result){
-                            String clause = String.format("%s = ?",
-                                    ShoppingListsBlockedProductsTable.getFirstColumnName());
-                            String[] whereArgs = {String.valueOf(shoppingListId)};
-                            menuDataBase.delete(ShoppingListsBlockedProductsTable.getTableName(),
-                                    clause, whereArgs);
-                        }
                     }
+                    if (result){
+                        String clause = String.format("%s = ?",
+                                ShoppingListsBlockedProductsTable.getFirstColumnName());
+                        String[] whereArgs = {String.valueOf(shoppingListId)};
+                        menuDataBase.delete(ShoppingListsBlockedProductsTable.getTableName(),
+                                clause, whereArgs);
+                    }
+
                     menuDataBase.close();
                     return result;
                 }

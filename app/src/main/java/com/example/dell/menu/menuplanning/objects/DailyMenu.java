@@ -24,6 +24,9 @@ public class DailyMenu implements Serializable{
     private int amountOfServingsInTeatime = 1;
     private int amountOfServingsInSupper = 1;
 
+    private boolean alreadyUsed = false;
+    private boolean alreadySynchronizedWithVirtualFridge = false;
+
     private Vector<Meal> breakfast = new Vector<>();
     private Vector<Meal> lunch = new Vector<>();
     private Vector<Meal> dinner = new Vector<>();
@@ -51,6 +54,22 @@ public class DailyMenu implements Serializable{
         this.dinner = dinner;
         this.teatime = teatime;
         this.supper = supper;
+    }
+
+    public boolean isAlreadyUsed() {
+        return alreadyUsed;
+    }
+
+    public void setAlreadyUsed(boolean alreadyUsed) {
+        this.alreadyUsed = alreadyUsed;
+    }
+
+    public boolean isAlreadySynchronizedWithVirtualFridge() {
+        return alreadySynchronizedWithVirtualFridge;
+    }
+
+    public void setAlreadySynchronizedWithVirtualFridge(boolean alreadySynchronizedWithVirtualFridge) {
+        this.alreadySynchronizedWithVirtualFridge = alreadySynchronizedWithVirtualFridge;
     }
 
     public void setAmountOfServings(int amount, int indxOfMeal){

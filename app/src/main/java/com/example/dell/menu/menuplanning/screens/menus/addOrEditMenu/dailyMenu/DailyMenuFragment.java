@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -81,6 +82,10 @@ public class DailyMenuFragment extends Fragment {
     TextView amountOfServingsInTeatimeTextView;
     @Bind(R.id.amountOfServingsInSupperTextView)
     TextView amountOfServingsInSupperTextView;
+    @Bind(R.id.synchronizedLabel)
+    TextView synchronizedLabel;
+    @Bind(R.id.markedLabel)
+    TextView markedLabel;
 
     private DailyMenu dailyMenu;
     public static final String DAILY_MENU_KEY = "dailyMenu";
@@ -101,7 +106,7 @@ public class DailyMenuFragment extends Fragment {
 
         dailyMenu = (DailyMenu) getArguments().getSerializable(DAILY_MENU_KEY);
 
-        ((App)getActivity().getApplication()).getBus().register(this);
+        ((App) getActivity().getApplication()).getBus().register(this);
 
         return view;
     }
@@ -191,6 +196,13 @@ public class DailyMenuFragment extends Fragment {
 
     private void showDailyMenu() {
         dateTextView.setText(dailyMenu.getDate());
+        synchronizedLabel
+                .setVisibility(dailyMenu
+                        .isAlreadySynchronizedWithVirtualFridge() ? View.VISIBLE : View.GONE);
+        markedLabel
+                .setVisibility(dailyMenu.isAlreadyUsed() &&
+                        !dailyMenu.isAlreadySynchronizedWithVirtualFridge() ? View.VISIBLE
+                        : View.GONE);
 
         setTags(breakfastTags, dailyMenu.getBreakfast(), breakfastTagList);
         setTags(lunchTags, dailyMenu.getLunch(), lunchTagList);
@@ -204,7 +216,7 @@ public class DailyMenuFragment extends Fragment {
         super.onDestroyView();
         ButterKnife.unbind(this);
 
-        ((App)getActivity().getApplication()).getBus().unregister(this);
+        ((App) getActivity().getApplication()).getBus().unregister(this);
     }
 
     @OnClick(R.id.editDailyMenuButton)

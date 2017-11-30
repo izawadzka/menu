@@ -66,4 +66,16 @@
     <string name="sure_to_restore">Are you sure you want to restore backup?</string>
     <string name="backup">backup</string>
     <string name="search_products">Search products</string>
+    <string name="from">FROM</string>
+    <string name="to">TO</string>
+    <string name="choose_date">choose date</string>
+    <string name="products_to_buy">Products to buy</string>
+    <string name="already_bought_products">Already bought products</string>
+    <string name="products_already_on_shopping_lists">Products already on Shopping Lists</string>
+    <string name="eaten_products">Eaten products</string>
+    <string name="not_eaten_products">Not eaten products</string>
+    <string name="extra_shelf">extra shelf</string>
+    <string name="ok">ok</string>
+    <string name="from_label">FROM:</string>
+    <string name="to_label">TO:</string>
 </resources>

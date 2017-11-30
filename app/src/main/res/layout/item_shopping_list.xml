@@ -40,26 +40,28 @@
             android:layout_centerVertical="true"
             android:layout_marginRight="@dimen/right_padding_for_buttons"
             android:layout_marginEnd="@dimen/right_padding_for_buttons"
+            android:layout_toLeftOf="@+id/sendShoppingListInSmsImageButton"
+            android:layout_toStartOf="@+id/sendShoppingListInSmsImageButton"
+            style="@style/buttonStyle" />
+
+        <ImageButton
+            android:id="@+id/sendShoppingListInSmsImageButton"
+            android:src="@drawable/ic_send_in_sms"
+            android:layout_centerVertical="true"
             android:layout_toLeftOf="@+id/editShoppingListNameImageButton"
             android:layout_toStartOf="@+id/editShoppingListNameImageButton"
-            style="@style/buttonStyle" />
+            android:layout_marginRight="@dimen/right_padding_for_buttons"
+            android:layout_marginEnd="@dimen/right_padding_for_buttons"
+            style="@style/buttonStyle"
+            />
     <ImageButton
         android:id="@+id/editShoppingListNameImageButton"
         android:src="@drawable/ic_edit"
-        android:layout_toLeftOf="@+id/deleteShoppingListImageButton"
-        android:layout_toStartOf="@+id/deleteShoppingListImageButton"
-        android:layout_marginRight="@dimen/right_padding_for_buttons"
-        android:layout_marginEnd="@dimen/right_padding_for_buttons"
-        android:layout_centerVertical="true"
-        style="@style/buttonStyle"/>
-    <ImageButton
-        android:id="@+id/deleteShoppingListImageButton"
-        android:src="@drawable/ic_delete_button_without_bckgrnd"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        style="@style/buttonStyle"
-        />
+        style="@style/buttonStyle"/>
+
     </RelativeLayout>
     <View
         android:id="@+id/border"

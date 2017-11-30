@@ -6,6 +6,10 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.example.dell.menu.data.backup.Backup;
+import com.example.dell.menu.data.tables.ShelvesInVirtualFridgeTable;
+import com.example.dell.menu.data.tables.VirtualFridgeTable;
+import com.example.dell.menu.menuplanning.objects.Product;
 import com.example.dell.menu.menuplanning.types.MealsType;
 import com.example.dell.menu.data.MenuDataBase;
 import com.example.dell.menu.menuplanning.events.menus.AddNewDailyMenuEvent;
@@ -18,9 +22,11 @@ import com.example.dell.menu.data.tables.MealsTypesDailyMenusAmountOfPeopleTable
 import com.example.dell.menu.data.tables.MealsTypesMealsDailyMenusTable;
 import com.example.dell.menu.data.tables.MenusDailyMenusTable;
 import com.example.dell.menu.data.tables.MenusTable;
+import com.example.dell.menu.virtualfridge.objects.ShelfInVirtualFridge;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
+import java.io.StringReader;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,6 +39,7 @@ import java.util.List;
 
 public class DailyMenusManager {
     private static final String TAG = "DailyMenusManager";
+    public static final int RESULT_ERROR = -1;
     private final Bus bus;
     private DailyMenusActivity dailyMenusActivity;
 
@@ -69,7 +76,8 @@ public class DailyMenusManager {
                 protected Integer doInBackground(Void... params) {
                     int result;
                     MenuDataBase menuDataBase = MenuDataBase.getInstance(dailyMenusActivity);
-                    String query = String.format("SELECT dailyMenuId FROM MenusDailyMenus WHERE menuId = '%s';", menuId);
+                    String query = String.format("SELECT dailyMenuId FROM MenusDailyMenus WHERE " +
+                            "menuId = '%s';", menuId);
                     Cursor cursor = menuDataBase.downloadData(query);
                     if (cursor.getCount() > 0) {
                         cursor.moveToPosition(-1);
@@ -488,12 +496,31 @@ public class DailyMenusManager {
                 protected void onPostExecute(Boolean result) {
                     if(result){
                         updateMenuCumulativeNumberOfKcalProteinsCarbonsAndFat();
+                        createNewShelf(currentDailyMenu.getDailyMenuId());
                         loadDailyMenus();
                     }else{
                         if(dailyMenusActivity != null)
                             dailyMenusActivity.addingDailyMenuFailed("An error occurred while an attempt to " +
                                 "insert amount of serving", Toast.LENGTH_LONG);
                     }
+                }
+            }.execute();
+        }
+    }
+
+    private void createNewShelf(final Long dailyMenuId) {
+        if(dailyMenusActivity != null){
+            new AsyncTask<Void, Void, Boolean>(){
+
+                @Override
+                protected Boolean doInBackground(Void... params) {
+                    boolean result;
+                    MenuDataBase menuDataBase = MenuDataBase.getInstance(dailyMenusActivity);
+                    result = menuDataBase.insert(ShelvesInVirtualFridgeTable.getTableName(),
+                            ShelvesInVirtualFridgeTable
+                                    .getContentValues(new ShelfInVirtualFridge(dailyMenuId))) != -1;
+                    menuDataBase.close();
+                    return result;
                 }
             }.execute();
         }
@@ -562,13 +589,15 @@ public class DailyMenusManager {
                     MenuDataBase menuDataBase = MenuDataBase.getInstance(dailyMenusActivity);
 
                     for (int i = 0; i < listOfDailyMenus.size(); i++) {
-                        String query =  String.format("SELECT %s, %s, %s, %s, %s FROM %s " +
+                        String query =  String.format("SELECT %s, %s, %s, %s, %s, %s, %s FROM %s " +
                                 "WHERE %s = '%s';",
                                 DailyMenusTable.getSecondColumnName(),
                                 DailyMenusTable.getThirdColumnName(),
                                 DailyMenusTable.getFourthColumnName(),
                                 DailyMenusTable.getFifthColumnName(),
                                 DailyMenusTable.getSixthColumnName(),
+                                DailyMenusTable.getSeventhColumnName(),
+                                DailyMenusTable.getEighthColumnName(),
                                 DailyMenusTable.getTableName(),
                                 DailyMenusTable.getFirstColumnName(),
                                 listOfDailyMenus.get(i).getDailyMenuId());
@@ -582,6 +611,9 @@ public class DailyMenusManager {
                                 listOfDailyMenus.get(i).setCumulativeAmountOfProteins(cursor.getInt(2));
                                 listOfDailyMenus.get(i).setCumulativeAmountOfCarbons(cursor.getInt(3));
                                 listOfDailyMenus.get(i).setCumulativeAmountOfFat(cursor.getInt(4));
+                                listOfDailyMenus.get(i).setAlreadyUsed(cursor.getInt(5) == 1);
+                                listOfDailyMenus.get(i)
+                                        .setAlreadySynchronizedWithVirtualFridge(cursor.getInt(6) == 1);
                             }
                         }else{
                             menuDataBase.close();
@@ -716,4 +748,199 @@ public class DailyMenusManager {
     }
 
 
+    public void setDailyMenuWasUsed(final int indexOfDailyMenu, boolean wasUsed) {
+        if(dailyMenusActivity != null){
+            new AsyncTask<Void, Void, Boolean>(){
+
+                @Override
+                protected Boolean doInBackground(Void... params) {
+                    boolean result;
+                    MenuDataBase menuDatabase = MenuDataBase.getInstance(dailyMenusActivity);
+                    ContentValues editContentValues = new ContentValues();
+                    editContentValues.put(DailyMenusTable.getSeventhColumnName(),
+                            listOfDailyMenus.get(indexOfDailyMenu).isAlreadyUsed() ? 1 : 0);
+
+                    String whereClause = String.format("%s = ?",
+                            DailyMenusTable.getFirstColumnName());
+
+                    String[] whereArgs = {String.valueOf(listOfDailyMenus.get(indexOfDailyMenu)
+                            .getDailyMenuId())};
+
+                    result = menuDatabase.update(DailyMenusTable.getTableName(),editContentValues,
+                            whereClause, whereArgs) == 1;
+                    menuDatabase.close();
+                    return result;
+                }
+
+                @Override
+                protected void onPostExecute(Boolean result) {
+                    if(dailyMenusActivity != null){
+                        dailyMenusActivity.setAdapter();
+                        if(!result) dailyMenusActivity
+                                .makeAStatement("Failed to mark daily menu as used",
+                                        Toast.LENGTH_LONG);
+                    }
+                }
+            }.execute();
+        }
+    }
+
+    public void synchronizeMarkedDailyMenusWithVirtualFridge() {
+        if(dailyMenusActivity != null){
+            new AsyncTask<Void, Void, Integer>(){
+
+                @Override
+                protected Integer doInBackground(Void... params) {
+                    MenuDataBase menuDataBase = MenuDataBase.getInstance(dailyMenusActivity);
+                    ArrayList<Product> products = new ArrayList<Product>();
+                    int queryResult = RESULT_OK;
+                    for (DailyMenu dailyMenu : listOfDailyMenus) {
+                        if(dailyMenu.isAlreadyUsed() &&
+                                !dailyMenu.isAlreadySynchronizedWithVirtualFridge()) {
+
+                            String query = String.format("SELECT productId, quantity, " +
+                                    "mt.mealsTypeId, amountOfPeople FROM Meals_Products mp JOIN " +
+                                    "Products p ON mp.productId = p.productsId JOIN " +
+                                    "MealsTypesMealsDailyMenus mt ON mt.mealsId = mp.mealId JOIN " +
+                                    "MealsTypesDailyMenusAmountOfPeople am on " +
+                                    "am.dailyMenuId = mt.dailyMenuId and am.mealsTypeId = mt.mealsTypeId " +
+                                    "WHERE mp.mealId IN (SELECT mealsId FROM MealsTypesMealsDailyMenus " +
+                                    "WHERE dailyMenuId = '%s');", dailyMenu.getDailyMenuId());
+
+                            Cursor queryCursor = menuDataBase.downloadData(query);
+                            if (queryCursor.getCount() > 0) {
+                                queryCursor.moveToPosition(-1);
+                                while (queryCursor.moveToNext()) {
+                                    int indx = wasAddedPreviously(queryCursor.getInt(0), products);
+
+                                    if (indx != -1)
+                                        products.get(indx).addQuantity(queryCursor.getDouble(1)
+                                                * queryCursor.getInt(3));
+                                    else {
+                                        products.add(new Product(queryCursor.getInt(0),
+                                                queryCursor.getDouble(1) * queryCursor.getInt(3)));
+                                    }
+                                }
+                            } else {
+                                queryResult = RESULT_ERROR;
+                                break;
+                            }
+                        }
+                    }
+
+                    if(queryResult == RESULT_OK) {
+                        String whereClause = String.format("%s = ?",
+                                VirtualFridgeTable.getFirstColumnName());
+                        if (products.size() == 0) queryResult = RESULT_NO_DATA_DOWNLOADED;
+                        else {
+                            for (Product product : products) {
+
+                                String[] whereArgs = {String.valueOf(product.getProductId())};
+                                Cursor productCursor = menuDataBase
+                                        .downloadData(String.format("SELECT %s FROM %s WHERE %s = " +
+                                                        "'%s'", VirtualFridgeTable.getSecondColumnName(),
+                                                VirtualFridgeTable.getTableName(),
+                                                VirtualFridgeTable.getFirstColumnName(),
+                                                product.getProductId()));
+
+                                if (productCursor.getCount() == 1) {
+                                    productCursor.moveToPosition(0);
+
+                                    /*
+                                    ContentValues editContentValues = new ContentValues();
+
+                                    editContentValues.put(VirtualFridgeTable.getSecondColumnName(),
+                                            productCursor.getDouble(0) - product.getQuantity() > 0 ?
+                                                    productCursor.getDouble(0) - product.getQuantity() :
+                                                    0);
+
+                                    menuDataBase.update(VirtualFridgeTable.getTableName(),
+                                            editContentValues, whereClause, whereArgs);*/
+
+                                    if(productCursor.getDouble(0) > product.getQuantity()){
+                                        ContentValues editContentValues = new ContentValues();
+
+                                        editContentValues.put(VirtualFridgeTable.getSecondColumnName(),
+                                                        productCursor.getDouble(0)
+                                                                - product.getQuantity());
+
+                                        menuDataBase.update(VirtualFridgeTable.getTableName(),
+                                                editContentValues, whereClause, whereArgs);
+                                    }else {
+                                        menuDataBase.delete(VirtualFridgeTable.getTableName(),
+                                                whereClause, whereArgs);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    menuDataBase.close();
+                    return queryResult;
+                }
+
+                private int wasAddedPreviously(long productId, ArrayList<Product> products) {
+                    for (int i = 0; i < products.size(); i++) {
+                        if(products.get(i).getProductId() == productId) return i;
+                    }
+
+                    return -1;
+                }
+
+                @Override
+                protected void onPostExecute(Integer result) {
+                    if(result == RESULT_OK) setDailyMenuWasSynchronized();
+                    else if(dailyMenusActivity != null){
+                        if(result == RESULT_NO_DATA_DOWNLOADED)
+                            dailyMenusActivity.makeAStatement("No products in common found in the " +
+                                    "fridge", Toast.LENGTH_SHORT);
+                        else if(result == RESULT_ERROR)
+                        dailyMenusActivity.makeAStatement("An error occurred while an attempt to " +
+                                "synchronize daily menus with fridge", Toast.LENGTH_LONG);
+                    }
+                }
+            }.execute();
+        }
+    }
+
+    private void setDailyMenuWasSynchronized() {
+        if(dailyMenusActivity != null){
+            new AsyncTask<Void, Void, Boolean>(){
+
+                @Override
+                protected Boolean doInBackground(Void... params) {
+                    MenuDataBase menuDataBase = MenuDataBase.getInstance(dailyMenusActivity);
+                    boolean result = true;
+                    String whereClause = String.format("%s = ?", DailyMenusTable.getFirstColumnName());
+                    for (DailyMenu dailyMenu : listOfDailyMenus) {
+                        if(dailyMenu.isAlreadyUsed()){
+                            String[] whereArgs = {String.valueOf(dailyMenu.getDailyMenuId())};
+                            dailyMenu.setAlreadySynchronizedWithVirtualFridge(true);
+
+                            ContentValues editContentValues = new ContentValues();
+                            editContentValues.put(DailyMenusTable.getEighthColumnName(),1);
+
+                            if(menuDataBase.update(DailyMenusTable.getTableName(),editContentValues,
+                                    whereClause, whereArgs) != 1){
+                                result = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    menuDataBase.close();
+                    return result;
+                }
+
+                @Override
+                protected void onPostExecute(Boolean result) {
+                    if(dailyMenusActivity != null){
+                        if(result) dailyMenusActivity.setAdapter();
+                        else dailyMenusActivity.makeAStatement("An error occurred while an attempt " +
+                                "to synchronize daily menus with fridge", Toast.LENGTH_LONG);
+                    }
+                }
+            }.execute();
+        }
+    }
 }

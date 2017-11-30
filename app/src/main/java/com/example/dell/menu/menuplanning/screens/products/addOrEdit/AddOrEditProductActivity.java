@@ -3,6 +3,8 @@ package com.example.dell.menu.menuplanning.screens.products.addOrEdit;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -78,6 +80,7 @@ public class AddOrEditProductActivity extends AppCompatActivity {
     private boolean show_mode;
     private int productToEditId;
     private int productToShowId;
+    private int productId;
 
 
     @Override
@@ -132,16 +135,9 @@ public class AddOrEditProductActivity extends AppCompatActivity {
 
 
         Intent intent = getIntent();
-        if (intent.getBooleanExtra(ProductsFragment.EDIT_MODE_KEY, false)) {
-            productToEditId = intent.getIntExtra(ProductsFragment.PRODUCT_ID_KEY, -1);
-            if (productToEditId != -1) edit_mode = true;
-            else {
-                setResult(ProductsFragment.RESULT_ERROR);
-                finish();
-            }
-        } else if (intent.getBooleanExtra(ProductsFragment.SHOW_MODE_KEY, false)) {
-            productToShowId = intent.getIntExtra(ProductsFragment.PRODUCT_ID_KEY, -1);
-            if (productToShowId != -1) show_mode = true;
+        if (intent.getBooleanExtra(ProductsFragment.SHOW_MODE_KEY, false)) {
+            productId = intent.getIntExtra(ProductsFragment.PRODUCT_ID_KEY, -1);
+            if (productId != -1) show_mode = true;
             else {
                 setResult(ProductsFragment.RESULT_ERROR);
                 finish();
@@ -153,9 +149,13 @@ public class AddOrEditProductActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         addOrEditProductManager.onAttach(this);
-        addOrEditProductManager.setEditMode(edit_mode, productToEditId);
+
+        addOrEditProductManager.setEditMode(edit_mode);
+        addOrEditProductManager.setShowMode(show_mode);
+
         if (show_mode) prepareShowMode();
-        addOrEditProductManager.setShowMode(show_mode, productToShowId);
+
+        addOrEditProductManager.loadProduct(productId);
     }
 
     private void prepareShowMode() {
@@ -180,6 +180,37 @@ public class AddOrEditProductActivity extends AppCompatActivity {
 
         kcalRelativeLayout.setBackgroundResource(R.color.lighterAdapterColor);
         carbonsRelativeLayout.setBackgroundResource(R.color.lighterAdapterColor);
+    }
+
+    public void prepareEditMode(){
+        saveProductButton.setVisibility(View.VISIBLE);
+
+        addedProductName.setVisibility(View.VISIBLE);
+        addedProductName.setText(getTitle());
+
+        addedProductNumbOfKcal.setVisibility(View.VISIBLE);
+        addedProductNumbOfKcal.setText(addedProductNumberOfKcalTextView.getText());
+        addedProductNumberOfKcalTextView.setVisibility(View.GONE);
+
+        addedProductNumberOfProtein.setVisibility(View.VISIBLE);
+        addedProductNumberOfProtein.setText(addedProductNumberOfProteinTextView.getText());
+        addedProductNumberOfProteinTextView.setVisibility(View.GONE);
+
+        addedProductAmountOfCarbos.setVisibility(View.VISIBLE);
+        addedProductAmountOfCarbos.setText(addedProductAmountOfCarbosTextView.getText());
+        addedProductAmountOfCarbosTextView.setVisibility(View.GONE);
+
+        addedProductAmountOfFat.setVisibility(View.VISIBLE);
+        addedProductAmountOfFat.setText(addedProductAmountOfFatTextView.getText());
+        addedProductAmountOfFatTextView.setVisibility(View.GONE);
+
+        addedProductTypes.setEnabled(true);
+        addedProductStorageTypes.setEnabled(true);
+
+        kcalRelativeLayout.setBackgroundResource(R.color.lighterAdapterColor);
+        carbonsRelativeLayout.setBackgroundResource(R.color.lighterAdapterColor);
+
+        setTitle("Product");
     }
 
     @Override
@@ -298,4 +329,21 @@ public class AddOrEditProductActivity extends AppCompatActivity {
         finish();
     }
 
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.menu_edit, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == R.id.edit){
+            edit_mode = true;
+            prepareEditMode();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }

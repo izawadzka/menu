@@ -9,6 +9,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -146,13 +147,30 @@ public class ShoppingListsFragment extends Fragment implements ShoppingListAdapt
 
         this.inflater = inflater;
 
-        View view = inflater.inflate(R.layout.fragment_shopping_lists, container, false);
+        final View view = inflater.inflate(R.layout.fragment_shopping_lists, container, false);
         ButterKnife.bind(this, view);
 
         shoppingListRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         adapter = new ShoppingListAdapter(shoppingListsManager.getBus());
         adapter.setShoppingListClickedListener(this);
         shoppingListRecyclerView.setAdapter(adapter);
+        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper
+                .SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
+                                  RecyclerView.ViewHolder target) {
+                Toast.makeText(getContext(), "Swipe to delete!", Toast.LENGTH_LONG).show();
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                adapter.remove(viewHolder.getAdapterPosition());
+            }
+        };
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
+        itemTouchHelper.attachToRecyclerView(shoppingListRecyclerView);
 
         getActivity().setTitle("Shopping list");
 

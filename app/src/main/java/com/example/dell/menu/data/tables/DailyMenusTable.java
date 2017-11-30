@@ -14,6 +14,8 @@ public class DailyMenusTable {
     private final static String fourthColumnName = "cumulativeNumberOfProteins";
     private final static String fifthColumnName = "cumulativeNumberOfCarbohydrates";
     private final static String sixthColumnName = "cumulativeNumberOfFat";
+    private final static String seventhColumnName = "wasUsed";
+    private final static String eighthColumnName = "synchronizedWithVirtualFridge";
 
 
     public static ContentValues getContentValues(String date, int cumulativeNumberOfKcal){
@@ -33,6 +35,8 @@ public class DailyMenusTable {
         contentValues.put(fourthColumnName, cumulativeNumberOfProteins);
         contentValues.put(fifthColumnName, cumulativeNumberOfCarbohydrates);
         contentValues.put(sixthColumnName, cumulativeNumberOfFat);
+        contentValues.put(seventhColumnName, 0);
+        contentValues.put(eighthColumnName, 0);
         return contentValues;
     }
 
@@ -63,5 +67,13 @@ public class DailyMenusTable {
 
     public static String getThirdColumnName() {
         return thirdColumnName;
+    }
+
+    public static String getSeventhColumnName() {
+        return seventhColumnName;
+    }
+
+    public static String getEighthColumnName() {
+        return eighthColumnName;
     }
 }

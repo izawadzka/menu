@@ -9,6 +9,7 @@ import android.support.v7.app.AlertDialog;
 import com.example.dell.menu.App;
 import com.example.dell.menu.R;
 import com.example.dell.menu.menuplanning.events.products.DeleteProductAnywayEvent;
+import com.example.dell.menu.menuplanning.events.products.SetProductsAdapterEvent;
 
 /**
  * Created by Dell on 28.05.2017.
@@ -19,7 +20,8 @@ public class Dialog extends DialogFragment{
     @Override
     public android.app.Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setMessage(R.string.delete_product_alert).setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+        builder.setMessage(R.string.delete_product_alert)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 ((App)getActivity().getApplication()).getBus().post(new DeleteProductAnywayEvent());
@@ -27,7 +29,7 @@ public class Dialog extends DialogFragment{
         }).setNegativeButton("No", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
+                ((App)getActivity().getApplication()).getBus().post(new SetProductsAdapterEvent());
             }
         });
 

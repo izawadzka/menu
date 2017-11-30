@@ -100,20 +100,6 @@ public class MainActivity extends AppCompatActivity
         bus.unregister(this);
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.i("MainActivity", "destroy");
-
-        //Backup backup = new Backup(this, (App)getApplication());
-        //backup.doBackup();
-    }
-
-
-
-
-
-
     @Subscribe
     public void onShowShoppingList(ShowShoppingListEvent event){
         navigationView.setCheckedItem(R.id.nav_shoppingList);

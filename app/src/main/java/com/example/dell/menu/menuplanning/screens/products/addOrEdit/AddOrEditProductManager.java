@@ -59,14 +59,11 @@ public class AddOrEditProductManager {
             }
     }
 
-    public void setEditMode(boolean editMode, int productId) {
+    public void setEditMode(boolean editMode) {
         this.editMode = editMode;
-        if(editMode){
-            loadProduct(productId);
-        }
     }
 
-    private void loadProduct(int productId) {
+    public void loadProduct(int productId) {
         if(addOrEditProductActivity != null){
             new AsyncTask<Integer, Void, Product>(){
                 @Override
@@ -153,44 +150,8 @@ public class AddOrEditProductManager {
         }
     }
 
-    public void setShowMode(boolean showMode, int productToShowId) {
+    public void setShowMode(boolean showMode) {
         this.showMode = showMode;
-        if(showMode) loadProduct(productToShowId);
-    }
-
-
-
-    private class LoadProduct extends AsyncTask<Integer, Void, Product>{
-
-        @Override
-        protected Product doInBackground(Integer... params) {
-            Product productToEdit = null;
-            MenuDataBase menuDataBase = MenuDataBase.getInstance(addOrEditProductActivity);
-
-            String query = String.format("SELECT * FROM %s WHERE %s = '%s'",
-                    ProductsTable.getTableName(), ProductsTable.getFirstColumnName(), params[0]);
-            Cursor cursor = menuDataBase.downloadData(query);
-            cursor.moveToPosition(-1);
-            while (cursor.moveToNext()){
-                productToEdit = new Product(params[0], cursor.getString(1), cursor.getInt(2),
-                        cursor.getString(3), cursor.getString(4), cursor.getInt(5),
-                        cursor.getInt(6), cursor.getInt(7));
-            }
-
-            menuDataBase.close();
-            AddOrEditProductManager.this.productToEdit = productToEdit;
-
-            return productToEdit;
-        }
-
-
-        @Override
-        protected void onPostExecute(Product product) {
-            if(addOrEditProductActivity != null) {
-                if (product != null) addOrEditProductActivity.loadingProductSuccess(product);
-                else addOrEditProductActivity.loadingProductFailed();
-            }
-        }
     }
 
 }

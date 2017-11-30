@@ -2,10 +2,12 @@ package com.example.dell.menu.menuplanning.screens.products;
 
 import android.database.Cursor;
 import android.os.AsyncTask;
+import android.widget.Toast;
 
 import com.example.dell.menu.data.MenuDataBase;
 import com.example.dell.menu.menuplanning.events.products.DeleteProductAnywayEvent;
 import com.example.dell.menu.menuplanning.events.products.DeleteProductEvent;
+import com.example.dell.menu.menuplanning.events.products.SetProductsAdapterEvent;
 import com.example.dell.menu.menuplanning.events.products.UpdateProductEvent;
 import com.example.dell.menu.menuplanning.objects.Product;
 import com.example.dell.menu.menuplanning.screens.products.dialog.Dialog;
@@ -25,6 +27,7 @@ import java.util.List;
 public class ProductFragmentManager {
     private ProductsFragment productsFragment;
     private int idOfProductToDelete;
+    private List<Product> productList = new ArrayList<>();
 
     public ProductFragmentManager(Bus bus) {
         bus.register(this);
@@ -41,12 +44,13 @@ public class ProductFragmentManager {
     void loadProducts(){
 
         if(productsFragment != null) {
-            new AsyncTask<Void, Void, List<Product>>(){
+            new AsyncTask<Void, Void, Integer>(){
 
                 @Override
-                protected List<Product> doInBackground(Void... params) {
+                protected Integer doInBackground(Void... params) {
                     MenuDataBase menuDataBase = MenuDataBase.getInstance(productsFragment.getActivity());
-
+                    int result = 1;
+                    productList.clear();
                     String query = String.format("SELECT %s, %s, %s, %s, %s, %s, %s FROM %s ORDER BY %s",
                             ProductsTable.getFirstColumnName(),
                             ProductsTable.getSecondColumnName(), ProductsTable.getThirdColumnName(),
@@ -54,7 +58,6 @@ public class ProductFragmentManager {
                             ProductsTable.getEighthColumnName(), ProductsTable.getFifthColumnName(),
                             ProductsTable.getTableName(), ProductsTable.getSecondColumnName());
                     Cursor cursor = menuDataBase.downloadData(query);
-                    List<Product> results =  new ArrayList<>();
 
                     if (cursor.getCount() > 0) {
                         int productsId, numberOfKcalPer100g, amountOfProteins, amountOfCarbos, amountOfFat;
@@ -67,19 +70,23 @@ public class ProductFragmentManager {
                             amountOfProteins = cursor.getInt(3);
                             amountOfCarbos = cursor.getInt(4);
                             amountOfFat = cursor.getInt(5);
-                            results.add(new Product(productsId, name, numberOfKcalPer100g,
+                            productList.add(new Product(productsId, name, numberOfKcalPer100g,
                                     amountOfProteins, amountOfCarbos, amountOfFat));
-                            results.get(results.size()-1).setStorageType(cursor.getString(6));
+                            productList.get(productList.size()-1).setStorageType(cursor.getString(6));
                         }
-                    }
+                    }else result = 0;
                     menuDataBase.close();
-                    return results;
+                    return result;
                 }
 
                 @Override
-                protected void onPostExecute(List<Product> results) {
+                protected void onPostExecute(Integer results) {
                     if(productsFragment != null) {
-                        productsFragment.showProducts(results);
+                        productsFragment.showProducts(productList);
+                        if(results == 0)
+                            productsFragment
+                                    .makeAStatement("There's no products in database",
+                                            Toast.LENGTH_SHORT);
                     }
                 }
             }.execute();
@@ -95,15 +102,6 @@ public class ProductFragmentManager {
         }
     }
 
-
-
-    @Subscribe
-    public void onUpdateProductEvent(UpdateProductEvent event){
-        if(productsFragment != null){
-            productsFragment.editProduct(event.productId);
-        }
-    }
-
     @Subscribe
     public void deleteProductAnyway(DeleteProductAnywayEvent deleteProductAnywayEvent){
         if(productsFragment != null){
@@ -111,13 +109,20 @@ public class ProductFragmentManager {
         }
     }
 
+    @Subscribe
+    public void onSetProductsAdapterEvent(SetProductsAdapterEvent event){
+        if(productsFragment != null){
+            productsFragment.showProducts(productList);
+        }
+    }
+
     void findProducts(final String textToFind) {
         if(productsFragment != null){
-            new AsyncTask<Void, Void, List<Product>>(){
+            new AsyncTask<Void, Void, Void>(){
 
                 @Override
-                protected List<Product> doInBackground(Void... params) {
-                    List<Product> result = new ArrayList<>();
+                protected Void doInBackground(Void... params) {
+                    productList.clear();
                     MenuDataBase menuDataBase = MenuDataBase.getInstance(productsFragment.getActivity());
                     String query = String.format("SELECT * FROM %s WHERE %s LIKE '%%%s%%' ORDER BY %s",
                             ProductsTable.getTableName(), ProductsTable.getSecondColumnName(), textToFind,
@@ -126,19 +131,19 @@ public class ProductFragmentManager {
                     if(cursor.getCount() > 0){
                         cursor.moveToPosition(-1);
                         while (cursor.moveToNext()){
-                            result.add(new Product(cursor.getInt(0), cursor.getString(1), cursor.getInt(2),
+                            productList.add(new Product(cursor.getInt(0), cursor.getString(1), cursor.getInt(2),
                                     cursor.getString(3), cursor.getString(4), cursor.getInt(5),
                                     cursor.getInt(6), cursor.getInt(7)));
                         }
                     }
                     menuDataBase.close();
-                    return result;
+                    return null;
                 }
 
                 @Override
-                protected void onPostExecute(List<Product> products) {
-                    if(products.size() > 0){
-                        productsFragment.showProducts(products);
+                protected void onPostExecute(Void result) {
+                    if(productsFragment != null){
+                        productsFragment.showProducts(productList);
                     }
                 }
             }.execute();

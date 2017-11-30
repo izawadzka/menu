@@ -71,25 +71,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </LinearLayout>
-
-
-        <ImageButton
-            android:id="@+id/updateOrAddProductImageButton"
-            android:layout_centerVertical="true"
-            android:layout_toLeftOf="@+id/deleteProductImageButton"
-            android:layout_toStartOf="@+id/deleteProductImageButton"
-            android:src="@drawable/ic_edit"
-            style="@style/buttonStyle"
-            android:layout_marginRight="@dimen/right_padding_for_buttons"
-            android:layout_marginEnd="@dimen/right_padding_for_buttons"/>
-
-        <ImageButton
-            android:id="@+id/deleteProductImageButton"
-            android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:src="@drawable/ic_delete_button_without_bckgrnd"
-            style="@style/buttonStyle" />
     </RelativeLayout>
 
     <View

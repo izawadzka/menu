@@ -66,16 +66,16 @@ class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ProductViewHo
         }
     }
 
+    public void remove(int adapterPosition) {
+        bus.post(new DeleteProductEvent(products.get(adapterPosition).getProductId()));
+    }
+
 
     class ProductViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         @Bind(R.id.productNameTextView)
         TextView productNameTextView;
         @Bind(R.id.caloriesTextView)
         TextView caloriesTextView;
-        @Bind(R.id.updateOrAddProductImageButton)
-        ImageButton editProductImageButton;
-        @Bind(R.id.deleteProductImageButton)
-        ImageButton deleteProductImageButton;
         @Bind(R.id.proteinsTextView)
         TextView proteinsTextView;
         @Bind(R.id.carbonsTextView)
@@ -109,15 +109,6 @@ class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ProductViewHo
             else unitLabel.setText("/100"+StorageType.getUnit(product.getStorageType()));
         }
 
-        @OnClick(R.id.deleteProductImageButton)
-        void onDeleteProductButtonClicked() {
-            bus.post(new DeleteProductEvent(product.getProductId()));
-        }
-
-        @OnClick(R.id.updateOrAddProductImageButton)
-        void onUpdateProductImageButtonClicked() {
-            bus.post(new UpdateProductEvent(product.getProductId()));
-        }
 
         @Override
         public void onClick(View v) {

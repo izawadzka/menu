@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -39,7 +40,6 @@ public class ProductsFragment extends Fragment implements ProductsAdapter.Produc
     public static final int REQUEST_CODE_EDIT = 2;
     public static final int REQUEST_CODE_SHOW = 3;
 
-    public static final String EDIT_MODE_KEY = "edit_mode";
     public static final String PRODUCT_ID_KEY = "productId";
     public static final String SHOW_MODE_KEY = "show_mode";
 
@@ -81,6 +81,23 @@ public class ProductsFragment extends Fragment implements ProductsAdapter.Produc
         adapter = new ProductsAdapter(((App)getActivity().getApplication()).getBus());
         adapter.setProductClickedListener(this);
         productRecyclerView.setAdapter(adapter);
+        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper
+                .SimpleCallback(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT){
+
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                Toast.makeText(getContext(), "Swipe to delete product", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                adapter.remove(viewHolder.getAdapterPosition());
+            }
+        };
+
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
+        itemTouchHelper.attachToRecyclerView(productRecyclerView);
 
         getActivity().setTitle("Products");
     }
@@ -157,18 +174,15 @@ public class ProductsFragment extends Fragment implements ProductsAdapter.Produc
         backupTimer.start();
     }
 
-    public void editProduct(int productId) {
-        Intent intent = new Intent(this.getContext(), AddOrEditProductActivity.class);
-        intent.putExtra(EDIT_MODE_KEY, true);
-        intent.putExtra(PRODUCT_ID_KEY, productId);
-        startActivityForResult(intent, REQUEST_CODE_EDIT);
-    }
-
     @Override
     public void productClicked(Product product) {
         Intent intent = new Intent(this.getContext(), AddOrEditProductActivity.class);
         intent.putExtra(SHOW_MODE_KEY, true);
         intent.putExtra(PRODUCT_ID_KEY, product.getProductId());
         startActivityForResult(intent, REQUEST_CODE_SHOW);
+    }
+
+    public void makeAStatement(String statement, int duration) {
+        Toast.makeText(getContext(), statement, duration).show();
     }
 }

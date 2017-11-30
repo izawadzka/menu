@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.example.dell.menu.R;
 import com.example.dell.menu.shoppinglist.events.DeleteShoppingListEvent;
 import com.example.dell.menu.shoppinglist.events.EditShoppingListNameEvent;
+import com.example.dell.menu.shoppinglist.events.SendShoppingListInSmsButtonClickedEvent;
 import com.example.dell.menu.shoppinglist.events.SynchronizeShoppingListWithFridgeButtonClickedEvent;
 import com.example.dell.menu.shoppinglist.objects.ShoppingList;
 import com.squareup.otto.Bus;
@@ -67,6 +68,10 @@ public class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapte
         }
     }
 
+    public void remove(int adapterPosition) {
+        bus.post(new DeleteShoppingListEvent(shoppingLists.get(adapterPosition)));
+    }
+
     class ShoppingListViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         @Bind(R.id.shoppingListNameTextView)
@@ -75,8 +80,8 @@ public class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapte
         TextView authorsNameTextView;
         @Bind(R.id.editShoppingListNameImageButton)
         ImageButton editShoppingListNameImageButton;
-        @Bind(R.id.deleteShoppingListImageButton)
-        ImageButton deleteShoppingListImageButton;
+        @Bind(R.id.sendShoppingListInSmsImageButton)
+        ImageButton sendShoppingListInSmsImageButton;
         @Bind(R.id.synchronizeWithFridgeImageButton)
         ImageButton synchronizeWithFridgeImageButton;
         @Bind(R.id.synchronizedLabel)
@@ -101,11 +106,6 @@ public class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapte
             }
         }
 
-        @OnClick(R.id.deleteShoppingListImageButton)
-        void onDeleteShoppingListImageButtonClicked() {
-            bus.post(new DeleteShoppingListEvent(shoppingList));
-        }
-
         @OnClick(R.id.editShoppingListNameImageButton)
         void onEditShoppingListNameImageButtonClicked() {
             bus.post(new EditShoppingListNameEvent(shoppingList.getShoppingListId(), shoppingList.getName()));
@@ -115,6 +115,11 @@ public class ShoppingListAdapter extends RecyclerView.Adapter<ShoppingListAdapte
         void onSynchronizeListWithFridgeImageButtonClicked() {
             bus.post(new SynchronizeShoppingListWithFridgeButtonClickedEvent(shoppingList
                     .getShoppingListId()));
+        }
+
+        @OnClick(R.id.sendShoppingListInSmsImageButton)
+        void onSendShoppingListInSmsImageButtonClicked() {
+            bus.post(new SendShoppingListInSmsButtonClickedEvent(shoppingList.getShoppingListId()));
         }
 
         @Override
