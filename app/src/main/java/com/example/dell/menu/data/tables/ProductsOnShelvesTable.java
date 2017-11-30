@@ -16,7 +16,7 @@ public class ProductsOnShelvesTable {
     private final static String fourthColumnName = "productFlagId";
 
 
-    public static ContentValues getContentValues(Product product, int shelfId){
+    public static ContentValues getContentValues(Product product, long shelfId){
         ContentValues contentValues = new ContentValues();
         contentValues.put(firstColumnName, product.getProductId());
         contentValues.put(secondColumnName, shelfId);

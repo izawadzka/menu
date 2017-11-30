@@ -173,8 +173,8 @@ public class VirtualFridgeManager {
                         while (cursor.moveToNext()){
                             try {
                                 shelves.add(new ShelfInVirtualFridge(cursor.getInt(0), cursor.getInt(1),
-                                        isArchived(cursor.getString(3)),
-                                        cursor.getString(3)));
+                                        isArchived(cursor.getString(2)),
+                                        cursor.getString(2)));
                             } catch (ParseException e) {
                                 Log.e("VirtualFridgeManager", e.getLocalizedMessage());
                                 result = RESULT_ERROR;
@@ -242,9 +242,9 @@ public class VirtualFridgeManager {
                     int todayDay = today.get(Calendar.DAY_OF_MONTH);
 
                     if(calendarYear < todayYear) return true;
-                    else{
+                    else if(calendarYear == todayYear){
                         if(calendarMonth < todayMonth) return true;
-                        else if (calendarDay < todayDay) return true;
+                        else if ( calendarMonth == todayMonth && calendarDay < todayDay) return true;
                     }
                     return false;
                 }

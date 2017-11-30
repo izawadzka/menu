@@ -56,6 +56,12 @@ public class Product implements Serializable{
         this.productFlagId = flagId;
     }
 
+    public Product(int productId,  double quantity, int productsFlagId) {
+        this.productId = productId;
+        this.quantity = quantity;
+        this.productFlagId = productsFlagId;
+    }
+
     public boolean isBought() {
         return bought;
     }
