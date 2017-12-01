@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,11 +50,11 @@ public class ShelfFragment extends Fragment {
     @Bind(R.id.boughtProductsLabel)
     TextView boughtProductsLabel;
     private ShelfInVirtualFridge shelf;
-    private ProductsOnTheShelfAdapter boughtProductsAdapter;
-    private ProductsOnTheShelfAdapter productsToBuyAdapter;
-    private ProductsOnTheShelfAdapter productsOnShoppingListAdapter;
-    private ProductsOnTheShelfAdapter notEatenProductsAdapter;
-    private ProductsOnTheShelfAdapter eatenProductsAdapter;
+    private ProductsOnTheShelfMainAdapter boughtProductsAdapter;
+    private ProductsOnTheShelfAdditionalAdapter productsToBuyAdapter;
+    private ProductsOnTheShelfAdditionalAdapter productsOnShoppingListAdapter;
+    private ProductsOnTheShelfAdditionalAdapter notEatenProductsAdapter;
+    private ProductsOnTheShelfMainAdapter eatenProductsAdapter;
 
 
     @Nullable
@@ -73,28 +72,29 @@ public class ShelfFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         boughtProductsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        boughtProductsAdapter = new ProductsOnTheShelfAdapter(((App) getActivity().getApplication())
-                .getBus(), ProductsOnTheShelfAdapter.SHOW_MODE);
+        boughtProductsAdapter = new ProductsOnTheShelfMainAdapter(((App) getActivity().getApplication())
+                .getBus(), ProductsOnTheShelfMainAdapter.SHOW_MODE_BOUGHT, shelf.getShelfId());
         boughtProductsRecyclerView.setAdapter(boughtProductsAdapter);
 
         productsToBuyRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        productsToBuyAdapter = new ProductsOnTheShelfAdapter(((App) getActivity().getApplication())
-                .getBus(), ProductsOnTheShelfAdapter.SHOW_MODE);
+        productsToBuyAdapter = new ProductsOnTheShelfAdditionalAdapter(((App) getActivity().getApplication())
+                .getBus());
         productsToBuyRecyclerView.setAdapter(productsToBuyAdapter);
 
         productsOnShoppingListRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        productsOnShoppingListAdapter = new ProductsOnTheShelfAdapter(((App) getActivity()
-                .getApplication()).getBus(), ProductsOnTheShelfAdapter.SHOW_MODE);
+        productsOnShoppingListAdapter = new ProductsOnTheShelfAdditionalAdapter(((App) getActivity()
+                .getApplication()).getBus());
         productsOnShoppingListRecyclerView.setAdapter(productsOnShoppingListAdapter);
 
         eatenProductsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        eatenProductsAdapter = new ProductsOnTheShelfAdapter(((App)
-                getActivity().getApplication()).getBus(), ProductsOnTheShelfAdapter.SHOW_MODE);
+        eatenProductsAdapter = new ProductsOnTheShelfMainAdapter(((App)
+                getActivity().getApplication()).getBus(),
+                ProductsOnTheShelfMainAdapter.SHOW_MODE_EATEN, shelf.getShelfId());
         eatenProductsRecyclerView.setAdapter(eatenProductsAdapter);
 
         notEatenProductsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        notEatenProductsAdapter = new ProductsOnTheShelfAdapter(((App)
-                getActivity().getApplication()).getBus(), ProductsOnTheShelfAdapter.SHOW_MODE);
+        notEatenProductsAdapter = new ProductsOnTheShelfAdditionalAdapter(((App)
+                getActivity().getApplication()).getBus());
         notEatenProductsRecyclerView.setAdapter(notEatenProductsAdapter);
     }
 
@@ -115,7 +115,10 @@ public class ShelfFragment extends Fragment {
     private void showProducts() {
         if (!shelf.isArchived()) {
             if (shelf.getBoughtProducts().size() > 0) {
-                if (shelf.isExtraShelf()) boughtProductsLabel.setText("Content of the extra shelf:");
+                if (shelf.isExtraShelf()){
+                    boughtProductsAdapter.setExtraShelf(true);
+                    boughtProductsLabel.setText("Content of the extra shelf:");
+                }else boughtProductsAdapter.setExtraShelf(false);
                     boughtProductsAdapter.setProducts(shelf.getBoughtProducts());
             } else boughtProductsLayout.setVisibility(View.GONE);
 

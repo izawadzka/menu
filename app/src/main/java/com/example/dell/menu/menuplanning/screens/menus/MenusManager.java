@@ -7,6 +7,10 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.dell.menu.data.MenuDataBase;
+import com.example.dell.menu.data.tables.ProductsOnShelvesTable;
+import com.example.dell.menu.data.tables.ShelvesInVirtualFridgeTable;
+import com.example.dell.menu.menuplanning.objects.DailyMenu;
+import com.example.dell.menu.menuplanning.objects.Product;
 import com.example.dell.menu.user.UserStorage;
 import com.example.dell.menu.menuplanning.events.menus.DeleteMenuEvent;
 import com.example.dell.menu.menuplanning.events.menus.EditMenuNameEvent;
@@ -19,6 +23,7 @@ import com.example.dell.menu.data.tables.MealsTypesDailyMenusAmountOfPeopleTable
 import com.example.dell.menu.data.tables.MealsTypesMealsDailyMenusTable;
 import com.example.dell.menu.data.tables.MenusDailyMenusTable;
 import com.example.dell.menu.data.tables.MenusTable;
+import com.example.dell.menu.virtualfridge.flags.ProductFlags;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -115,17 +120,165 @@ public class MenusManager {
         @Override
         protected void onPostExecute(Menu menu) {
             if(menu == null){
-                Log.i("man", "puste menu");
                 if(delete_mode) deleteMenu();
                 else menusFragment.makeAStatement("It's impossible to create a shopping list. Menu is empty", Toast.LENGTH_LONG);
             }else{
-                if(delete_mode) deleteDailyMenus();
+                if(delete_mode){
+                    deleteShelves(menu.getMenuId());
+                    //deleteDailyMenus();
+                }
                 else {
                     bus.post(new ShowShoppingListEvent(menu));
                     bus.post(new GenerateShoppingListEvent(menu));
                 }
             }
         }
+    }
+
+    private void deleteShelves(final int menuId) {
+        if(menusFragment != null){
+            new AsyncTask<Void, Void, Boolean>(){
+
+                @Override
+                protected Boolean doInBackground(Void... params) {
+                    boolean result = true;
+                    int extraShelfId = -1;
+                    List<DailyMenu> dailyMenus = new ArrayList<DailyMenu>();
+                    MenuDataBase menuDataBase = MenuDataBase.getInstance(menusFragment.getActivity());
+                    String extraShelfQuery = String.format("SELECT %s FROM %s WHERE %s = %s",
+                            ShelvesInVirtualFridgeTable.getFirstColumnName(),
+                            ShelvesInVirtualFridgeTable.getTableName(),
+                            ShelvesInVirtualFridgeTable.getSecondColumnName(), 0);
+                    Cursor extraShelfCursor = menuDataBase.downloadData(extraShelfQuery);
+
+                    if(extraShelfCursor.getCount() == 1) {
+                        //find extra shelf id
+                        extraShelfCursor.moveToPosition(0);
+                        extraShelfId = extraShelfCursor.getInt(0);
+
+                        //load daily menus
+                        String loadDailyMenusQuery = String.format("SELECT %s FROM %s WHERE %s = %s",
+                                MenusDailyMenusTable.getSecondColumnName(),
+                                MenusDailyMenusTable.getTableName(),
+                                MenusDailyMenusTable.getFirstColumnName(),
+                                menuId);
+
+                        Cursor dailyMenusCursor = menuDataBase.downloadData(loadDailyMenusQuery);
+                        if (dailyMenusCursor.getCount() > 0) {
+                            dailyMenusCursor.moveToPosition(-1);
+                            while (dailyMenusCursor.moveToNext()) {
+                                dailyMenus.add(new DailyMenu(dailyMenusCursor.getInt(0)));
+                            }
+
+
+                            for (DailyMenu dailyMenu : dailyMenus) {
+                                //move bought products to extra shelf
+                                ContentValues editContentValues = new ContentValues();
+                                editContentValues.put(ProductsOnShelvesTable.getSecondColumnName(),
+                                        extraShelfId);
+                                String moveProductsWhereClause = String.format("%s IN (SELECT %s FROM %s " +
+                                                "WHERE %s = ?) AND %s = ?",
+                                        ProductsOnShelvesTable.getSecondColumnName(),
+                                        ShelvesInVirtualFridgeTable.getFirstColumnName(),
+                                        ShelvesInVirtualFridgeTable.getTableName(),
+                                        ShelvesInVirtualFridgeTable.getSecondColumnName(),
+                                        ProductsOnShelvesTable.getFourthColumnName());
+
+                                String[] moveProductsWhereArgs = {String.valueOf(dailyMenu.getDailyMenuId()),
+                                        String.valueOf(ProductFlags.BOUGHT_INDX)};
+                                menuDataBase.update(ProductsOnShelvesTable.getTableName(),editContentValues,
+                                        moveProductsWhereClause, moveProductsWhereArgs);
+
+                                List<Product> productsFromExtraShelf = new ArrayList<Product>();
+                                String productsFromExtraShelfQuery = String.format("SELECT %s, %s, %s " +
+                                                "FROM %s WHERE %s = %s",
+                                        ProductsOnShelvesTable.getFirstColumnName(),
+                                        ProductsOnShelvesTable.getThirdColumnName(),
+                                        ProductsOnShelvesTable.getFourthColumnName(),
+                                        ProductsOnShelvesTable.getTableName(),
+                                        ProductsOnShelvesTable.getSecondColumnName(),
+                                        extraShelfId);
+                                Cursor cursorForExtraShelf = menuDataBase
+                                        .downloadData(productsFromExtraShelfQuery);
+                                if(cursorForExtraShelf.getCount() > 0){
+                                    cursorForExtraShelf.moveToPosition(-1);
+                                    while (cursorForExtraShelf.moveToNext()){
+                                        int indx = wasAddedPreviously(cursorForExtraShelf.getInt(0),
+                                                productsFromExtraShelf);
+                                        if(indx != -1){
+                                            productsFromExtraShelf.get(indx)
+                                                    .addQuantity(cursorForExtraShelf.getDouble(1));
+                                        }
+                                        else
+                                        {
+                                            productsFromExtraShelf.add(new Product(cursorForExtraShelf.getInt(0),
+                                                    cursorForExtraShelf.getDouble(1),
+                                                    cursorForExtraShelf.getInt(2)));
+                                        }
+                                    }
+                                    String[] deleteFromExtraShelfArgs = {String.valueOf(extraShelfId)};
+                                    menuDataBase.delete(ProductsOnShelvesTable.getTableName(),
+                                            String.format("%s = ?", ProductsOnShelvesTable.getSecondColumnName()),
+                                            deleteFromExtraShelfArgs);
+
+                                    for (Product product : productsFromExtraShelf) {
+                                        menuDataBase.insert(ProductsOnShelvesTable.getTableName(),
+                                                ProductsOnShelvesTable
+                                                        .getContentValues(new Product(product.getProductId(),
+                                                                        product.getQuantity(),
+                                                                        product.getProductFlagId()),
+                                                                extraShelfId));
+                                    }
+
+                                }
+
+                                //delete all connected products from virtual fridge
+                                String deleteProductsWhereClause = String.format("%s IN (SELECT %s FROM %s " +
+                                                "WHERE %s = ?)", ProductsOnShelvesTable.getSecondColumnName(),
+                                        ShelvesInVirtualFridgeTable.getFirstColumnName(),
+                                        ShelvesInVirtualFridgeTable.getTableName(),
+                                        ShelvesInVirtualFridgeTable.getSecondColumnName());
+
+                                String[] deleteProductsWhereArgs = {String.valueOf(dailyMenu.getDailyMenuId())};
+                                menuDataBase.delete(ProductsOnShelvesTable.getTableName(),
+                                        deleteProductsWhereClause, deleteProductsWhereArgs);
+
+
+                                String deleteShelfWhereClause = String.format("%s = ?",
+                                        ShelvesInVirtualFridgeTable.getSecondColumnName());
+                                String[] deleteShelfWhereArgs = {String.valueOf(dailyMenu.getDailyMenuId())};
+                                result = menuDataBase.delete(ShelvesInVirtualFridgeTable.getTableName(),
+                                        deleteShelfWhereClause, deleteShelfWhereArgs) != 0;
+                            }
+
+                        } else result = false;
+                    }else result = false;
+
+                    menuDataBase.close();
+                    return  result;
+                }
+
+                @Override
+                protected void onPostExecute(Boolean result) {
+                    if(result){
+                        if(menusFragment != null)
+                            menusFragment.makeAStatement("Successfully deleted shelves",
+                                    Toast.LENGTH_SHORT);
+                        deleteDailyMenus();
+                    }else if(menusFragment != null)
+                        menusFragment.makeAStatement("An error occurred while an attempt to delete " +
+                                "shelves!", Toast.LENGTH_LONG);
+                }
+            }.execute();
+        }
+    }
+
+    private int wasAddedPreviously(long productId, List<Product> products) {
+        for (int i = 0; i < products.size(); i++) {
+            if(products.get(i).getProductId() == productId) return i;
+        }
+
+        return -1;
     }
 
     private void deleteDailyMenus() {

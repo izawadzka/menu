@@ -5,6 +5,7 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.text.format.DateUtils;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.dell.menu.data.MenuDataBase;
 import com.example.dell.menu.data.tables.DailyMenusTable;
@@ -15,6 +16,7 @@ import com.example.dell.menu.virtualfridge.events.DeleteProductFromFridgeEvent;
 import com.example.dell.menu.menuplanning.objects.Product;
 import com.example.dell.menu.data.tables.ProductsTable;
 import com.example.dell.menu.data.tables.VirtualFridgeTable;
+import com.example.dell.menu.virtualfridge.flags.ProductFlags;
 import com.example.dell.menu.virtualfridge.objects.ShelfInVirtualFridge;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -27,6 +29,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.TooManyListenersException;
 
 import butterknife.Bind;
 
@@ -97,35 +100,169 @@ public class VirtualFridgeManager {
 
     @Subscribe
     public void onAmountOfProductChangedEvent(AmountOfProductChangedEvent event){
-        updateAmountOfProduct(event.productId, event.quantity);
+        updateAmountOfProduct(event.productId, event.quantity, event.oldQuantity, event.shelfId,
+                event.productFlagId, event.extraShelf);
     }
 
-    private void updateAmountOfProduct(final int productId, final double quantity) {
+    private void updateAmountOfProduct(final int productId, final double quantity,
+                                       final double oldQuantity, final long shelfId,
+                                       final int productFlagId, final boolean extraShelf) {
         if(virtualFridgeFragment != null){
             new AsyncTask<Void, Void, Boolean>(){
 
                 @Override
                 protected Boolean doInBackground(Void... params) {
-                    boolean result;
-                    MenuDataBase menuDataBase = MenuDataBase.getInstance(virtualFridgeFragment.getActivity());
-                    ContentValues editContentValues = new ContentValues();
-                    String[] args = {String.valueOf(productId)};
-                    editContentValues.put(VirtualFridgeTable.getSecondColumnName(), quantity);
-                    result = menuDataBase.update(VirtualFridgeTable.getTableName(),
-                            editContentValues,
-                            String.format("%s = ?", VirtualFridgeTable.getFirstColumnName()),
-                            args) > 0;
+                    boolean result = true;
+                    MenuDataBase menuDataBase = MenuDataBase
+                            .getInstance(virtualFridgeFragment.getActivity());
+
+
+                    //amount of eaten + not_eaten = const and amount of
+                    // bought+to_buy+on_list = const
+
+                    if(productFlagId == ProductFlags.BOUGHT_INDX){
+                        //at first check if it's not the extra shelf
+                        if(extraShelf){
+                            ContentValues editContentValues = new ContentValues();
+                            editContentValues.put(ProductsOnShelvesTable.getThirdColumnName(),
+                                    quantity);
+
+                            String whereClause = String.format("%s = ? AND %s = ?",
+                                    ProductsOnShelvesTable.getFirstColumnName(),
+                                    ProductsOnShelvesTable.getSecondColumnName());
+                            String[] whereArgs = {String.valueOf(productId),
+                                    String.valueOf(shelfId)};
+
+                            result = menuDataBase.update(ProductsOnShelvesTable.getTableName(),
+                                    editContentValues, whereClause, whereArgs) == 1;
+                        }else {
+                            double boughtQuantity = oldQuantity;
+                            double toBuyQuantity = 0, onShoppingListQuantity = 0;
+                            String query = String.format("SELECT %s, %s FROM %s " +
+                                            "WHERE %s = %s AND %s = %s",
+                                    ProductsOnShelvesTable.getThirdColumnName(),
+                                    ProductsOnShelvesTable.getFourthColumnName(),
+                                    ProductsOnShelvesTable.getTableName(),
+                                    ProductsOnShelvesTable.getFirstColumnName(), productId,
+                                    ProductsOnShelvesTable.getSecondColumnName(), shelfId);
+
+                            Cursor productsCursor = menuDataBase.downloadData(query);
+                            if (productsCursor.getCount() > 0) {
+                                productsCursor.moveToPosition(-1);
+                                while (productsCursor.moveToNext()) {
+                                    if (productsCursor.getInt(1) == ProductFlags.NEED_TO_BE_BOUGHT_IND)
+                                        toBuyQuantity = productsCursor.getDouble(0);
+                                    else if (productsCursor.getInt(1) == ProductFlags.ADDED_TO_SHOPPING_LIST_INDX)
+                                        onShoppingListQuantity = productsCursor.getDouble(0);
+                                }
+
+                                String boughtWhereClause = String.format("%s = ? AND %s = ? AND %s = ?",
+                                        ProductsOnShelvesTable.getFirstColumnName(),
+                                        ProductsOnShelvesTable.getSecondColumnName(),
+                                        ProductsOnShelvesTable.getFourthColumnName());
+
+                                String[] boughtWhereArgs = {String.valueOf(productId),
+                                        String.valueOf(shelfId), String.valueOf(ProductFlags.BOUGHT_INDX)};
+
+
+                                String toBuyWhereClause = String.format("%s = ? AND %s = ? " +
+                                                "AND %s = ?",
+                                        ProductsOnShelvesTable.getFirstColumnName(),
+                                        ProductsOnShelvesTable.getSecondColumnName(),
+                                        ProductsOnShelvesTable.getFourthColumnName());
+
+                                String[] toBuyWhereArgs = {String.valueOf(productId),
+                                        String.valueOf(shelfId),
+                                        String.valueOf(ProductFlags.NEED_TO_BE_BOUGHT_IND)};
+
+
+                                if (quantity > oldQuantity) {
+                                    if (toBuyQuantity < quantity - oldQuantity) {
+                                        //delete 'to_buy' and increase 'bought' with value of 'to_buy'
+                                        menuDataBase.delete(ProductsOnShelvesTable.getTableName(),
+                                                toBuyWhereClause, toBuyWhereArgs);
+                                        ContentValues boughtContentValues = new ContentValues();
+                                        boughtContentValues
+                                                .put(ProductsOnShelvesTable.getThirdColumnName(),
+                                                        oldQuantity + toBuyQuantity);
+
+                                        menuDataBase.update(ProductsOnShelvesTable.getTableName(),
+                                                boughtContentValues, boughtWhereClause, boughtWhereArgs);
+
+                                    } else if (toBuyQuantity == quantity - oldQuantity) {
+                                        //delete from 'to_buy" and everything put in "bought"
+
+                                        menuDataBase.delete(ProductsOnShelvesTable.getTableName(),
+                                                toBuyWhereClause, toBuyWhereArgs);
+
+
+                                        ContentValues boughtContentValues = new ContentValues();
+                                        boughtContentValues
+                                                .put(ProductsOnShelvesTable.getThirdColumnName(), quantity);
+
+                                        menuDataBase.update(ProductsOnShelvesTable.getTableName(),
+                                                boughtContentValues, boughtWhereClause, boughtWhereArgs);
+                                    } else {
+                                        ContentValues toBuyContentValues = new ContentValues();
+                                        toBuyContentValues
+                                                .put(ProductsOnShelvesTable.getThirdColumnName(),
+                                                        toBuyQuantity - (quantity - oldQuantity));
+                                        menuDataBase.update(ProductsOnShelvesTable.getTableName(),
+                                                toBuyContentValues, toBuyWhereClause, toBuyWhereArgs);
+
+                                        ContentValues boughtContentValues = new ContentValues();
+                                        boughtContentValues
+                                                .put(ProductsOnShelvesTable.getThirdColumnName(), quantity);
+
+                                        menuDataBase.update(ProductsOnShelvesTable.getTableName(),
+                                                boughtContentValues, boughtWhereClause, boughtWhereArgs);
+                                    }
+                                } else if (quantity < oldQuantity) {
+                                    if (toBuyQuantity > 0) {
+                                        ContentValues toBuyContentValues = new ContentValues();
+                                        toBuyContentValues
+                                                .put(ProductsOnShelvesTable.getThirdColumnName(),
+                                                        toBuyQuantity + (oldQuantity - quantity));
+                                        menuDataBase.update(ProductsOnShelvesTable.getTableName(),
+                                                toBuyContentValues, toBuyWhereClause, toBuyWhereArgs);
+                                    } else {
+                                        menuDataBase.insert(ProductsOnShelvesTable.getTableName(),
+                                                ProductsOnShelvesTable
+                                                        .getContentValues(new Product(productId,
+                                                                        oldQuantity - quantity,
+                                                                        ProductFlags.NEED_TO_BE_BOUGHT_IND),
+                                                                shelfId));
+                                    }
+                                    ContentValues boughtContentValues = new ContentValues();
+                                    boughtContentValues
+                                            .put(ProductsOnShelvesTable.getThirdColumnName(), quantity);
+
+                                    menuDataBase.update(ProductsOnShelvesTable.getTableName(),
+                                            boughtContentValues, boughtWhereClause, boughtWhereArgs);
+                                }
+                            } else result = false;
+                        }
+                    }else if(productFlagId == ProductFlags.EATEN_INDX){
+                        // TODO: 30.11.2017
+                    }
                     menuDataBase.close();
-                    return result;
+                    return  result;
                 }
 
                 @Override
                 protected void onPostExecute(Boolean result) {
                     if(virtualFridgeFragment != null){
-                        if(result) virtualFridgeFragment.updateSuccess();
-                        else virtualFridgeFragment.updateFailed();
+                        if(result){
+                            if(extraShelf) virtualFridgeFragment.updateExtraShelfSuccess();
+                            else virtualFridgeFragment.updateSuccess();
+                        }
+                        else{
+                            if(extraShelf) virtualFridgeFragment.updateExtraShelfFailed();
+                            else virtualFridgeFragment.updateFailed();
+                        }
                     }
                 }
+
             }.execute();
         }
     }

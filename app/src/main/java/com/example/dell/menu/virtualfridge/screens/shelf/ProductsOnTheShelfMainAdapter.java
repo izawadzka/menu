@@ -27,20 +27,33 @@ import butterknife.OnClick;
  * Created by Dell on 29.10.2017.
  */
 
-public class ProductsOnTheShelfAdapter extends RecyclerView.Adapter<ProductsOnTheShelfAdapter.ProductOnTheShelfViewHolder> {
-    public final static int SHOW_MODE = 1;
+public class ProductsOnTheShelfMainAdapter extends RecyclerView.Adapter<ProductsOnTheShelfMainAdapter.ProductOnTheShelfViewHolder> {
     public final static int ADD_MODE = 2;
-
-
+    public final static int SHOW_MODE_EATEN = 3;
+    public final static int SHOW_MODE_BOUGHT= 4;
 
     private List<Product> products = new ArrayList<>();
     private final Bus bus;
     private int currentMode;
+    private long shelfId;
+    private boolean extraShelf = false;
 
-    public ProductsOnTheShelfAdapter(Bus bus, int currentMode) {
+    public ProductsOnTheShelfMainAdapter(Bus bus, int currentMode) {
         this.bus = bus;
         this.currentMode = currentMode;
+        shelfId = -1;
     }
+
+    public ProductsOnTheShelfMainAdapter(Bus bus, int currentMode, long shelfId){
+        this.bus = bus;
+        this.currentMode = currentMode;
+        this.shelfId = shelfId;
+    }
+
+    public void setExtraShelf(boolean extraShelf){
+        this.extraShelf = extraShelf;
+    }
+
 
     @Override
     public ProductOnTheShelfViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -92,14 +105,15 @@ public class ProductsOnTheShelfAdapter extends RecyclerView.Adapter<ProductsOnTh
             productNameTextView.setText(product.getName());
             quantityUnitTextView.setText(StorageType.getUnit(product.getStorageType()));
 
-            if (currentMode == SHOW_MODE) {
+            if (currentMode == SHOW_MODE_BOUGHT
+                    || currentMode == SHOW_MODE_EATEN) {
                 quantityTextView.setText(String.format("%s", product.getQuantity()));
                 quantityEditText.setText(String.format("%s", product.getQuantity()));
                 updateProductImageButton.setVisibility(View.INVISIBLE);
             } else if (currentMode == ADD_MODE) {
                 quantityTextView.setVisibility(View.GONE);
                 quantityEditText.setVisibility(View.VISIBLE);
-                updateProductImageButton.setImageResource(R.drawable.ic_add);
+                updateProductImageButton.setImageResource(R.drawable.ic_add_black);
             }
         }
 
@@ -119,8 +133,7 @@ public class ProductsOnTheShelfAdapter extends RecyclerView.Adapter<ProductsOnTh
                             product.getName()));
                     quantityEditText.setText("");
                 } else quantityEditText.setError("You must type quantity");
-            } else if (currentMode == SHOW_MODE) {
-
+            } else{
                 try {
                     double newQuantity = Double.valueOf(quantityEditText.getText().toString());
                     if (newQuantity >= 0) {
@@ -128,7 +141,9 @@ public class ProductsOnTheShelfAdapter extends RecyclerView.Adapter<ProductsOnTh
                         quantityTextView.setText(String.valueOf(newQuantity));
 
                         bus.post(new AmountOfProductChangedEvent(product.getProductId(),
-                                Double.parseDouble(quantityEditText.getText().toString())));
+                                Double.parseDouble(quantityEditText.getText().toString()),
+                                product.getQuantity(), shelfId, product.getProductFlagId(),
+                                extraShelf));
                     } else quantityEditText.setError("Quantity can't be lower than 0");
                 } catch (Exception e) {
                     quantityEditText.setError("Invalid format");

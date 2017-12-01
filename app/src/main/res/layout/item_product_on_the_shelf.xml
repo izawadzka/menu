@@ -24,8 +24,8 @@
 
         <ViewSwitcher
             android:id="@+id/textView_editText_switcher"
-            android:layout_toLeftOf="@+id/quantityUnitTextView"
-            android:layout_toStartOf="@+id/quantityUnitTextView"
+            android:layout_toLeftOf="@+id/quantityLayout"
+            android:layout_toStartOf="@+id/quantityLayout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
             <TextView
@@ -49,14 +49,20 @@
                 android:layout_height="wrap_content" />
         </ViewSwitcher>
 
+        <LinearLayout
+            android:id="@+id/quantityLayout"
+            android:orientation="horizontal"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
         <TextView
             android:id="@+id/quantityUnitTextView"
             tools:text="g"
-            android:layout_centerVertical="true"
-            android:layout_toLeftOf="@+id/updateOrAddProductImageButton"
-            android:layout_toStartOf="@+id/updateOrAddProductImageButton"
-            android:layout_marginRight="@dimen/right_padding_for_buttons"
-            android:layout_marginEnd="@dimen/right_padding_for_buttons"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="10dp"
+            android:layout_marginEnd="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -64,14 +70,11 @@
         <ImageButton
             android:id="@+id/updateOrAddProductImageButton"
             android:contentDescription="@string/edit_quantity_of_product"
-            android:layout_centerVertical="true"
+            android:layout_gravity="center_vertical"
             android:src="@drawable/ic_save"
             style="@style/buttonStyle"
-            android:background="@color/appBackgroundColor"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="@dimen/right_padding_for_buttons"
-            android:layout_marginEnd="@dimen/right_padding_for_buttons"/>
+            android:background="@color/appBackgroundColor" />
+        </LinearLayout>
 
     </RelativeLayout>
 

@@ -135,7 +135,7 @@ public class VirtualFridgeFragment extends Fragment implements DatePickerDialog.
     private void setLayoutToChoosePeriod() {
         messageTextView.setText("Choose the extra shelf (that is not connected to any day) or " +
                 "the period to display content of virtual fridge. \n\n" +
-                "*Shelves from past are being kept in stock only for 3 months.");
+                "*Shelves from past are kept in stock only for 3 months.");
     }
 
     public void setAdapter() {
@@ -165,8 +165,11 @@ public class VirtualFridgeFragment extends Fragment implements DatePickerDialog.
     }
 
     public void updateSuccess() {
-        Toast.makeText(getContext(), "Successfully updated quantity of product", Toast.LENGTH_SHORT).show();
-        manager.loadContent(endOfPeriod, startOfPeriod);
+        Toast.makeText(getContext(), "Successfully updated quantity of product",
+                Toast.LENGTH_SHORT).show();
+        if (endOfPeriod.before(startOfPeriod)) {
+            manager.loadContent(endOfPeriod, startOfPeriod);
+        } else manager.loadContent(startOfPeriod, endOfPeriod);
     }
 
     public void updateFailed() {
@@ -253,5 +256,21 @@ public class VirtualFridgeFragment extends Fragment implements DatePickerDialog.
     public void emptyExtraShelf() {
         Toast.makeText(getContext(), "You extra shelf is empty! Add some products",
                 Toast.LENGTH_LONG).show();
+    }
+
+    public void makeAStatement(String statement, int duration) {
+        Toast.makeText(getContext(), statement, duration).show();
+    }
+
+    public void updateExtraShelfSuccess() {
+        Toast.makeText(getContext(), "Successfully updated quantity of product",
+                Toast.LENGTH_SHORT).show();
+        manager.loadExtraShelf();
+    }
+
+    public void updateExtraShelfFailed() {
+        Toast.makeText(getContext(), "Update quantity of product failed",
+                Toast.LENGTH_SHORT).show();
+        manager.loadExtraShelf();
     }
 }

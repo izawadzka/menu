@@ -10,7 +10,7 @@ import android.widget.Toast;
 import com.example.dell.menu.App;
 import com.example.dell.menu.R;
 import com.example.dell.menu.shoppinglist.screens.ShowProductsInListActivity;
-import com.example.dell.menu.virtualfridge.screens.shelf.ProductsOnTheShelfAdapter;
+import com.example.dell.menu.virtualfridge.screens.shelf.ProductsOnTheShelfMainAdapter;
 
 
 import butterknife.Bind;
@@ -18,7 +18,7 @@ import butterknife.ButterKnife;
 
 public class AddProductActivity extends AppCompatActivity {
 
-    ProductsOnTheShelfAdapter adapter;
+    ProductsOnTheShelfMainAdapter adapter;
     @Bind(R.id.productsOnTheShelfRecyclerView)
     RecyclerView productsOnTheShelfRecyclerView;
     AddProductManager manager;
@@ -36,8 +36,8 @@ public class AddProductActivity extends AppCompatActivity {
 
         productsOnTheShelfRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        adapter = new ProductsOnTheShelfAdapter(((App) getApplication()).getBus(),
-                ProductsOnTheShelfAdapter.ADD_MODE);
+        adapter = new ProductsOnTheShelfMainAdapter(((App) getApplication()).getBus(),
+                ProductsOnTheShelfMainAdapter.ADD_MODE);
         productsOnTheShelfRecyclerView.setAdapter(adapter);
 
         getSupportActionBar().setDefaultDisplayHomeAsUpEnabled(true);
