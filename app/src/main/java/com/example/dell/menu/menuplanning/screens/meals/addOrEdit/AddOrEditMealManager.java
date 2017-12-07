@@ -34,10 +34,10 @@ public class AddOrEditMealManager {
     private Product productToDelete;
     private String stateName;
     private String stateRecipe;
-    private double amountOfKcal;
-    private double amountOfProteins;
-    private double amountOfCarbons;
-    private double amountOfFat;
+    private int amountOfKcal;
+    private int amountOfProteins;
+    private int amountOfCarbons;
+    private int amountOfFat;
 
     private boolean editMode;
     private boolean showMode;
@@ -80,21 +80,21 @@ public class AddOrEditMealManager {
         this.mealsTypesStates = mealsTypesStates;
     }
 
-    double getAmountOfKcal() {
+    int getAmountOfKcal() {
         return amountOfKcal;
     }
 
-    double getAmountOfProteins() {
+    int getAmountOfProteins() {
         return amountOfProteins;
     }
 
 
-    double getAmountOfCarbons() {
+    int getAmountOfCarbons() {
         return amountOfCarbons;
     }
 
 
-    double getAmountOfFat() {
+    int getAmountOfFat() {
         return amountOfFat;
     }
 
@@ -133,9 +133,16 @@ public class AddOrEditMealManager {
         if(indx != -1){
             listOfProducts.remove(indx);
             amountOfKcal -= event.product.countCalories(event.product.getQuantity());
+            if(amountOfKcal < 0) amountOfKcal = 0;
+
             amountOfProteins -= event.product.countProteins(event.product.getQuantity());
+            if (amountOfProteins  < 0) amountOfProteins = 0;
+
             amountOfCarbons -= event.product.countCarbons(event.product.getQuantity());
+            if(amountOfCarbons < 0) amountOfCarbons = 0;
+
             amountOfFat -= event.product.countFat(event.product.getQuantity());
+            if(amountOfFat < 0) amountOfFat = 0;
 
 
             if(addOrEditMealActivity != null) addOrEditMealActivity.refreshValues();
@@ -200,10 +207,10 @@ public class AddOrEditMealManager {
                 protected Long doInBackground(Void... params) {
                     try {
                         MenuDataBase menuDataBase = MenuDataBase.getInstance(addOrEditMealActivity);
-                        ContentValues contentValues = MealsTable.getContentValues(new Meal(mealsName,
-                                (int)amountOfKcal, Integer.parseInt(String.valueOf(mealAuthorId)), mealsRecipe, (int)amountOfProteins,
-                                (int)amountOfCarbons, (int)amountOfFat));
-                        long index = menuDataBase.insert(MealsTable.getTableName(), contentValues);
+                        long index = menuDataBase.insert(MealsTable.getTableName(),
+                                MealsTable.getContentValues(new Meal(mealsName, amountOfKcal,
+                                        Integer.parseInt(String.valueOf(mealAuthorId)),
+                                        mealsRecipe, amountOfProteins, amountOfCarbons, amountOfFat)));
                         menuDataBase.close();
                         return index;
                     }catch (Exception e){
@@ -336,6 +343,9 @@ public class AddOrEditMealManager {
     void resetValues() {
         stateName = "";
         amountOfKcal = 0;
+        amountOfCarbons = 0;
+        amountOfFat = 0;
+        amountOfProteins = 0;
 
         stateRecipe = "";
     }

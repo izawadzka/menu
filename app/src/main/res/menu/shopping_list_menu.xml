@@ -16,7 +16,4 @@
         android:title="Cross all products"
         app:showAsAction="never"/>
 
-    <item android:id="@+id/action_move_crossed_products_to_virtual_fridge"
-        android:title="Move crossed products to fridge"
-        app:showAsAction="never"/>
 </menu>

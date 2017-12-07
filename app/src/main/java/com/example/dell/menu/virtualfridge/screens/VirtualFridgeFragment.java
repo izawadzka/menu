@@ -168,8 +168,13 @@ public class VirtualFridgeFragment extends Fragment implements DatePickerDialog.
         Toast.makeText(getContext(), "Successfully updated quantity of product",
                 Toast.LENGTH_SHORT).show();
         if (endOfPeriod.before(startOfPeriod)) {
-            manager.loadContent(endOfPeriod, startOfPeriod);
-        } else manager.loadContent(startOfPeriod, endOfPeriod);
+            manager.setStartOfPeriod(endOfPeriod);
+            manager.setEndOfPeriod(startOfPeriod);
+        } else{
+            manager.setStartOfPeriod(startOfPeriod);
+            manager.setEndOfPeriod(endOfPeriod);
+        }
+        manager.loadContent();
     }
 
     public void updateFailed() {
@@ -179,7 +184,7 @@ public class VirtualFridgeFragment extends Fragment implements DatePickerDialog.
 
     public void deleteSuccess() {
         Toast.makeText(getContext(), "Successfully deleted product", Toast.LENGTH_SHORT).show();
-        manager.loadContent(endOfPeriod, startOfPeriod);
+        manager.loadContent();
     }
 
     public void deleteFailed() {
@@ -208,8 +213,14 @@ public class VirtualFridgeFragment extends Fragment implements DatePickerDialog.
 
         if (!hasErrors) {
             if (endOfPeriod.before(startOfPeriod)) {
-                manager.loadContent(endOfPeriod, startOfPeriod);
-            } else manager.loadContent(startOfPeriod, endOfPeriod);
+                manager.setStartOfPeriod(endOfPeriod);
+                manager.setEndOfPeriod(startOfPeriod);
+            } else{
+                manager.setStartOfPeriod(startOfPeriod);
+                manager.setEndOfPeriod(endOfPeriod);
+            }
+
+            manager.loadContent();
         }
     }
 

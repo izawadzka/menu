@@ -1,26 +1,23 @@
 package com.example.dell.menu.data.backup;
 
-import android.app.Notification;
-import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.example.dell.menu.App;
-import com.example.dell.menu.MainActivity;
-import com.example.dell.menu.R;
+import com.example.dell.menu.datechangedetection.DateChangeReceiver;
 import com.example.dell.menu.internetconnection.ConnectivityReceiver;
-
-import java.util.Random;
+import com.example.dell.menu.virtualfridge.ShelvesArchive;
 
 /**
  * Created by Dell on 23.10.2017.
  */
 
-public class BackupService extends Service implements ConnectivityReceiver.ConnectivityReceiverListener {
+public class InterceptCommunicationService extends Service
+        implements ConnectivityReceiver.ConnectivityReceiverListener, DateChangeReceiver.DateChangeReceiverListener{
     private static final String TAG = "service";
 
     @Nullable
@@ -35,11 +32,16 @@ public class BackupService extends Service implements ConnectivityReceiver.Conne
         super.onCreate();
 
         setConnectivityListener(this);
+        setDateChangeListener(this);
     }
 
 
     public void setConnectivityListener(ConnectivityReceiver.ConnectivityReceiverListener listener){
         ConnectivityReceiver.connectivityReceiverListener = listener;
+    }
+
+    public void setDateChangeListener(DateChangeReceiver.DateChangeReceiverListener listener){
+        DateChangeReceiver.dateChangeReceiverListener = listener;
     }
 
     @Override
@@ -57,5 +59,12 @@ public class BackupService extends Service implements ConnectivityReceiver.Conne
                 backup.doBackup();
             }
         }
+    }
+
+    @Override
+    public void onDateChanged(Context context) {
+        Log.i(TAG, "date changed");
+        ShelvesArchive shelvesArchive = new ShelvesArchive(context);
+        shelvesArchive.manageArchive();
     }
 }

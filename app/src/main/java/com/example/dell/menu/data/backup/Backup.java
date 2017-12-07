@@ -30,7 +30,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
-import java.util.Date;
 import java.util.Vector;
 
 
@@ -45,7 +44,7 @@ public class Backup {
     private String TAG = "Backup";
     private final App app;
     private final Context context;
-    private BackupService backupService = null;
+    private InterceptCommunicationService interceptCommunicationService = null;
 
 
     private final static String SFTPHOST = "serwer1721060.home.pl";
@@ -83,9 +82,9 @@ public class Backup {
     }
 
 
-    Backup(BackupService backupService, App app){
+    Backup(InterceptCommunicationService interceptCommunicationService, App app){
         this(app);
-        this.backupService = backupService;
+        this.interceptCommunicationService = interceptCommunicationService;
     }
 
     public void checkAvailableBackups(){
@@ -212,7 +211,7 @@ public class Backup {
                         }
 
                         else Log.e(TAG, "Error");
-                        if(backupService != null) backupService.stopSelf();
+                        if(interceptCommunicationService != null) interceptCommunicationService.stopSelf();
 
                         Bus bus = app.getBus();
                         bus.register(this);
@@ -223,7 +222,7 @@ public class Backup {
             } else {
                 Log.i(TAG, "No Internet connection");
                 app.getBackupFlagStorage().setFlag(true);
-                if(backupService != null) backupService.stopSelf();
+                if(interceptCommunicationService != null) interceptCommunicationService.stopSelf();
             }
 
     }

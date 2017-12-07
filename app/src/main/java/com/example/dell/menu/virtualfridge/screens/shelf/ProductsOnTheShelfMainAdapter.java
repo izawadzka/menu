@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.ViewSwitcher;
 
@@ -14,6 +15,7 @@ import com.example.dell.menu.menuplanning.objects.Product;
 import com.example.dell.menu.menuplanning.types.StorageType;
 import com.example.dell.menu.virtualfridge.events.AddProductClickedEvent;
 import com.example.dell.menu.virtualfridge.events.AmountOfProductChangedEvent;
+import com.example.dell.menu.virtualfridge.events.DeleteProductFromBoughtEvent;
 import com.squareup.otto.Bus;
 
 import java.util.ArrayList;
@@ -30,7 +32,9 @@ import butterknife.OnClick;
 public class ProductsOnTheShelfMainAdapter extends RecyclerView.Adapter<ProductsOnTheShelfMainAdapter.ProductOnTheShelfViewHolder> {
     public final static int ADD_MODE = 2;
     public final static int SHOW_MODE_EATEN = 3;
-    public final static int SHOW_MODE_BOUGHT= 4;
+    public final static int SHOW_MODE_BOUGHT = 4;
+    public static final int ADD_TO_PRESENT_SHELF_MODE = 5;
+
 
     private List<Product> products = new ArrayList<>();
     private final Bus bus;
@@ -44,13 +48,13 @@ public class ProductsOnTheShelfMainAdapter extends RecyclerView.Adapter<Products
         shelfId = -1;
     }
 
-    public ProductsOnTheShelfMainAdapter(Bus bus, int currentMode, long shelfId){
+    public ProductsOnTheShelfMainAdapter(Bus bus, int currentMode, long shelfId) {
         this.bus = bus;
         this.currentMode = currentMode;
         this.shelfId = shelfId;
     }
 
-    public void setExtraShelf(boolean extraShelf){
+    public void setExtraShelf(boolean extraShelf) {
         this.extraShelf = extraShelf;
     }
 
@@ -58,7 +62,8 @@ public class ProductsOnTheShelfMainAdapter extends RecyclerView.Adapter<Products
     @Override
     public ProductOnTheShelfViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        return new ProductOnTheShelfViewHolder(inflater.inflate(R.layout.item_product_on_the_shelf, parent, false));
+        return new ProductOnTheShelfViewHolder(inflater.inflate(R.layout.item_product_on_the_shelf,
+                parent, false));
     }
 
     @Override
@@ -77,6 +82,12 @@ public class ProductsOnTheShelfMainAdapter extends RecyclerView.Adapter<Products
         notifyDataSetChanged();
     }
 
+    public void remove(int adapterPosition) {
+        bus.post(new DeleteProductFromBoughtEvent(products.get(adapterPosition),
+                shelfId));
+        products.remove(adapterPosition);
+    }
+
 
     class ProductOnTheShelfViewHolder extends RecyclerView.ViewHolder {
         @Bind(R.id.productNameTextView)
@@ -91,6 +102,10 @@ public class ProductsOnTheShelfMainAdapter extends RecyclerView.Adapter<Products
         ImageButton updateProductImageButton;
         @Bind(R.id.textView_editText_switcher)
         ViewSwitcher textViewEditTextSwitcher;
+        @Bind(R.id.maxAmountLayout)
+        LinearLayout maxAmountLayout;
+        @Bind(R.id.maxAmountTextView)
+        TextView maxAmountTextView;
 
 
         private Product product;
@@ -110,11 +125,18 @@ public class ProductsOnTheShelfMainAdapter extends RecyclerView.Adapter<Products
                 quantityTextView.setText(String.format("%s", product.getQuantity()));
                 quantityEditText.setText(String.format("%s", product.getQuantity()));
                 updateProductImageButton.setVisibility(View.INVISIBLE);
-            } else if (currentMode == ADD_MODE) {
+            } else{
                 quantityTextView.setVisibility(View.GONE);
                 quantityEditText.setVisibility(View.VISIBLE);
                 updateProductImageButton.setImageResource(R.drawable.ic_add_black);
+                updateProductImageButton.setBackgroundResource(R.color.colorAccent);
+                if(currentMode == ADD_TO_PRESENT_SHELF_MODE) {
+                    maxAmountLayout.setVisibility(View.VISIBLE);
+                    maxAmountTextView.setText(String.valueOf(product.getMaxQuantity())+
+                            StorageType.getUnit(product.getStorageType()));
+                }
             }
+
         }
 
         @OnClick(R.id.quantityTextView)
@@ -126,14 +148,24 @@ public class ProductsOnTheShelfMainAdapter extends RecyclerView.Adapter<Products
 
         @OnClick(R.id.updateOrAddProductImageButton)
         public void onUpdateOrAddProductClicked() {
-            if (currentMode == ADD_MODE) {
+            if (currentMode == ADD_MODE || currentMode == ADD_TO_PRESENT_SHELF_MODE) {
+                boolean hasErrors = false;
                 if (quantityEditText.getText().length() > 0) {
-                    bus.post(new AddProductClickedEvent(product.getProductId(),
-                            Double.parseDouble(quantityEditText.getText().toString()),
-                            product.getName()));
-                    quantityEditText.setText("");
+                    if(currentMode == ADD_TO_PRESENT_SHELF_MODE) {
+                        if (Double.parseDouble(quantityEditText
+                                .getText().toString()) > product.getMaxQuantity()){
+                            hasErrors = true;
+                            quantityEditText.setError("The max amount is exceeded");
+                        }
+                    }
+                    if(!hasErrors) {
+                        bus.post(new AddProductClickedEvent(product.getProductId(),
+                                Double.parseDouble(quantityEditText.getText().toString()),
+                                product.getName(), product.getMaxQuantity()));
+                        quantityEditText.setText("");
+                    }
                 } else quantityEditText.setError("You must type quantity");
-            } else{
+            } else {
                 try {
                     double newQuantity = Double.valueOf(quantityEditText.getText().toString());
                     if (newQuantity >= 0) {

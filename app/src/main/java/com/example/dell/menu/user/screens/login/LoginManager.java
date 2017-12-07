@@ -14,6 +14,7 @@ import com.example.dell.menu.data.backup.events.SearchingForUserResultEvent;
 import com.example.dell.menu.data.tables.UsersTable;
 import com.example.dell.menu.internetconnection.InternetConnection;
 import com.example.dell.menu.user.objects.User;
+import com.example.dell.menu.virtualfridge.ShelvesArchive;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -88,7 +89,11 @@ public class LoginManager {
                 @Override
                 protected void onPostExecute(Long result) {
                     if (result > 0){
-                        if(loginActivity != null) loginActivity.loginSuccess(result);
+                        if(loginActivity != null){
+                            loginActivity.loginSuccess(result);
+                            ShelvesArchive shelvesArchive = new ShelvesArchive(loginActivity);
+                            shelvesArchive.manageArchive();
+                        }
                     }else checkIfAccountExists(login, password);
                 }
             }.execute();

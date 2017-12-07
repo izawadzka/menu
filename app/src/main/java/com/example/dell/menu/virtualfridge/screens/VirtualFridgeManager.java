@@ -3,19 +3,18 @@ package com.example.dell.menu.virtualfridge.screens;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.AsyncTask;
-import android.text.format.DateUtils;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.example.dell.menu.data.MenuDataBase;
 import com.example.dell.menu.data.tables.DailyMenusTable;
 import com.example.dell.menu.data.tables.ProductsOnShelvesTable;
 import com.example.dell.menu.data.tables.ShelvesInVirtualFridgeTable;
 import com.example.dell.menu.virtualfridge.events.AmountOfProductChangedEvent;
+import com.example.dell.menu.virtualfridge.events.DeleteProductFromBoughtEvent;
 import com.example.dell.menu.virtualfridge.events.DeleteProductFromFridgeEvent;
 import com.example.dell.menu.menuplanning.objects.Product;
 import com.example.dell.menu.data.tables.ProductsTable;
-import com.example.dell.menu.data.tables.VirtualFridgeTable;
+import com.example.dell.menu.virtualfridge.events.ReloadContentEvent;
 import com.example.dell.menu.virtualfridge.flags.ProductFlags;
 import com.example.dell.menu.virtualfridge.objects.ShelfInVirtualFridge;
 import com.squareup.otto.Bus;
@@ -29,18 +28,25 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.TooManyListenersException;
-
-import butterknife.Bind;
 
 /**
  * Created by Dell on 28.10.2017.
  */
 
 public class VirtualFridgeManager {
-    public static final int RESULT_EMPTY = 0;
-    public static final int RESULT_ERROR = -1;
+    private static final int RESULT_EMPTY = 0;
+    private static final int RESULT_ERROR = -1;
     public static final int RESULT_OK = 1;
+
+    private Date startOfPeriod, endOfPeriod;
+
+    void setStartOfPeriod(Date startOfPeriod) {
+        this.startOfPeriod = startOfPeriod;
+    }
+
+    void setEndOfPeriod(Date endOfPeriod) {
+        this.endOfPeriod = endOfPeriod;
+    }
 
     private final Bus bus;
     private VirtualFridgeFragment virtualFridgeFragment;
@@ -59,43 +65,12 @@ public class VirtualFridgeManager {
         virtualFridgeFragment = null;
     }
 
-    public List<ShelfInVirtualFridge> getShelves() {
+    List<ShelfInVirtualFridge> getShelves() {
         return shelves;
     }
 
-    public void clearShelves(){
+    void clearShelves(){
         shelves.clear();
-    }
-
-    @Subscribe
-    public void onDeleteProductFromFridgeEvent(DeleteProductFromFridgeEvent event){
-        deleteProduct(event.productId);
-    }
-
-    private void deleteProduct(final int productId) {
-        if(virtualFridgeFragment != null){
-            new AsyncTask<Void, Void, Boolean>() {
-
-                @Override
-                protected Boolean doInBackground(Void... params) {
-                    boolean result;
-                    String[] args = {String.valueOf(productId)};
-                    MenuDataBase menuDataBase = MenuDataBase.getInstance(virtualFridgeFragment.getActivity());
-                    result = menuDataBase.delete(VirtualFridgeTable.getTableName(),
-                            String.format("%s = ?", VirtualFridgeTable.getFirstColumnName()), args) > 0;
-                    menuDataBase.close();
-                    return result;
-                }
-
-                @Override
-                protected void onPostExecute(Boolean result) {
-                    if(virtualFridgeFragment != null){
-                        if (result) virtualFridgeFragment.deleteSuccess();
-                        else virtualFridgeFragment.deleteFailed();
-                    }
-                }
-            }.execute();
-        }
     }
 
     @Subscribe
@@ -104,6 +79,78 @@ public class VirtualFridgeManager {
                 event.productFlagId, event.extraShelf);
     }
 
+    @Subscribe
+    public void onReloadContent(ReloadContentEvent event){
+        if (startOfPeriod != null && endOfPeriod != null)loadContent();
+        else loadExtraShelf();
+    }
+
+    @Subscribe
+    public void onDeleteProductFromBought(final DeleteProductFromBoughtEvent event){
+        if(virtualFridgeFragment != null){
+            new AsyncTask<Void, Void, Boolean>(){
+
+                @Override
+                protected Boolean doInBackground(Void... params) {
+                    boolean result;
+                    MenuDataBase menuDataBase = MenuDataBase
+                            .getInstance(virtualFridgeFragment.getContext());
+
+                    String checkIfProductToBuyAlreadyExists = String
+                            .format("SELECT %s FROM %s WHERE %s = %s AND %s = %s AND %s = %s",
+                                    ProductsOnShelvesTable.getThirdColumnName(),
+                                    ProductsOnShelvesTable.getTableName(),
+                                    ProductsOnShelvesTable.getFirstColumnName(),
+                                    event.product.getProductId(),
+                                    ProductsOnShelvesTable.getSecondColumnName(),
+                                    event.shelfId,
+                                    ProductsOnShelvesTable.getFourthColumnName(),
+                                    ProductFlags.NEED_TO_BE_BOUGHT_IND);
+                    Cursor foundProductCursor = menuDataBase.downloadData(checkIfProductToBuyAlreadyExists);
+                    if(foundProductCursor.getCount() == 1){
+                        foundProductCursor.moveToPosition(0);
+                        ContentValues editContentValues = new ContentValues();
+                        editContentValues.put(ProductsOnShelvesTable.getThirdColumnName(),
+                                foundProductCursor.getDouble(0) + event.product.getQuantity());
+
+                        String whereClause = String.format("%s = ? AND %s = ? AND %s = ?",
+                                ProductsOnShelvesTable.getFirstColumnName(),
+                                ProductsOnShelvesTable.getSecondColumnName(),
+                                ProductsOnShelvesTable.getFourthColumnName());
+                        String[] whereArgs = {String.valueOf(event.product.getProductId()),
+                                String.valueOf(event.shelfId),
+                                String.valueOf(ProductFlags.NEED_TO_BE_BOUGHT_IND)};
+
+                        result = menuDataBase.update(ProductsOnShelvesTable.getTableName(),
+                                editContentValues, whereClause, whereArgs) == 1;
+                    }else{
+                        String whereClause = String.format("%s = ? AND %s = ? AND %s = ?",
+                                ProductsOnShelvesTable.getFirstColumnName(),
+                                ProductsOnShelvesTable.getSecondColumnName(),
+                                ProductsOnShelvesTable.getFourthColumnName());
+                        String whereArgs[] = {String.valueOf(event.product.getProductId()),
+                        String.valueOf(event.shelfId), String.valueOf(ProductFlags.BOUGHT_INDX)};
+                        ContentValues editContentValues = new ContentValues();
+                        editContentValues.put(ProductsOnShelvesTable.getFourthColumnName(),
+                                ProductFlags.NEED_TO_BE_BOUGHT_IND);
+                        event.product.setProductFlagId(ProductFlags.NEED_TO_BE_BOUGHT_IND);
+                        result = menuDataBase.update(ProductsOnShelvesTable.getTableName(),
+                                editContentValues, whereClause, whereArgs) == 1;
+                    }
+                    menuDataBase.close();
+                    return  result;
+                }
+
+                @Override
+                protected void onPostExecute(Boolean result) {
+                    if(virtualFridgeFragment != null){
+                        if(result) virtualFridgeFragment.deleteSuccess();
+                        else virtualFridgeFragment.deleteFailed();
+                    }
+                }
+            }.execute();
+        }
+    }
     private void updateAmountOfProduct(final int productId, final double quantity,
                                        final double oldQuantity, final long shelfId,
                                        final int productFlagId, final boolean extraShelf) {
@@ -267,9 +314,10 @@ public class VirtualFridgeManager {
         }
     }
 
-    public void loadContent(Date startOfPeriod, Date endOfPeriod){
+    void loadContent(){
         if(virtualFridgeFragment != null){
             shelves.clear();
+
 
             final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             final String start = sdf.format(startOfPeriod);
@@ -402,7 +450,7 @@ public class VirtualFridgeManager {
         }
     }
 
-    public void loadExtraShelf() {
+    void loadExtraShelf() {
         if(virtualFridgeFragment != null){
             shelves.clear();
             new AsyncTask<Void, Void,Integer>(){

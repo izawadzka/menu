@@ -6,19 +6,4 @@
         app:showAsAction="always"
         android:title="Add"/>
 
-    <item android:id="@+id/action_mark_daily_menu_as_used"
-        app:showAsAction="never"
-        android:title="mark daily menu as used"/>
-
-    <item android:id="@+id/action_unmark_daily_menu"
-        app:showAsAction="never"
-        android:title="unmark daily menu"/>
-
-    <item android:id="@+id/action_mark_all_daily_menus_as_used"
-        app:showAsAction="never"
-        android:title="mark all daily menus as used"/>
-
-    <item android:id="@+id/action_synchronize_marked_daily_menus_with_virtual_fridge"
-        app:showAsAction = "never"
-        android:title="synchronize marked daily menus with fridge"/>
 </menu>

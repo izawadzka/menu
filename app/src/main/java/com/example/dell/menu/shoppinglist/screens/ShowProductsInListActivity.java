@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -25,8 +24,6 @@ public class ShowProductsInListActivity extends AppCompatActivity
         implements ProductsAdapter.ProductInListClickedListener{
 
 
-    public static final String ADD_DO_LIST_KEY = "add do list";
-    public static final String SHOPPING_LIST_ID_KEY = "shoppingListId";
     @Bind(R.id.productsInShoppingListRecyclerView)
     RecyclerView productsInShoppingListRecyclerView;
 
@@ -121,8 +118,8 @@ public class ShowProductsInListActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId() == R.id.action_add){
             Intent intent = new Intent(this, AddProductActivity.class);
-            intent.putExtra(ADD_DO_LIST_KEY, true);
-            intent.putExtra(SHOPPING_LIST_ID_KEY, shoppingListId);
+            intent.putExtra(AddProductActivity.ADD_TO_LIST_KEY, true);
+            intent.putExtra(AddProductActivity.SHOPPING_LIST_ID_KEY, shoppingListId);
             startActivity(intent);
             return true;
         }else if(item.getItemId() == android.R.id.home){
@@ -130,9 +127,6 @@ public class ShowProductsInListActivity extends AppCompatActivity
             return true;
         }else if(item.getItemId() == R.id.action_set_all_products_as_bought){
             showProductsInListManager.crossAllProducts();
-            return true;
-        }else if(item.getItemId() == R.id.action_move_crossed_products_to_virtual_fridge){
-            showProductsInListManager.moveCrossedProductsToVirtualFridge();
             return true;
         }
         return super.onOptionsItemSelected(item);

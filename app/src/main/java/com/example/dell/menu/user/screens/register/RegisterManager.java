@@ -91,6 +91,8 @@ public class RegisterManager {
                         else if(result == RESULT_REGISTER_SUCCESS){
                             ((App) registerActivity.getApplication()).getUserStorage().setUserId(id);
                             registerActivity.registerSuccess();
+                            Backup backup = new Backup((App)registerActivity.getApplication());
+                            backup.doBackup();
                         }else registerActivity.registerFailed("");
                     }
                 }

@@ -17,11 +17,10 @@ public class Product implements Serializable{
     private int kcalPer100g_mlOr1Unit;
     private String type;
     private String storageType;
-    private double quantity;
+    private double quantity, maxQuantity = -1;
     private int proteinsPer100g_mlOr1Unit;
     private int carbohydratesPer100g_mlOr1Unit;
     private int fatPer100g_mlOr1Unit;
-    private double blockedAmount = 0; //used in virtual fridge, amount blocked by shopping lists
     private boolean bought = false;
     private int productFlagId;
 
@@ -62,6 +61,21 @@ public class Product implements Serializable{
         this.productFlagId = productsFlagId;
     }
 
+    public Product(int productId, String name, String storageType, double quantity) {
+        this.productId = productId;
+        this.name = name;
+        this.storageType = storageType;
+        this.quantity = quantity;
+    }
+
+    public double getMaxQuantity() {
+        return maxQuantity;
+    }
+
+    public void setMaxQuantity(double maxQuantity) {
+        this.maxQuantity = maxQuantity;
+    }
+
     public boolean isBought() {
         return bought;
     }
@@ -89,14 +103,12 @@ public class Product implements Serializable{
         this.quantity = quantity;
     }
 
-    public Product(int productId, String name, String type, String storageType, double quantity,
-                   double blockedAmount) {
+    public Product(int productId, String name, String type, String storageType, double quantity) {
         this.productId = productId;
         this.name = name;
         this.type = type;
         this.quantity = quantity;
         this.storageType = storageType;
-        this.blockedAmount = blockedAmount;
     }
 
     public Product(int productId, String name, String storageType) {
@@ -116,14 +128,6 @@ public class Product implements Serializable{
         this.carbohydratesPer100g_mlOr1Unit = carbonsPer100g_mlOr1Unit;
         this.fatPer100g_mlOr1Unit = fatPer100g_mlOr1Unit;
         this.quantity = quantity;
-    }
-
-    public double getBlockedAmount() {
-        return blockedAmount;
-    }
-
-    public void setBlockedAmount(double blockedAmount) {
-        this.blockedAmount = blockedAmount;
     }
 
     public void setQuantity(double quantity) {
@@ -180,28 +184,27 @@ public class Product implements Serializable{
         return fatPer100g_mlOr1Unit;
     }
 
-    public double countCalories(double amount){
-        Log.i("countKCal", String.format("%s",amount));
+    public int countCalories(double amount){
         if(storageType.equals(StorageType.ITEM)){
             Log.i("countKCal", String.format("count %s",amount * kcalPer100g_mlOr1Unit));
-            return amount * kcalPer100g_mlOr1Unit;
+            return (int)(amount * kcalPer100g_mlOr1Unit);
         }
-        else return amount*kcalPer100g_mlOr1Unit/ DEFAULT_AMOUNT_FOR_VOLUME_OR_WEIGHT;
+        else return (int)(amount*kcalPer100g_mlOr1Unit/ DEFAULT_AMOUNT_FOR_VOLUME_OR_WEIGHT);
     }
 
-    public double countProteins(double amount){
-        if(storageType.equals(StorageType.ITEM)) return amount*proteinsPer100g_mlOr1Unit;
-        else return amount * proteinsPer100g_mlOr1Unit / DEFAULT_AMOUNT_FOR_VOLUME_OR_WEIGHT;
+    public int countProteins(double amount){
+        if(storageType.equals(StorageType.ITEM)) return (int)(amount*proteinsPer100g_mlOr1Unit);
+        else return (int)(amount * proteinsPer100g_mlOr1Unit / DEFAULT_AMOUNT_FOR_VOLUME_OR_WEIGHT);
     }
 
-    public double countCarbons(double amount){
-        if(storageType.equals(StorageType.ITEM)) return amount*carbohydratesPer100g_mlOr1Unit;
-        else return amount*carbohydratesPer100g_mlOr1Unit/DEFAULT_AMOUNT_FOR_VOLUME_OR_WEIGHT;
+    public int countCarbons(double amount){
+        if(storageType.equals(StorageType.ITEM)) return (int)(amount*carbohydratesPer100g_mlOr1Unit);
+        else return (int)(amount*carbohydratesPer100g_mlOr1Unit/DEFAULT_AMOUNT_FOR_VOLUME_OR_WEIGHT);
     }
 
-    public double countFat(double amount){
-        if(storageType.equals(StorageType.ITEM)) return amount*fatPer100g_mlOr1Unit;
-        else return amount*fatPer100g_mlOr1Unit/DEFAULT_AMOUNT_FOR_VOLUME_OR_WEIGHT;
+    public int countFat(double amount){
+        if(storageType.equals(StorageType.ITEM)) return (int)(amount*fatPer100g_mlOr1Unit);
+        else return (int)(amount*fatPer100g_mlOr1Unit/DEFAULT_AMOUNT_FOR_VOLUME_OR_WEIGHT);
     }
 
     public void setStorageType(String storageType) {

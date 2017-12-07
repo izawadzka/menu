@@ -8,7 +8,6 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.example.dell.menu.App;
 import com.example.dell.menu.data.MenuDataBase;
 import com.example.dell.menu.data.tables.ProductsTable;
 import com.example.dell.menu.menuplanning.types.StorageType;
@@ -20,12 +19,9 @@ import com.example.dell.menu.shoppinglist.events.SynchronizeShoppingListWithFrid
 import com.example.dell.menu.menuplanning.objects.Menu;
 import com.example.dell.menu.menuplanning.objects.Product;
 import com.example.dell.menu.shoppinglist.objects.ShoppingList;
-import com.example.dell.menu.data.tables.ShoppingListsBlockedProductsTable;
 import com.example.dell.menu.data.tables.ShoppingListsProductsTable;
 import com.example.dell.menu.data.tables.ShoppingListsTable;
 import com.example.dell.menu.data.tables.UsersTable;
-import com.example.dell.menu.data.tables.VirtualFridgeTable;
-import com.example.dell.menu.shoppinglist.screens.ShoppingListsFragment;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -125,135 +121,7 @@ public class ShoppingListsManager {
         }
     }
 
-    @Subscribe
-    public void onSynchronizeShoppingListWithFridgeButtonClicked
-            (final SynchronizeShoppingListWithFridgeButtonClickedEvent event){
-        if(shoppingListsFragment != null) {
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog
-                    .Builder(shoppingListsFragment.getContext());
 
-            alertDialogBuilder.setTitle("Synchronize with the fridge");
-
-            alertDialogBuilder.setMessage("Are you sure you want to synchronize the " +
-                    "shopping list with the fridge?")
-                    .setCancelable(true)
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int d) {
-                            synchronizeWithFridge(event.shoppingListId);
-                        }
-                    })
-                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int d) {
-                            dialog.cancel();
-                        }
-                    });
-
-            AlertDialog alertDialog = alertDialogBuilder.create();
-
-            alertDialog.show();
-        }
-    }
-
-    private void synchronizeWithFridge(final long shoppingListId) {
-        if(shoppingListsFragment != null){
-            new AsyncTask<Void, Void, Integer>(){
-
-                @Override
-                protected Integer doInBackground(Void... params) {
-                    int result = RESULT_OK;
-                    MenuDataBase menuDataBase = MenuDataBase
-                            .getInstance(shoppingListsFragment.getActivity());
-                    String query = String.format("SELECT sp.%s, %s, %s, %s FROM %s sp " +
-                            "JOIN %s vf ON sp.%s = vf.%s WHERE sp.%s = '%s'",
-                            ShoppingListsProductsTable.getSecondColumnName(),
-                            ShoppingListsProductsTable.getThirdColumnName(),
-                            VirtualFridgeTable.getSecondColumnName(),
-                            VirtualFridgeTable.getThirdColumnName(),
-                            ShoppingListsProductsTable.getTableName(),
-                            VirtualFridgeTable.getTableName(),
-                            ShoppingListsProductsTable.getSecondColumnName(),
-                            VirtualFridgeTable.getFirstColumnName(),
-                            ShoppingListsProductsTable.getFirstColumnName(),
-                            shoppingListId);
-
-                    Cursor cursor = menuDataBase.downloadData(query);
-                    if(cursor.getCount() > 0){
-                        cursor.moveToPosition(-1);
-                        String shoppingListWhereClause = String.format("%s = ? AND %s = ?",
-                                ShoppingListsProductsTable.getFirstColumnName(),
-                                ShoppingListsProductsTable.getSecondColumnName());
-                        String fridgeWhereClause = String.format("%s = ?",
-                                VirtualFridgeTable.getFirstColumnName());
-                        while (cursor.moveToNext()){
-                            ContentValues shoppingListContentValues = new ContentValues();
-                            ContentValues fridgeContentValues = new ContentValues();
-
-                            String[] shoppingListArgs = {String.valueOf(shoppingListId),
-                                    String.valueOf(cursor.getInt(0))};
-                            String[] fridgeArgs = {String.valueOf(cursor.getInt(0))};
-
-                            double amount;
-
-                            if(cursor.getDouble(2) - cursor.getDouble(3) > 0) {
-                                if (cursor.getDouble(1) > cursor.getDouble(2) - cursor.getDouble(3)) {
-                                    shoppingListContentValues
-                                            .put(ShoppingListsProductsTable.getThirdColumnName(),
-                                                    cursor.getDouble(1) - cursor.getDouble(2)
-                                            + cursor.getDouble(3));
-
-
-                                    fridgeContentValues.put(VirtualFridgeTable.getThirdColumnName(),
-                                            cursor.getDouble(2));
-
-
-                                    amount = cursor.getDouble(2) - cursor.getDouble(3);
-
-                                    if (menuDataBase.update(ShoppingListsProductsTable.getTableName(),
-                                            shoppingListContentValues, shoppingListWhereClause, shoppingListArgs) == 0
-                                            || menuDataBase.update(VirtualFridgeTable.getTableName(),
-                                            fridgeContentValues, fridgeWhereClause, fridgeArgs) == 0) {
-                                        result = RESULT_ERROR;
-                                        break;
-                                    }
-                                } else {
-                                    amount = cursor.getDouble(1);
-                                    fridgeContentValues.put(VirtualFridgeTable.getThirdColumnName(),
-                                            cursor.getDouble(1) + cursor.getDouble(3));
-                                    if (menuDataBase.delete(ShoppingListsProductsTable.getTableName(),
-                                            shoppingListWhereClause, shoppingListArgs) == 0
-                                            || menuDataBase.update(VirtualFridgeTable.getTableName(),
-                                            fridgeContentValues, fridgeWhereClause, fridgeArgs) == 0) {
-                                        result = RESULT_ERROR;
-                                        break;
-                                    }
-                                }
-                                menuDataBase.insert(ShoppingListsBlockedProductsTable.getTableName(),
-                                        ShoppingListsBlockedProductsTable
-                                                .getContentValues(shoppingListId, cursor.getInt(0),
-                                                        amount));
-
-                            }
-                        }
-                    }else result = RESULT_EMPTY;
-                    menuDataBase.close();
-                    return result;
-                }
-
-                @Override
-                protected void onPostExecute(Integer result) {
-                    if(result == RESULT_OK) setShoppingListWasSynchronized(shoppingListId);
-                    if(shoppingListsFragment != null){
-                        if(result == RESULT_EMPTY) shoppingListsFragment
-                                .makeAStatement("No product from the shopping list found in the " +
-                                        "fridge", Toast.LENGTH_LONG);
-                        else if(result == RESULT_ERROR) shoppingListsFragment
-                                .makeAStatement("An error occurred while an attempt to synchronize" +
-                                        " the shopping list with the fridge", Toast.LENGTH_LONG);
-                    }
-                }
-            }.execute();
-        }
-    }
 
     private void setShoppingListWasSynchronized(final long shoppingListId) {
         if(shoppingListsFragment != null){
@@ -355,7 +223,8 @@ public class ShoppingListsManager {
                 protected void onPostExecute(Boolean result) {
                     if(shoppingListsFragment != null){
                         if(result) {
-                            putTheProductsBackToTheFridge(event.shoppingList.getShoppingListId());
+                            shoppingListsFragment.shoppingListDeleteSuccess();
+                            shoppingListsFragment.showShoppingLists(shoppingLists);
                         }
                         else shoppingListsFragment.shoppingListDeleteFailed();
                     }
@@ -364,66 +233,6 @@ public class ShoppingListsManager {
         }
     }
 
-    private void putTheProductsBackToTheFridge(final long shoppingListId) {
-        if(shoppingListsFragment != null){
-            new AsyncTask<Void, Void, Boolean>(){
-
-                @Override
-                protected Boolean doInBackground(Void... params) {
-                    boolean result = true;
-                    MenuDataBase menuDataBase = MenuDataBase
-                            .getInstance(shoppingListsFragment.getActivity());
-                    String query = String.format("SELECT bp.%s, bp.%s, vf.%s FROM %s bp" +
-                            " JOIN %s vf ON bp.%s = vf.%s WHERE bp.%s = '%s' ",
-                            ShoppingListsBlockedProductsTable.getSecondColumnName(),
-                            ShoppingListsBlockedProductsTable.getThirdColumnName(),
-                            VirtualFridgeTable.getThirdColumnName(),
-                            ShoppingListsBlockedProductsTable.getTableName(),
-                            VirtualFridgeTable.getTableName(),
-                            ShoppingListsBlockedProductsTable.getSecondColumnName(),
-                            VirtualFridgeTable.getFirstColumnName(),
-                            ShoppingListsBlockedProductsTable.getFirstColumnName(),
-                            shoppingListId);
-
-                    Cursor cursor = menuDataBase.downloadData(query);
-
-                    if(cursor.getCount() > 0){
-                        cursor.moveToPosition(-1);
-                        String whereClause = String.format("%s = ?",
-                                VirtualFridgeTable.getFirstColumnName());
-                        while (cursor.moveToNext()){
-                            String[] args = {String.valueOf(cursor.getInt(0))};
-                            ContentValues editContentValues = new ContentValues();
-                            editContentValues.put(VirtualFridgeTable.getThirdColumnName(),
-                                    cursor.getDouble(1) - cursor.getDouble(2));
-                            result = menuDataBase.update(VirtualFridgeTable.getTableName(),
-                                    editContentValues, whereClause, args) == 1;
-                            if(!result) break;
-                        }
-
-                    }
-                    if (result){
-                        String clause = String.format("%s = ?",
-                                ShoppingListsBlockedProductsTable.getFirstColumnName());
-                        String[] whereArgs = {String.valueOf(shoppingListId)};
-                        menuDataBase.delete(ShoppingListsBlockedProductsTable.getTableName(),
-                                clause, whereArgs);
-                    }
-
-                    menuDataBase.close();
-                    return result;
-                }
-
-                @Override
-                protected void onPostExecute(Boolean result) {
-                    if(result){
-                        shoppingListsFragment.shoppingListDeleteSuccess();
-                        shoppingListsFragment.showShoppingLists(shoppingLists);
-                    }else shoppingListsFragment.shoppingListDeleteFailed();
-                }
-            }.execute();
-        }
-    }
 
     void updateShoppingListName(String shoppingListName) {
         if(shoppingListsFragment != null){

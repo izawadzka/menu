@@ -344,6 +344,13 @@ public class CreateNewDailyMenuManager {
         return amountOfFat;
     }
 
+    public void resetValues() {
+        amountOfProteins = 0;
+        amountOfCarbons = 0;
+        amountOfFat = 0;
+        cumulativeNumberOfKcal = 0;
+    }
+
 
     class LoadFullDetails extends  AsyncTask<DailyMenu, Integer, DailyMenu>{
 

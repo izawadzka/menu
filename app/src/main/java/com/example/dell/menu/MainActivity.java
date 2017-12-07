@@ -11,14 +11,13 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.example.dell.menu.data.backup.Backup;
-import com.example.dell.menu.data.backup.BackupService;
+import com.example.dell.menu.data.backup.InterceptCommunicationService;
 import com.example.dell.menu.data.backup.screens.backupondemand.BackupOnDemandActivity;
 import com.example.dell.menu.data.backup.screens.restore.RestoreBackupActivity;
 import com.example.dell.menu.internetconnection.InternetConnection;
@@ -28,6 +27,7 @@ import com.example.dell.menu.menuplanning.screens.meals.MealsFragment;
 import com.example.dell.menu.menuplanning.screens.menus.MenusFragment;
 import com.example.dell.menu.menuplanning.screens.products.ProductsFragment;
 import com.example.dell.menu.shoppinglist.screens.ShoppingListsFragment;
+import com.example.dell.menu.virtualfridge.ShelvesArchive;
 import com.example.dell.menu.virtualfridge.screens.VirtualFridgeFragment;
 import com.example.dell.menu.user.UserStorage;
 import com.squareup.otto.Bus;
@@ -49,13 +49,16 @@ public class MainActivity extends AppCompatActivity
 
         userStorage = ((App)getApplication()).getUserStorage();
 
-        startService(new Intent(this, BackupService.class));
+        startService(new Intent(this, InterceptCommunicationService.class));
 
         if(userStorage.hasToLogin()){
             startActivity(new Intent(this, LoginActivity.class));
             finish();
             return;
         }
+
+        ShelvesArchive shelvesArchive = new ShelvesArchive(this);
+        shelvesArchive.manageArchive();
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

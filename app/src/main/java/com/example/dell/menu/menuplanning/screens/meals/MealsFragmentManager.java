@@ -42,7 +42,7 @@ public class MealsFragmentManager {
     }
 
 
-    public void loadMeals() {
+    void loadMeals() {
         if(mealsFragment != null){
             new AsyncTask<Void, Void, List<Meal>>(){
                 @Override
@@ -58,19 +58,11 @@ public class MealsFragmentManager {
                     Cursor cursor = menuDataBase.downloadData(query);
 
                     if (cursor.getCount() > 0) {
-                        int mealsId, amountOfKCal, amountOfProteins, amountOfCarbons, amountOfFat;
-                        String name;
                         cursor.moveToPosition(-1);
-
                         while (cursor.moveToNext()) {
-                            mealsId = cursor.getInt(0);
-                            name = cursor.getString(1);
-                            amountOfKCal = cursor.getInt(2);
-                            amountOfProteins = cursor.getInt(3);
-                            amountOfCarbons = cursor.getInt(4);
-                            amountOfFat = cursor.getInt(5);
-                            results.add(new Meal(mealsId, name, amountOfKCal, amountOfProteins,
-                                    amountOfCarbons, amountOfFat));
+                            results.add(new Meal(cursor.getInt(0), cursor.getString(1),
+                                    cursor.getInt(2), cursor.getInt(3),
+                                    cursor.getInt(4), cursor.getInt(5)));
                         }
                     }
 

@@ -90,6 +90,8 @@ public class AddOrEditMealActivity extends AppCompatActivity {
             mealsTypesStates[i] = false;
         }
 
+        clearValues();
+
     }
 
     @Override
@@ -247,7 +249,7 @@ public class AddOrEditMealActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         clearValues();
-        addOrEditMealManager.resetValues();
+        //addOrEditMealManager.resetValues();
     }
 
     public void productDeleteFailed(String name) {
@@ -300,6 +302,7 @@ public class AddOrEditMealActivity extends AppCompatActivity {
         addOrEditMealManager.resetMealsTypesStates();
         addOrEditMealManager.resetEditMode();
         addOrEditMealManager.resetShowMode();
+        addOrEditMealManager.resetValues();
     }
 
     public void updateSuccess() {

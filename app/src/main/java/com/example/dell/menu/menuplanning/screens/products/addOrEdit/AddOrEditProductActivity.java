@@ -3,6 +3,7 @@ package com.example.dell.menu.menuplanning.screens.products.addOrEdit;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -136,6 +137,7 @@ public class AddOrEditProductActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         if (intent.getBooleanExtra(ProductsFragment.SHOW_MODE_KEY, false)) {
+            Log.i("Add", "show mode");
             productId = intent.getIntExtra(ProductsFragment.PRODUCT_ID_KEY, -1);
             if (productId != -1) show_mode = true;
             else {
@@ -155,7 +157,8 @@ public class AddOrEditProductActivity extends AppCompatActivity {
 
         if (show_mode) prepareShowMode();
 
-        addOrEditProductManager.loadProduct(productId);
+        if(show_mode || edit_mode) addOrEditProductManager.loadProduct(productId);
+
     }
 
     private void prepareShowMode() {
@@ -333,6 +336,7 @@ public class AddOrEditProductActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
+        if(show_mode)
         getMenuInflater().inflate(R.menu.menu_edit, menu);
         return true;
     }

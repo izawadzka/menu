@@ -1,24 +1,34 @@
 package com.example.dell.menu.virtualfridge.screens.shelf;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.dell.menu.App;
 import com.example.dell.menu.R;
 import com.example.dell.menu.virtualfridge.objects.ShelfInVirtualFridge;
+import com.example.dell.menu.virtualfridge.screens.AddProductActivity;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import javax.annotation.Nullable;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by Dell on 29.11.2017.
@@ -27,6 +37,7 @@ import butterknife.ButterKnife;
 public class ShelfFragment extends Fragment {
     public static final String SHELF_KEY = "shelf";
     private final static String TAG = "ShelfFragment";
+
     @Bind(R.id.boughtProductsRecyclerView)
     RecyclerView boughtProductsRecyclerView;
     @Bind(R.id.boughtProductsLayout)
@@ -49,6 +60,10 @@ public class ShelfFragment extends Fragment {
     LinearLayout notEatenProductsLayout;
     @Bind(R.id.boughtProductsLabel)
     TextView boughtProductsLabel;
+    @Bind(R.id.addProductsButton)
+    ImageButton addProductsButton;
+    @Bind(R.id.addProductsLayout)
+    LinearLayout addProductsLayout;
     private ShelfInVirtualFridge shelf;
     private ProductsOnTheShelfMainAdapter boughtProductsAdapter;
     private ProductsOnTheShelfAdditionalAdapter productsToBuyAdapter;
@@ -68,13 +83,28 @@ public class ShelfFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, @android.support.annotation.Nullable Bundle savedInstanceState) {
+    public void onViewCreated(final View view, @android.support.annotation.Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         boughtProductsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         boughtProductsAdapter = new ProductsOnTheShelfMainAdapter(((App) getActivity().getApplication())
                 .getBus(), ProductsOnTheShelfMainAdapter.SHOW_MODE_BOUGHT, shelf.getShelfId());
         boughtProductsRecyclerView.setAdapter(boughtProductsAdapter);
+        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(0,
+                ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder,
+                                  RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                boughtProductsAdapter.remove(viewHolder.getAdapterPosition());
+            }
+        };
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
+        itemTouchHelper.attachToRecyclerView(boughtProductsRecyclerView);
 
         productsToBuyRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         productsToBuyAdapter = new ProductsOnTheShelfAdditionalAdapter(((App) getActivity().getApplication())
@@ -115,11 +145,11 @@ public class ShelfFragment extends Fragment {
     private void showProducts() {
         if (!shelf.isArchived()) {
             if (shelf.getBoughtProducts().size() > 0) {
-                if (shelf.isExtraShelf()){
+                if (shelf.isExtraShelf()) {
                     boughtProductsAdapter.setExtraShelf(true);
                     boughtProductsLabel.setText("Content of the extra shelf:");
-                }else boughtProductsAdapter.setExtraShelf(false);
-                    boughtProductsAdapter.setProducts(shelf.getBoughtProducts());
+                } else boughtProductsAdapter.setExtraShelf(false);
+                boughtProductsAdapter.setProducts(shelf.getBoughtProducts());
             } else boughtProductsLayout.setVisibility(View.GONE);
 
             if (shelf.getProductsToBuy().size() > 0)
@@ -136,6 +166,7 @@ public class ShelfFragment extends Fragment {
             if (shelf.getEatenProducts().size() > 0) {
                 eatenProductsAdapter.setProducts(shelf.getEatenProducts());
                 eatenProductsLayout.setVisibility(View.VISIBLE);
+                addProductsLayout.setVisibility(View.GONE);
             }
 
             if (shelf.getNotEatenProducts().size() > 0) {
@@ -155,4 +186,37 @@ public class ShelfFragment extends Fragment {
         ButterKnife.unbind(this);
     }
 
+    @OnClick(R.id.addProductsButton)
+    public void addProductsButtonClicked() {
+        Intent intent = new Intent(getActivity(), AddProductActivity.class);
+        if (!shelf.isExtraShelf()) {
+            intent.putExtra(AddProductActivity.ADD_TO_PRESENT_SHELF, true);
+        } else {
+            intent.putExtra(AddProductActivity.ADD_TO_EXTRA_SHELF, true);
+        }
+        intent.putExtra(AddProductActivity.SHELF_ID, shelf.getShelfId());
+        startActivity(intent);
+    }
+
+    private boolean isArchived(String dailyMenuDateString) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(sdf.parse(dailyMenuDateString));
+        Calendar today = Calendar.getInstance();
+
+        int calendarYear = calendar.get(Calendar.YEAR);
+        int calendarMonth = calendar.get(Calendar.MONTH) + 1;
+        int calendarDay = calendar.get(Calendar.DAY_OF_MONTH);
+
+        int todayYear = today.get(Calendar.YEAR);
+        int todayMonth = today.get(Calendar.MONTH) + 1;
+        int todayDay = today.get(Calendar.DAY_OF_MONTH);
+
+        if (calendarYear < todayYear) return true;
+        else if (calendarYear == todayYear) {
+            if (calendarMonth < todayMonth) return true;
+            else if (calendarMonth == todayMonth && calendarDay < todayDay) return true;
+        }
+        return false;
+    }
 }

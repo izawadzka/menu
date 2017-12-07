@@ -27,18 +27,18 @@ public class AddOrEditProductManager {
     }
 
 
-    public void addNewProduct(String productName, int numberOfKcal, String addedProductType, String storageType, int amountOfProteins, int amountOfCarbos, int amountOfFat) {
+    public void addNewProduct(final String productName, final int numberOfKcal, final String addedProductType, final String storageType, final int amountOfProteins, final int amountOfCarbos, final int amountOfFat) {
         if(addOrEditProductActivity != null){
-            new AsyncTask<String, Void, Long>(){
+            new AsyncTask<Void, Void, Long>(){
                 @Override
-                protected Long doInBackground(String... params) {
+                protected Long doInBackground(Void... params) {
                     MenuDataBase menuDataBase = MenuDataBase.getInstance(addOrEditProductActivity);
 
                     Long result = menuDataBase.insert(ProductsTable.getTableName(),
-                            ProductsTable.getContentValues(new Product(0,params[0],
-                                    Integer.parseInt(params[1]), params[2], params[3],
-                                    Integer.parseInt(params[4]), Integer.parseInt(params[5]),
-                                    Integer.parseInt(params[6]))));
+                            ProductsTable.getContentValues(new Product(0,productName,
+                                    numberOfKcal, addedProductType, storageType,
+                                    amountOfProteins, amountOfCarbos,
+                                    amountOfFat)));
                     menuDataBase.close();
                     return result;
                 }
@@ -53,17 +53,15 @@ public class AddOrEditProductManager {
                         }
                     }
                 }
-            }.execute(productName, String.valueOf(numberOfKcal), addedProductType, storageType,
-                    String.valueOf(amountOfProteins), String.valueOf(amountOfCarbos),
-                    String.valueOf(amountOfFat));
+            }.execute();
             }
     }
 
-    public void setEditMode(boolean editMode) {
+    void setEditMode(boolean editMode) {
         this.editMode = editMode;
     }
 
-    public void loadProduct(int productId) {
+    void loadProduct(int productId) {
         if(addOrEditProductActivity != null){
             new AsyncTask<Integer, Void, Product>(){
                 @Override

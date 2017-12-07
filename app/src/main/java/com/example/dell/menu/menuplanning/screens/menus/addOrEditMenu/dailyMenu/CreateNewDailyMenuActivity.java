@@ -386,7 +386,7 @@ public class CreateNewDailyMenuActivity extends AppCompatActivity {
         manager.setDailyMenuDate(null);
         manager.setEditMode(false);
         manager.setCurrentDailyMenuAndDetails(null);
-        manager.setCumulativeNumberOfKcal(0);
+        manager.resetValues();
 
         amountOfServingsInBreakfastEditText.setText("1");
         amountOfServingsInLunchEditText.setText("1");

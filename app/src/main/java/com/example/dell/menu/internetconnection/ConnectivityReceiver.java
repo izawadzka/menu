@@ -12,15 +12,16 @@ import android.net.NetworkInfo;
  * Created by Dell on 24.10.2017.
  */
 
-public class ConnectivityReceiver extends BroadcastReceiver {
+public class    ConnectivityReceiver extends BroadcastReceiver {
     public static ConnectivityReceiverListener connectivityReceiverListener;
-    private InternetConnection connection=new InternetConnection();;
+    private InternetConnection connection=new InternetConnection();
 
     @Override
     public void onReceive(Context context, Intent intent) {
 
         if (connectivityReceiverListener != null) {
-            connectivityReceiverListener.onNetworkConnectionChanged(connection.checkConnection(context));
+            connectivityReceiverListener
+                    .onNetworkConnectionChanged(connection.checkConnection(context));
         }
     }
 

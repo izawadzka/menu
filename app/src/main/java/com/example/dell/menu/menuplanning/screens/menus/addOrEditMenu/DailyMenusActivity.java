@@ -106,55 +106,12 @@ public class DailyMenusActivity extends AppCompatActivity {
             } else if (item.getItemId() == R.id.action_add_menu) {
                 Intent intent = new Intent(this, CreateNewDailyMenuActivity.class);
                 startActivityForResult(intent, REQUEST_CODE_ADD);
-            }else if(item.getItemId() == R.id.action_mark_daily_menu_as_used){
-                dailyMenusManager.getDailyMenus()
-                        .get(dailyMenusViewPager.getCurrentItem()).setAlreadyUsed(true);
-                dailyMenusManager.setDailyMenuWasUsed(dailyMenusViewPager.getCurrentItem(), true);
-            }else if(item.getItemId() == R.id.action_unmark_daily_menu){
-                dailyMenusManager.getDailyMenus().get(dailyMenusViewPager.getCurrentItem())
-                        .setAlreadyUsed(false);
-                dailyMenusManager.setDailyMenuWasUsed(dailyMenusViewPager.getCurrentItem(), false);
-            }else if(item.getItemId() == R.id.action_synchronize_marked_daily_menus_with_virtual_fridge){
-                synchronizeMarkedDailyMenusWithVirtualFridge();
-            }else if(item.getItemId() == R.id.action_mark_all_daily_menus_as_used){
-                for (int i = 0; i < dailyMenusManager.getDailyMenus().size(); i++) {
-                    dailyMenusManager.getDailyMenus().get(i).setAlreadyUsed(true);
-                    dailyMenusManager.setDailyMenuWasUsed(i, true);
-                }
-
             }
         }
 
         return super.onOptionsItemSelected(item);
     }
 
-    private void synchronizeMarkedDailyMenusWithVirtualFridge() {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-
-        alertDialogBuilder.setTitle("Synchronize with virtual fridge");
-
-        alertDialogBuilder.setMessage("If you synchronize marked daily menus with the fridge, the " +
-                "amount of products from the fridge that are included in those daily menus will be " +
-                "reduced. \n Are you sure you want to do it?")
-                .setCancelable(true)
-                .setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                })
-                .setPositiveButton("YES", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dailyMenusManager.synchronizeMarkedDailyMenusWithVirtualFridge();
-                        dialog.cancel();
-                    }
-                });
-
-        AlertDialog alertDialog = alertDialogBuilder.create();
-
-        alertDialog.show();
-    }
 
     public void makeAStatement(String statement, int duration) {
         Toast.makeText(this, statement, duration).show();

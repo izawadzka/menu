@@ -78,4 +78,5 @@
     <string name="ok">ok</string>
     <string name="from_label">FROM:</string>
     <string name="to_label">TO:</string>
+    <string name="add_products">add products</string>
 </resources>

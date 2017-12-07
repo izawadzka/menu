@@ -7,16 +7,11 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.dell.menu.data.MenuDataBase;
-import com.example.dell.menu.data.backup.Backup;
-import com.example.dell.menu.data.tables.VirtualFridgeTable;
-import com.example.dell.menu.menuplanning.objects.Menu;
 import com.example.dell.menu.shoppinglist.events.DeleteProductFromShoppingListEvent;
 import com.example.dell.menu.shoppinglist.events.QuantityOfProductChangedEvent;
 import com.example.dell.menu.menuplanning.objects.Product;
 import com.example.dell.menu.data.tables.ProductsTable;
 import com.example.dell.menu.data.tables.ShoppingListsProductsTable;
-import com.example.dell.menu.shoppinglist.screens.ProductsAdapter;
-import com.example.dell.menu.shoppinglist.screens.ShowProductsInListActivity;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -236,82 +231,6 @@ public class ShowProductsInListManager {
         }
     }
 
-    public void moveCrossedProductsToVirtualFridge() {
-        if(showProductsInListActivity != null){
-            new AsyncTask<Void, Void, Integer>(){
-
-                @Override
-                protected Integer doInBackground(Void... params) {
-                    MenuDataBase menuDataBase = MenuDataBase.getInstance(showProductsInListActivity);
-
-                    int result = RESULT_OK;
-
-                    String whereClause = String.format("%s = ?",
-                            VirtualFridgeTable.getFirstColumnName());
-
-                    int counter = 0;
-                    String deleteQuery = String.format("%s = ? AND %s = ?",
-                            ShoppingListsProductsTable.getFirstColumnName(),
-                            ShoppingListsProductsTable.getSecondColumnName());
-
-                    for (Product product : productsInShoppingList) {
-                        if(product.isBought()){
-                            counter++;
-                            String[] deleteArgs = {String.valueOf(shoppingListId),
-                                    String.valueOf(product.getProductId())};
-                            String[] whereArgs = {String.valueOf(product.getProductId())};
-                            String query = String.format("SELECT * FROM %s WHERE %s = '%s';",
-                                    VirtualFridgeTable.getTableName(),
-                                    VirtualFridgeTable.getFirstColumnName(),
-                                    product.getProductId());
-                            Cursor cursor = menuDataBase.downloadData(query);
-                            if(cursor.getCount() == 1){
-                                cursor.moveToPosition(0);
-                                ContentValues editContentValues = new ContentValues();
-                                editContentValues.put(VirtualFridgeTable.getSecondColumnName(),
-                                        cursor.getDouble(1) + product.getQuantity());
-                                if(menuDataBase.update(VirtualFridgeTable.getTableName(),
-                                        editContentValues, whereClause, whereArgs) == 1) {
-                                    result = RESULT_OK;
-                                    menuDataBase.delete(ShoppingListsProductsTable.getTableName(),
-                                            deleteQuery, deleteArgs);
-                                }
-                                else result = RESULT_ERROR;
-                            }else if(cursor.getCount() == 0){
-                                if(menuDataBase.insert(VirtualFridgeTable.getTableName(),
-                                        VirtualFridgeTable.getContentValues(product.getProductId(),
-                                                product.getQuantity())) > 0){
-                                    result = RESULT_OK;
-                                    menuDataBase.delete(ShoppingListsProductsTable.getTableName(),
-                                            deleteQuery, deleteArgs);
-                                }
-                                else result = RESULT_ERROR;
-                            }else result = RESULT_ERROR;
-                        }
-                    }
-
-                    if(counter == 0) result = RESULT_EMPTY;
-
-                    menuDataBase.close();
-                    return result;
-                }
-
-                @Override
-                protected void onPostExecute(Integer result) {
-                    if(showProductsInListActivity != null){
-                        if(result == RESULT_OK){
-                            showProductsInListActivity.movingProductsSuccess();
-                            loadProducts();
-                        }
-                        else if(result == RESULT_ERROR)
-                            showProductsInListActivity.movingProductsFailed();
-                        else if(result == RESULT_EMPTY)
-                            showProductsInListActivity.noProductsWereCrossed();
-                    }
-                }
-            }.execute();
-        }
-    }
 
     public void crossAllProducts() {
         for (Product product : productsInShoppingList) {
